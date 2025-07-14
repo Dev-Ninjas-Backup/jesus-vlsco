@@ -25,6 +25,9 @@
     "prisma:format": "npx prisma format",
     "postinstall": "npx prisma generate"
   },
+  "prisma": {
+    "schema": "./prisma"
+  },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",

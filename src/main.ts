@@ -23,8 +23,8 @@ async function bootstrap() {
 
   // * Swagger config
   const config = new DocumentBuilder()
-    .setTitle('Blog API')
-    .setDescription('API docs for blog management backend')
+    .setTitle('Jesus VLSCO')
+    .setDescription('Jesus VLSCO API description')
     .setVersion('1.0')
     .build();
 
