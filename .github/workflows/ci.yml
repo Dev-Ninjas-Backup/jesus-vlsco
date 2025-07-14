@@ -22,16 +22,16 @@ jobs:
           node-version: 22
 
       - name: 📦 Install dependencies
-        run: pnpm install
+        run: npm install
 
       - name: 🧹 Run Lint
-        run: pnpm lint
+        run: npm lint
 
       - name: ✅ Format Check
-        run: pnpm format
+        run: npm format
 
       - name: 🏗 Build Project
-        run: pnpm build
+        run: npm build
 
       # - name: 🔍 Prisma Schema Validation
       #   run: npm prisma:validate
