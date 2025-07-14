@@ -12,8 +12,6 @@ jobs:
     name: 🧪 CI - Lint, Build, Format, Prisma 
     runs-on: ubuntu-latest
 
-    if: github.event_name == 'pull_request'
-
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
@@ -23,11 +21,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: ⬇️ Enable pnpm
-        run: corepack enable && corepack prepare pnpm@latest --activate
-
       - name: 📦 Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install
 
       - name: 🧹 Run Lint
         run: pnpm lint
