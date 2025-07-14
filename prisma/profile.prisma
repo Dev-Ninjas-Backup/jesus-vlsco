@@ -1,0 +1,20 @@
+model Profile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  firstName   String
+  lastName    String
+  gender      String
+  job_title   String
+  department  String
+  address     String
+  country     String
+  nationality String
+  city        String
+  state       String
+  dob         DateTime
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

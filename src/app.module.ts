@@ -2,8 +2,9 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { MailModule } from './mail/mail.module';
-import { PrismaModule } from './prisma/prisma.module';
+import { MailModule } from './lib/mail/mail.module';
+import { PrismaModule } from './lib/prisma/prisma.module';
+import { MainModule } from './main/main.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { PrismaModule } from './prisma/prisma.module';
     }),
     PrismaModule,
     MailModule,
+    MainModule,
   ],
   controllers: [AppController],
   providers: [],
