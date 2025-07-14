@@ -1,0 +1,49 @@
+name: CI-DB-CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  ci:
+    name: 🧪 CI - Lint, Build, Format, Prisma 
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: ⬇️ Enable pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: 📦 Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: 🧹 Run Lint
+        run: pnpm lint
+
+      - name: ✅ Format Check
+        run: pnpm format
+
+      - name: 🏗 Build Project
+        run: pnpm build
+
+      # - name: 🔍 Prisma Schema Validation
+      #   run: npm prisma:validate
+      #   env:
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # - name: 🔄 Generate Prisma Client
+      #   run: pnpm prisma:generate
+      #   env:
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}

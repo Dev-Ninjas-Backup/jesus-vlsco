@@ -1,19 +1,27 @@
 model User {
-  id           String    @id @default(uuid())
-  phone        String
-  employeeID   String
-  email        String
-  role         String
+  id String @id @default(uuid())
+
+  phone        Int?      @unique
+  employeeID   Int?      @unique
+  email        String?   @unique
+  role         UserEnum
   isLogin      Boolean
   lastLoginAt  DateTime?
-  otp          Int
+  otp          String // * real otp hashed and encrypted
   otpExpiresAt DateTime?
-  isVerified   Boolean
-  pinCode      Int
+  isVerified   Boolean   @default(false)
+  pinCode      Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   profile    Profile?
   educations Education[]
+}
+
+enum UserEnum {
+  ADMIN
+  USER
+  EMPLOYEE
+  MANAGER
 }
