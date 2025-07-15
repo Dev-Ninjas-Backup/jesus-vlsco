@@ -1,13 +1,14 @@
 model User {
   id String @id @default(uuid())
 
-  phone        Int?      @unique
-  employeeID   Int?      @unique
-  email        String?   @unique
-  role         UserEnum
-  isLogin      Boolean
+  phone        Int      @unique
+  employeeID   Int      @unique
+  email        String   @unique
+  role         UserEnum  @default(USER)
+  isLogin      Boolean   @default(false)
   lastLoginAt  DateTime?
-  otp          String // * real otp hashed and encrypted
+  password     String?
+  otp          String? // * real otp hashed and encrypted
   otpExpiresAt DateTime?
   isVerified   Boolean   @default(false)
   pinCode      Int?

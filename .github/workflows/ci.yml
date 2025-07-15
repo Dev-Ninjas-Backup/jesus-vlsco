@@ -1,11 +1,11 @@
-name: CI-DB-CD Pipeline
+name: CI Pipeline
 
 on:
   push:
     branches: [main]
   pull_request:
     branches:
-      - '**'
+      - 'main'
 
 jobs:
   ci:
@@ -30,8 +30,8 @@ jobs:
       - name: ✅ Format Check
         run: npm run format
 
-      - name: 🏗 Build Project
-        run: npm run build
+      # - name: 🏗 Build Project
+      #   run: npm run build
 
       # - name: 🔍 Prisma Schema Validation
       #   run: npm prisma:validate

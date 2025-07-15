@@ -19,9 +19,13 @@ services:
       ADMIN_EMAIL: 'arafatmannan9@gmail.com'
       ADMIN_PASS: 'admin1234'
       ADMIN_NAME: 'Arafat'
+      ADMIN_OTP: '123456'
       REDIS_URL: redis://redis:6379
       REDIS_HOST: redis
       REDIS_PORT: 6379
+
+    env_file:
+      - .env
     ports:
       - 5005:5005
     depends_on:
