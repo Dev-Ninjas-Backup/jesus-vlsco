@@ -4,7 +4,7 @@ model User {
   employeeID    Int?      @unique
   email         String?   @unique
   role          UserEnum
-  isLogin       Boolean
+  isLogin       Boolean   @default(false)
   lastLoginAt   DateTime?
   otp           String // * real otp hashed and encrypted
   otpExpiresAt  DateTime?
