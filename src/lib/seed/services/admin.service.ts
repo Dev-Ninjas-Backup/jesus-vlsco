@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ENVEnum } from '@project/common/enum/env.enum';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import chalk from 'chalk';
@@ -17,9 +18,11 @@ export class AdminService implements OnModuleInit {
   }
 
   async seedAdminUser(): Promise<void> {
-    const adminEmail = this.configService.getOrThrow<string>('ADMIN_EMAIL');
-    const adminPass = this.configService.getOrThrow<string>('ADMIN_PASS');
-    const adminOTP = this.configService.getOrThrow<string>('ADMIN_OTP');
+    const adminEmail = this.configService.getOrThrow<string>(
+      ENVEnum.ADMIN_EMAIL,
+    );
+    const adminPass = this.configService.getOrThrow<string>(ENVEnum.ADMIN_PASS);
+    const adminOTP = this.configService.getOrThrow<string>(ENVEnum.ADMIN_OTP);
 
     const adminExists = await this.prisma.user.findFirst({
       where: {
