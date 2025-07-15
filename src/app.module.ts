@@ -1,9 +1,12 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { AppController } from './app.controller';
+import { ENVEnum } from './common/enum/env.enum';
+import { JwtStrategy } from './common/jwt/jwt.strategy';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
-import { MailModule } from './lib/mail/mail.module';
-import { PrismaModule } from './lib/prisma/prisma.module';
+import { LibModule } from './lib/lib.module';
 import { MainModule } from './main/main.module';
 import { MulterModule } from './lib/multer/multer.module';
 
@@ -12,13 +15,26 @@ import { MulterModule } from './lib/multer/multer.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    PrismaModule,
-    MailModule,
+
+    PassportModule,
+
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (config: ConfigService) => ({
+        secret: await config.get(ENVEnum.JWT_SECRET),
+        signOptions: {
+          expiresIn: await config.get(ENVEnum.JWT_EXPIRES_IN),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+
     MainModule,
     MulterModule,
+    LibModule,
   ],
   controllers: [AppController],
-  providers: [],
+  providers: [JwtStrategy],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
