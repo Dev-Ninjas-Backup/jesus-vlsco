@@ -7,8 +7,6 @@ import { ENVEnum } from './common/enum/env.enum';
 import { JwtStrategy } from './common/jwt/jwt.strategy';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LibModule } from './lib/lib.module';
-import { MailModule } from './lib/mail/mail.module';
-import { PrismaModule } from './lib/prisma/prisma.module';
 import { MainModule } from './main/main.module';
 
 @Module({
@@ -30,8 +28,6 @@ import { MainModule } from './main/main.module';
       inject: [ConfigService],
     }),
 
-    PrismaModule,
-    MailModule,
     MainModule,
     LibModule,
   ],
