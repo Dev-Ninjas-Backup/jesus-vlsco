@@ -1,0 +1,15 @@
+model Experience {
+    id                 String @id @default(uuid())
+    designation        String
+    companyName        String
+    jobTitle           JopTitle
+    startDate          DateTime
+    endDate            DateTime
+    description        String
+    isCurrentlyWorking Boolean
+    createdAt          DateTime @default(now())
+    updatedAt          DateTime @updatedAt
+
+    userId String @unique
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

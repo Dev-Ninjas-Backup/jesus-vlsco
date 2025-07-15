@@ -8,6 +8,7 @@ import { JwtStrategy } from './common/jwt/jwt.strategy';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LibModule } from './lib/lib.module';
 import { MainModule } from './main/main.module';
+import { MulterModule } from './lib/multer/multer.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { MainModule } from './main/main.module';
     }),
 
     MainModule,
+    MulterModule,
     LibModule,
   ],
   controllers: [AppController],
