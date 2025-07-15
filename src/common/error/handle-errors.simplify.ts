@@ -23,7 +23,7 @@ export function simplifyError(
   }
 
   if (error instanceof AppError) {
-    switch (error.statusCode) {
+    switch (error.code) {
       case 400:
         throw new BadRequestException(error.message);
       case 401:
