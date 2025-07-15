@@ -5,6 +5,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { MailModule } from './lib/mail/mail.module';
 import { PrismaModule } from './lib/prisma/prisma.module';
 import { MainModule } from './main/main.module';
+import { MulterModule } from './lib/multer/multer.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MainModule } from './main/main.module';
     PrismaModule,
     MailModule,
     MainModule,
+    MulterModule,
   ],
   controllers: [AppController],
   providers: [],

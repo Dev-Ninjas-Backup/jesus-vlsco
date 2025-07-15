@@ -13,19 +13,30 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // * removes unexpected fields
-      forbidNonWhitelisted: true, // * throws error if unknown field is present
-      transform: true, // * auto-transform payloads to DTO instances
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // * Swagger config
+  // ✅ Swagger config with Bearer Auth
   const config = new DocumentBuilder()
     .setTitle('Jesus VLSCO')
     .setDescription('Jesus VLSCO API description')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'token', // <- security name
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
