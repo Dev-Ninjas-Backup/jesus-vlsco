@@ -9,9 +9,9 @@ import { Readable } from 'stream';
 export class CloudinaryService {
   constructor(private readonly configService: ConfigService) {
     cloudinary.config({
-      cloud_name: this.configService.get<string>(ENVEnum.CLOUDINARY_CLOUD_NAME),
-      api_key: this.configService.get<string>(ENVEnum.CLOUDINARY_API_KEY),
-      api_secret: this.configService.get<string>(ENVEnum.CLOUDINARY_API_SECRET),
+      cloud_name: this.configService.getOrThrow<string>(ENVEnum.CLOUDINARY_CLOUD_NAME),
+      api_key: this.configService.getOrThrow<string>(ENVEnum.CLOUDINARY_API_KEY),
+      api_secret: this.configService.getOrThrow<string>(ENVEnum.CLOUDINARY_API_SECRET),
     });
   }
 
