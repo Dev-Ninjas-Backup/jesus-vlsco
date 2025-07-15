@@ -37,6 +37,7 @@ export class AdminService implements OnModuleInit {
           email: adminEmail,
           password: await this.utils.hash(adminPass),
           otp: await this.utils.hash(adminOTP),
+          otpExpiresAt: this.utils.generateOtpAndExpiry().expiryTime,
           isLogin: true,
           lastLoginAt: new Date(),
           role: 'ADMIN',
@@ -58,6 +59,7 @@ export class AdminService implements OnModuleInit {
       data: {
         isLogin: true,
         lastLoginAt: new Date(),
+        otpExpiresAt: this.utils.generateOtpAndExpiry().expiryTime,
       },
     });
     console.info(

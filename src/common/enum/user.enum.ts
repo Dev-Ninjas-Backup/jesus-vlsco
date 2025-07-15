@@ -1,6 +1,6 @@
 export enum UserEnum {
-  User = 'USER',
-  Admin = 'ADMIN',
-  Employee = 'EMPLOYEE',
-  Manager = 'MANAGER',
+  USER = 'USER',
+  ADMIN = 'ADMIN',
+  EMPLOYEE = 'EMPLOYEE',
+  MANAGER = 'MANAGER',
 }
