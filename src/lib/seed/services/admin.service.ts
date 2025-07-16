@@ -35,10 +35,13 @@ export class AdminService implements OnModuleInit {
       const user = await this.prisma.user.create({
         data: {
           email: adminEmail,
+          employeeID: 12345,
+          phone: 123456789,
           password: await this.utils.hash(adminPass),
           otp: await this.utils.hash(adminOTP),
           otpExpiresAt: this.utils.generateOtpAndExpiry().expiryTime,
           isLogin: true,
+          isVerified: true,
           lastLoginAt: new Date(),
           role: 'ADMIN',
         },

@@ -13,15 +13,15 @@ import { AddProfileInput } from './add-profile-info.dto';
 export class AddUserDto {
   @IsOptional()
   @IsInt()
-  phone?: number;
+  phone: number;
 
   @IsOptional()
   @IsInt()
-  employeeID?: number;
+  employeeID: number;
 
   @IsOptional()
   @IsEmail()
-  email?: string;
+  email: string;
 
   @IsEnum(UserEnum)
   role: UserEnum;

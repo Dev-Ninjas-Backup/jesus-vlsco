@@ -5,53 +5,101 @@ import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
+import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { EmailLoginDto } from './dto/email-login.dto';
+import { HandleErrors } from '@project/common/error/handle-errors.decorator';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
+    private readonly mailService: MailService,
   ) {}
 
+  @HandleErrors('Error sending OTP')
   async emailLogin(dto: EmailLoginDto): Promise<TResponse<any>> {
-    // * find user by email
     const user = await this.prisma.user.findUnique({
-      where: {
-        email: dto.email,
-      },
+      where: { email: dto.email },
     });
 
-    // * if user not found
     if (!user) {
       throw new AppError(404, ErrorMessages['USER_NOT_FOUND'](dto.email));
     }
-    // * if user found
+
     const { otp, expiryTime } = this.utils.generateOtpAndExpiry();
 
-    const token = this.utils.generateToken({
-      email: dto.email,
-      roles: user.role,
-      sub: user.id,
-    });
-
-    // * update user otp
     await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
+      where: { id: user.id },
       data: {
         otp: await this.utils.hash(otp.toString()),
         otpExpiresAt: expiryTime,
       },
     });
 
-    return successResponse({ token });
+    // Send OTP to user's email
+    await this.mailService.sendLoginCodeEmail(user.email, otp.toString());
+
+    return successResponse(null, 'OTP sent successfully');
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
+  @HandleErrors('Error verifying OTP')
+  async verifyOTP(email: string, otp: number): Promise<TResponse<any>> {
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      throw new AppError(404, ErrorMessages['USER_NOT_FOUND'](email));
+    }
+
+    if (!user.otp || !user.otpExpiresAt) {
+      throw new AppError(400, 'No OTP was requested.');
+    }
+
+    // Check if OTP expired
+    if (new Date() > user.otpExpiresAt) {
+      throw new AppError(400, 'OTP has expired.');
+    }
+
+    const isMatch = await this.utils.compare(otp.toString(), user.otp);
+
+    if (!isMatch) {
+      throw new AppError(401, 'Invalid OTP');
+    }
+
+    // Clear OTP fields for security & update login status
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        otp: null,
+        otpExpiresAt: null,
+        isLogin: true,
+        isVerified: true,
+        lastLoginAt: new Date(),
+      },
+    });
+
+    const token = this.utils.generateToken({
+      email: user.email,
+      roles: user.role,
+      sub: user.id,
+    });
+
+    return successResponse(
+      {
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          employeeID: updatedUser.employeeID,
+          phone: updatedUser.phone,
+          role: updatedUser.role,
+          token,
+        },
+      },
+      'Login successful',
+    );
   }
 }

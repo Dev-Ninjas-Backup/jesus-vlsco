@@ -1,18 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { EmailLoginDto } from './dto/email-login.dto';
+import { VerifyOTPDto } from './dto/verify-otp.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
-  emailLogin(dto: EmailLoginDto) {
+  @Post('login/email')
+  emailLogin(@Body() dto: EmailLoginDto) {
     return this.authService.emailLogin(dto);
   }
 
-  // @Get(':id')
-  // verifyOTP()  {
-  //   return this.authService.findOne();
-  // }
+  @Post('verify/email')
+  verifyOtp(@Body() dto: VerifyOTPDto) {
+    return this.authService.verifyOTP(dto.email, dto.otp);
+  }
 }
