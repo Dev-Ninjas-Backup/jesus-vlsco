@@ -6,6 +6,7 @@ model User {
   role          UserEnum
   isLogin       Boolean   @default(false)
   lastLoginAt   DateTime?
+  password      String?
   otp           String // * real otp hashed and encrypted
   otpExpiresAt  DateTime?
   isVerified    Boolean   @default(false)

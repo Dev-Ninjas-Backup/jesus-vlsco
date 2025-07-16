@@ -7,7 +7,14 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { MulterModule } from './multer/multer.module';
 
 @Module({
-  imports: [SeedModule, PrismaModule, MailModule, UtilsModule, CloudinaryModule,MulterModule],
+  imports: [
+    SeedModule,
+    PrismaModule,
+    MailModule,
+    UtilsModule,
+    CloudinaryModule,
+    MulterModule,
+  ],
   exports: [],
   providers: [],
 })

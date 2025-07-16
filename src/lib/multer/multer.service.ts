@@ -3,13 +3,14 @@ import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { v4 as uuid } from 'uuid';
+import * as fs from 'fs';
 
 export enum FileType {
   IMAGE = 'image',
   DOCUMENT = 'document',
   VIDEO = 'video',
   AUDIO = 'audio',
-  ANY = 'any'
+  ANY = 'any',
 }
 
 export interface MultipleFileOptions {
@@ -23,23 +24,40 @@ export interface MultipleFileOptions {
 
 type SupportedFileType = Exclude<FileType, FileType.ANY>;
 
-
 @Injectable()
 export class MulterService {
-    private mimeTypesMap: Record<SupportedFileType, string[]> = {
-      [FileType.IMAGE]: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'],
-      [FileType.DOCUMENT]: [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'text/plain',
-        'text/csv',
-      ],
-      [FileType.VIDEO]: ['video/mp4', 'video/webm', 'video/ogg', 'video/avi', 'video/quicktime'],
-      [FileType.AUDIO]: ['audio/mpeg', 'audio/ogg', 'audio/wav', 'audio/mp3', 'audio/aac'],
-    };
+  private mimeTypesMap: Record<SupportedFileType, string[]> = {
+    [FileType.IMAGE]: [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/svg+xml',
+    ],
+    [FileType.DOCUMENT]: [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/plain',
+      'text/csv',
+    ],
+    [FileType.VIDEO]: [
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'video/avi',
+      'video/quicktime',
+    ],
+    [FileType.AUDIO]: [
+      'audio/mpeg',
+      'audio/ogg',
+      'audio/wav',
+      'audio/mp3',
+      'audio/aac',
+    ],
+  };
 
   // Single file upload (existing method)
   public createMulterOptions(
@@ -69,17 +87,16 @@ export class MulterService {
         if (!allowedMimeTypes || allowedMimeTypes.includes(file.mimetype)) {
           cb(null, true);
         } else {
-          cb(
-            new Error(`Unsupported file type: ${file.mimetype}`),
-            false,
-          );
+          cb(new Error(`Unsupported file type: ${file.mimetype}`), false);
         }
       },
     };
   }
 
   // Multiple file upload method
-  public createMultipleFileOptions(options: MultipleFileOptions): MulterOptions {
+  public createMultipleFileOptions(
+    options: MultipleFileOptions,
+  ): MulterOptions {
     const {
       destinationFolder,
       prefix,
@@ -112,7 +129,9 @@ export class MulterService {
           cb(null, true);
         } else {
           cb(
-            new Error(`Unsupported file type: ${file.mimetype}. Allowed types: ${allowedMimeTypes.join(', ')}`),
+            new Error(
+              `Unsupported file type: ${file.mimetype}. Allowed types: ${allowedMimeTypes.join(', ')}`,
+            ),
             false,
           );
         }
@@ -120,43 +139,49 @@ export class MulterService {
     };
   }
 
-  
   // Helper method to get allowed extensions for a file type
   public getAllowedExtensions(fileType: FileType): string[] {
-  const allMimeTypes = Object.values(this.mimeTypesMap).flat();
-  const mimeTypes = fileType === FileType.ANY ? allMimeTypes : this.mimeTypesMap[fileType as SupportedFileType] || [];
+    const allMimeTypes = Object.values(this.mimeTypesMap).flat();
+    const mimeTypes =
+      fileType === FileType.ANY
+        ? allMimeTypes
+        : this.mimeTypesMap[fileType as SupportedFileType] || [];
 
-  const extensionMap: Record<string, string> = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-    'image/gif': '.gif',
-    'image/svg+xml': '.svg',
-    'application/pdf': '.pdf',
-    'application/msword': '.doc',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-    'application/vnd.ms-excel': '.xls',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
-    'text/plain': '.txt',
-    'text/csv': '.csv',
-    'video/mp4': '.mp4',
-    'video/webm': '.webm',
-    'video/ogg': '.ogv',
-    'video/avi': '.avi',
-    'video/quicktime': '.mov',
-    'audio/mpeg': '.mp3',
-    'audio/ogg': '.ogg',
-    'audio/wav': '.wav',
-    'audio/mp3': '.mp3',
-    'audio/aac': '.aac',
-  };
+    const extensionMap: Record<string, string> = {
+      'image/jpeg': '.jpg',
+      'image/png': '.png',
+      'image/webp': '.webp',
+      'image/gif': '.gif',
+      'image/svg+xml': '.svg',
+      'application/pdf': '.pdf',
+      'application/msword': '.doc',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        '.docx',
+      'application/vnd.ms-excel': '.xls',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+        '.xlsx',
+      'text/plain': '.txt',
+      'text/csv': '.csv',
+      'video/mp4': '.mp4',
+      'video/webm': '.webm',
+      'video/ogg': '.ogv',
+      'video/avi': '.avi',
+      'video/quicktime': '.mov',
+      'audio/mpeg': '.mp3',
+      'audio/ogg': '.ogg',
+      'audio/wav': '.wav',
+      'audio/mp3': '.mp3',
+      'audio/aac': '.aac',
+    };
 
-  return mimeTypes.map(mimeType => extensionMap[mimeType]).filter(Boolean);
-}
-
+    return mimeTypes.map((mimeType) => extensionMap[mimeType]).filter(Boolean);
+  }
 
   // Helper method to validate file count
-  public validateFileCount(files: Express.Multer.File[], maxCount: number): boolean {
+  public validateFileCount(
+    files: Express.Multer.File[],
+    maxCount: number,
+  ): boolean {
     return files && files.length > 0 && files.length <= maxCount;
   }
 
@@ -166,20 +191,23 @@ export class MulterService {
   }
 
   // Helper method to validate total file size
-  public validateTotalFileSize(files: Express.Multer.File[], maxTotalSize: number): boolean {
+  public validateTotalFileSize(
+    files: Express.Multer.File[],
+    maxTotalSize: number,
+  ): boolean {
     return this.getTotalFileSize(files) <= maxTotalSize;
   }
 
   // Helper method to create upload path
   public createUploadPath(baseFolder: string, subFolder?: string): string {
-    const uploadPath = subFolder ? path.join(baseFolder, subFolder) : baseFolder;
-    
-    // Ensure directory exists
-    const fs = require('fs');
+    const uploadPath = subFolder
+      ? path.join(baseFolder, subFolder)
+      : baseFolder;
+
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath, { recursive: true });
     }
-    
+
     return uploadPath;
   }
 }

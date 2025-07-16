@@ -7,6 +7,11 @@ import { UserService } from './services/add-profile-info.service';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService, AddEducationService, AddExperienceService, AddPayrollService]
+  providers: [
+    UserService,
+    AddEducationService,
+    AddExperienceService,
+    AddPayrollService,
+  ],
 })
 export class UserModule {}

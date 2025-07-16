@@ -1,6 +1,19 @@
-import { Body, Controller, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserEnum } from '@project/common/enum/user.enum';
 import { Roles } from '@project/common/jwt/jwt-roles.decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -10,16 +23,10 @@ import { UserService } from './services/add-profile-info.service';
 @ApiTags('Admin')
 @Controller('admin')
 @UseGuards(AuthGuard('jwt'))
-@Roles(UserEnum.Admin)
+@Roles(UserEnum.ADMIN)
 @ApiBearerAuth()
-
-
-
 export class UserController {
-
-  constructor(private readonly addProfileInfo:UserService) {
-    
-  }
+  constructor(private readonly addProfileInfo: UserService) {}
 
   //user profile data saving into db
   @Post('user/add-profile-into')
@@ -35,8 +42,9 @@ export class UserController {
   async addProfile(
     @UploadedFile() pic: Express.Multer.File,
     @Body() addProfileDto: AddUserDto,
-){
-    const result = await this.addProfileInfo.createUserWithProfile(addProfileDto);
+  ) {
+    const result =
+      await this.addProfileInfo.createUserWithProfile(addProfileDto);
     return result;
   }
 }

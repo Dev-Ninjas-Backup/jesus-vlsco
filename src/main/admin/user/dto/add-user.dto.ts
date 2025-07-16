@@ -1,4 +1,11 @@
-import { IsBoolean, IsEmail, IsEnum, IsIn, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { UserEnum } from '@prisma/client';
 import { AddProfileInput } from './add-profile-info.dto';
