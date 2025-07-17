@@ -3,10 +3,8 @@ import {
   Controller,
   Post,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -15,17 +13,14 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { UserEnum } from '@project/common/enum/user.enum';
-import { Roles } from '@project/common/jwt/jwt.decorator';
-import { RolesGuard } from '@project/common/jwt/jwt.guard';
+import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AddUserDto } from '../dto/add-user.dto';
 import { AddUserService } from '../services/add-user.service';
 
 @ApiTags('Admin')
 @Controller('admin/user')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-@Roles(UserEnum.ADMIN)
+@ValidateAdmin()
 @ApiBearerAuth()
 export class AddUserController {
   constructor(
