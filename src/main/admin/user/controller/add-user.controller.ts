@@ -16,8 +16,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { UserEnum } from '@project/common/enum/user.enum';
-import { Roles } from '@project/common/jwt/jwt-roles.decorator';
-import { RolesGuard } from '@project/common/jwt/jwt-roles.guard';
+import { Roles } from '@project/common/jwt/jwt.decorator';
+import { RolesGuard } from '@project/common/jwt/jwt.guard';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AddUserDto } from '../dto/add-user.dto';
 import { AddUserService } from '../services/add-user.service';

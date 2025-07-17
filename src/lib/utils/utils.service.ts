@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { JWTPayload } from '@project/common/jwt/jwt-payload.interface';
+import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 

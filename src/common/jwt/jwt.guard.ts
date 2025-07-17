@@ -5,9 +5,13 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
 import { UserEnum } from '../enum/user.enum';
-import { ROLES_KEY } from './jwt-roles.decorator';
-import { RequestWithUser } from './jwt-user.interface';
+import { ROLES_KEY } from './jwt.decorator';
+import { RequestWithUser } from './jwt.interface';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
 
 @Injectable()
 export class RolesGuard implements CanActivate {
