@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { AppError } from './handle-errors.app';
+import { AppError } from './handle-error.app';
 
 export function simplifyError(
   error: Error,

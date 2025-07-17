@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -10,6 +11,7 @@ import { AddUserDto } from '../dto/add-user.dto';
 export class AddUserService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Error creating user')
   async createUserWithProfile(
     dto: AddUserDto,
     uploadedUrl: string,

@@ -1,6 +1,6 @@
-import { simplifyError } from './handle-errors.simplify';
+import { simplifyError } from './handle-error.simplify';
 
-export function HandleErrors(customMessage?: string, record?: string) {
+export function HandleError(customMessage?: string, record?: string) {
   return function <T>(
     _target: T,
     _propertyName: string,

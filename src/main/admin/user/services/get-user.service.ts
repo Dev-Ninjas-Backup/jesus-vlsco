@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserResponseDto } from '@project/common/dto/user-response.dto';
-import { AppError } from '@project/common/error/handle-errors.app';
+import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -56,18 +57,22 @@ export class GetUserService {
     return successResponse(data, 'User data fetched successfully');
   }
 
+  @HandleError('Failed to fetch user data by ID')
   async getUserById(id: string): Promise<TResponse<any>> {
     return this.findUserBy('id', id);
   }
 
+  @HandleError('Failed to fetch user data by email')
   async getUserByEmail(email: string): Promise<TResponse<any>> {
     return this.findUserBy('email', email);
   }
 
+  @HandleError('Failed to fetch user data by phone')
   async getUserByPhone(phone: string): Promise<TResponse<any>> {
     return this.findUserBy('phone', phone);
   }
 
+  @HandleError('Failed to fetch user data by employee ID')
   async getUserByEmployeeID(employeeID: number): Promise<TResponse<any>> {
     return this.findUserBy('employeeID', employeeID);
   }

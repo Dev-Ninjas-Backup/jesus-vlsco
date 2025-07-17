@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserResponseDto } from '@project/common/dto/user-response.dto';
-import { AppError } from '@project/common/error/handle-errors.app';
-import { HandleErrors } from '@project/common/error/handle-errors.decorator';
+import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -21,7 +21,7 @@ export class AuthService {
     private readonly firebaseService: FirebaseService,
   ) {}
 
-  @HandleErrors('Error sending OTP')
+  @HandleError('Error sending OTP')
   async emailLogin(dto: EmailLoginDto): Promise<TResponse<any>> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
@@ -47,7 +47,7 @@ export class AuthService {
     return successResponse(null, 'OTP sent successfully');
   }
 
-  @HandleErrors('Error verifying OTP')
+  @HandleError('Error verifying OTP')
   async verifyOTP(email: string, otp: number): Promise<TResponse<any>> {
     const user = await this.prisma.user.findUnique({
       where: { email },
@@ -96,7 +96,7 @@ export class AuthService {
     return successResponse(data, 'Login successful');
   }
 
-  @HandleErrors('Phone login error')
+  @HandleError('Phone login error')
   async phoneLogin(firebaseIdToken: string): Promise<TResponse<any>> {
     const decoded = await this.firebaseService.verifyIdToken(firebaseIdToken);
 
