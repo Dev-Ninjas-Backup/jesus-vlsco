@@ -1,23 +1,23 @@
 model User {
-  id            String @id @default(uuid())
-  phone         BigInt     @unique
-  employeeID    Int      @unique
-  email         String   @unique
-  role          UserEnum
-  isLogin       Boolean   @default(false)
-  lastLoginAt   DateTime?
-  password      String?
-  otp           String? // * real otp hashed and encrypted
-  otpExpiresAt  DateTime?
-  isVerified    Boolean   @default(false)
-  pinCode       Int?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String    @id @default(uuid())
+  phone        String    @unique
+  employeeID   Int       @unique
+  email        String    @unique
+  role         UserEnum
+  isLogin      Boolean   @default(false)
+  lastLoginAt  DateTime?
+  password     String?
+  otp          String? // * real otp hashed and encrypted
+  otpExpiresAt DateTime?
+  isVerified   Boolean   @default(false)
+  pinCode      Int?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  profile       Profile?
-  payroll       Payroll?
-  educations    Education[]
-  experience    Experience[]
+  profile    Profile?
+  payroll    Payroll?
+  educations Education[]
+  experience Experience[]
 }
 
 enum UserEnum {

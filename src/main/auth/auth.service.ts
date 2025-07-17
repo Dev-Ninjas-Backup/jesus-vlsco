@@ -90,19 +90,7 @@ export class AuthService {
       sub: user.id,
     });
 
-    return successResponse(
-      {
-        user: {
-          id: updatedUser.id,
-          email: updatedUser.email,
-          employeeID: updatedUser.employeeID,
-          phone: updatedUser.phone,
-          role: updatedUser.role,
-          token,
-        },
-      },
-      'Login successful',
-    );
+    return successResponse({ user: updatedUser, token }, 'Login successful');
   }
 
   @HandleErrors('Phone login error')
@@ -113,8 +101,10 @@ export class AuthService {
       throw new AppError(400, 'Phone number not found in token');
     }
 
+    const normalized = decoded.phone_number.replace(/^\+/, ''); // strips '+'
+
     const user = await this.prisma.user.findUnique({
-      where: { phone: Number(decoded.phone_number) },
+      where: { phone: normalized },
     });
 
     if (!user) {
@@ -133,23 +123,11 @@ export class AuthService {
     });
 
     const token = this.utils.generateToken({
-      email: user.email ?? '',
+      email: user.email,
       roles: user.role,
       sub: user.id,
     });
 
-    return successResponse(
-      {
-        user: {
-          id: updatedUser.id,
-          email: updatedUser.email,
-          employeeID: updatedUser.employeeID,
-          phone: updatedUser.phone,
-          role: updatedUser.role,
-          token,
-        },
-      },
-      'Phone login successful',
-    );
+    return successResponse({ user: updatedUser, token }, 'Login successful');
   }
 }

@@ -36,7 +36,7 @@ export class AdminService implements OnModuleInit {
         data: {
           email: adminEmail,
           employeeID: 12345,
-          phone: 123456789,
+          phone: '8801405663070',
           password: await this.utils.hash(adminPass),
           otp: await this.utils.hash(adminOTP),
           otpExpiresAt: this.utils.generateOtpAndExpiry().expiryTime,

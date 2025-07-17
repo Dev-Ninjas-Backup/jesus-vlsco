@@ -1,19 +1,20 @@
+import { UserEnum } from '@prisma/client';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
   IsEnum,
   IsInt,
   IsOptional,
+  IsString,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { UserEnum } from '@prisma/client';
 import { AddProfileInput } from './add-profile-info.dto';
 
 export class AddUserDto {
   @IsOptional()
-  @IsInt()
-  phone: number;
+  @IsString()
+  phone: string;
 
   @IsOptional()
   @IsInt()
