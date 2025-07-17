@@ -1,44 +1,90 @@
-import { UserEnum } from '@prisma/client';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
-  IsBoolean,
+  IsDate,
   IsEmail,
   IsEnum,
   IsInt,
   IsOptional,
   IsString,
-  ValidateNested,
 } from 'class-validator';
-import { AddProfileInput } from './add-profile-info.dto';
 
 export class AddUserDto {
-  @IsOptional()
+  @ApiProperty({ example: '8801234567890' })
   @IsString()
   phone: string;
 
-  @IsOptional()
+  @ApiProperty({ example: 1001 })
+  @Type(() => Number)
   @IsInt()
   employeeID: number;
 
-  @IsOptional()
+  @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
   email: string;
 
+  @ApiProperty({ enum: UserEnum, example: UserEnum.EMPLOYEE })
   @IsEnum(UserEnum)
   role: UserEnum;
 
-  @IsBoolean()
-  isLogin: boolean;
-
+  @ApiPropertyOptional({ example: 'strongpassword123' })
   @IsOptional()
-  @IsBoolean()
-  isVerified?: boolean;
+  @IsString()
+  password?: string;
 
+  @ApiPropertyOptional({ example: 1234 })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  pinCode: number;
+  pinCode?: number;
 
-  @ValidateNested()
-  @Type(() => AddProfileInput)
-  profile: AddProfileInput;
+  // Profile fields
+  @ApiProperty({ example: 'John' })
+  @IsString()
+  firstName: string;
+
+  @ApiPropertyOptional({ example: 'Doe' })
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @ApiProperty({ enum: Gender })
+  @IsEnum(Gender)
+  gender: Gender;
+
+  @ApiProperty({ enum: JopTitle })
+  @IsEnum(JopTitle)
+  jobTitle: JopTitle;
+
+  @ApiProperty({ enum: Department })
+  @IsEnum(Department)
+  department: Department;
+
+  @ApiProperty()
+  @IsString()
+  address: string;
+
+  @ApiProperty()
+  @IsString()
+  city: string;
+
+  @ApiProperty()
+  @IsString()
+  state: string;
+
+  @ApiProperty()
+  @Type(() => Date)
+  @IsDate()
+  dob: Date;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  nationality?: string;
 }

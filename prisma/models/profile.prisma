@@ -2,17 +2,17 @@ model Profile {
   id String @id @default(uuid())
 
   firstName   String
-  lastName    String
-  profileUrl  String
+  lastName    String?
+  profileUrl  String?
   gender      Gender
   jobTitle    JopTitle
-  department  String
+  department  Department
   address     String
   city        String
   state       String
   dob         DateTime
-  country     String
-  nationality String
+  country     String?
+  nationality String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -38,4 +38,15 @@ enum JopTitle {
   DATA_SCIENTIST
   DATA_ANALYST
   DATA_ENGINEER
+  HR_MANAGER
+  FINANCE_MANAGER
+  MARKETING_MANAGER
+}
+
+enum Department {
+  IT
+  DEVELOPMENT
+  HR
+  FINANCE
+  MARKETING
 }

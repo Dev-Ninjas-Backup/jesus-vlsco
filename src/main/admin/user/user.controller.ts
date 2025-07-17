@@ -10,15 +10,15 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiConsumes,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { UserEnum } from '@project/common/enum/user.enum';
 import { Roles } from '@project/common/jwt/jwt-roles.decorator';
 import { RolesGuard } from '@project/common/jwt/jwt-roles.guard';
-import { FileType, MulterService } from '@project/lib/multer/multer.service';
+import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AddUserDto } from './dto/add-user.dto';
 import { UserService } from './services/add-profile-info.service';
 
@@ -28,25 +28,42 @@ import { UserService } from './services/add-profile-info.service';
 @Roles(UserEnum.ADMIN)
 @ApiBearerAuth()
 export class UserController {
-  constructor(private readonly addProfileInfo: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-  //user profile data saving into db
-  @Post('user/add-profile-into')
-  @ApiOperation({ summary: 'Create a new user profile' })
-  @ApiResponse({ status: 201, description: 'Profile created successfully.' })
-  @UseInterceptors(
-    FileInterceptor(
-      'pic',
-      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
-    ),
-  )
-  @ApiConsumes('multipart/form-data', 'application/json')
-  async addProfile(
-    @UploadedFile() pic: Express.Multer.File,
-    @Body() addProfileDto: AddUserDto,
+  @Post()
+  @ApiOperation({ summary: 'Create a new user with profile photo' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'User creation form data with profile image',
+    schema: {
+      type: 'object',
+      properties: {
+        ...require('./dto/add-user.swagger').swaggerSchema.properties,
+        profileUrl: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('profileUrl'))
+  async createUser(
+    @Body() dto: AddUserDto,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    const result =
-      await this.addProfileInfo.createUserWithProfile(addProfileDto);
-    return result;
+    // * upload file to Cloudinary
+    const uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
+      file.buffer,
+      file.originalname,
+    );
+
+    // * save user with uploaded profileUrl
+    return {
+      message: 'User created successfully',
+      data: { ...dto, profileUrl: uploadedUrl },
+    };
   }
 }
