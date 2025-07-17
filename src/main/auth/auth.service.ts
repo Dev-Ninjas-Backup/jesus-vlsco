@@ -11,6 +11,7 @@ import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { EmailLoginDto } from './dto/email-login.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -84,13 +85,16 @@ export class AuthService {
       },
     });
 
-    const token = this.utils.generateToken({
-      email: user.email,
-      roles: user.role,
-      sub: user.id,
-    });
+    const data = {
+      user: this.utils.sanitizedResponse(UserResponseDto, updatedUser),
+      token: this.utils.generateToken({
+        email: user.email,
+        roles: user.role,
+        sub: user.id,
+      }),
+    };
 
-    return successResponse({ user: updatedUser, token }, 'Login successful');
+    return successResponse(data, 'Login successful');
   }
 
   @HandleErrors('Phone login error')
@@ -122,12 +126,15 @@ export class AuthService {
       },
     });
 
-    const token = this.utils.generateToken({
-      email: user.email,
-      roles: user.role,
-      sub: user.id,
-    });
+    const data = {
+      user: this.utils.sanitizedResponse(UserResponseDto, updatedUser),
+      token: this.utils.generateToken({
+        email: user.email,
+        roles: user.role,
+        sub: user.id,
+      }),
+    };
 
-    return successResponse({ user: updatedUser, token }, 'Login successful');
+    return successResponse(data, 'Login successful');
   }
 }

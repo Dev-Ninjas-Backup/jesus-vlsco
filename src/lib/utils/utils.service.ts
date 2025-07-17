@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { JWTPayload } from '@project/common/jwt/jwt-payload.interface';
 import * as bcrypt from 'bcrypt';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class UtilsService {
@@ -36,5 +37,9 @@ export class UtilsService {
     const expiryTime = new Date();
     expiryTime.setMinutes(expiryTime.getMinutes() + 10);
     return { otp, expiryTime };
+  }
+
+  sanitizedResponse(sto: any, data: any) {
+    return plainToInstance(sto, data, { excludeExtraneousValues: true });
   }
 }
