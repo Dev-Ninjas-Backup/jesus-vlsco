@@ -12,7 +12,6 @@ import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import {
   EducationDto,
   EducationItemDto,
-  UpdateEducationDto,
   UpdateEducationItemDto,
 } from '../dto/education.dto';
 import { EducationService } from '../services/education.service';

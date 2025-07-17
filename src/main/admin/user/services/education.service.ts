@@ -100,7 +100,7 @@ export class EducationService {
 
     for (const item of dto.educations) {
       const edu = await this.prisma.education.updateMany({
-        where: {  userId },
+        where: { userId },
         data: {
           program: item.program,
           institution: item.institution,
