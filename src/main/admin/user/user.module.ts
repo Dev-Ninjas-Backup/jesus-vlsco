@@ -5,15 +5,18 @@ import { AddEducationService } from './services/add-education.service';
 import { AddExperienceService } from './services/add-experience.service';
 import { AddPayrollService } from './services/add-payroll.service';
 import { AddUserService } from './services/add-user.service';
+import { GetUserService } from './services/get-user.service';
+import { GetUserController } from './controller/get-user.controller';
 
 @Module({
-  controllers: [AddUserController],
+  controllers: [AddUserController, GetUserController],
   providers: [
     AddUserService,
     AddEducationService,
     AddExperienceService,
     AddPayrollService,
     CloudinaryService,
+    GetUserService,
   ],
 })
 export class UserModule {}

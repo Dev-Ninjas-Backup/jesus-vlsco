@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { UserResponseDto } from '@project/common/dto/user-response.dto';
 import { AppError } from '@project/common/error/handle-errors.app';
 import { HandleErrors } from '@project/common/error/handle-errors.decorator';
-import { ErrorMessages } from '@project/common/error/handle-errors.message';
 import {
   successResponse,
   TResponse,
@@ -11,7 +11,6 @@ import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { EmailLoginDto } from './dto/email-login.dto';
-import { UserResponseDto } from './dto/user-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +28,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new AppError(404, ErrorMessages['USER_NOT_FOUND'](dto.email));
+      throw new AppError(404, 'User not found');
     }
 
     const { otp, expiryTime } = this.utils.generateOtpAndExpiry();
@@ -55,7 +54,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new AppError(404, ErrorMessages['USER_NOT_FOUND'](email));
+      throw new AppError(404, 'User not found');
     }
 
     if (!user.otp || !user.otpExpiresAt) {

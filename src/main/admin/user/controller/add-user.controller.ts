@@ -18,7 +18,7 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AddUserDto } from '../dto/add-user.dto';
 import { AddUserService } from '../services/add-user.service';
 
-@ApiTags('Admin')
+@ApiTags('Admin -- Add User')
 @Controller('admin/user')
 @ValidateAdmin()
 @ApiBearerAuth()
