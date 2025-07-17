@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-errors.app';
+import { HandleErrors } from '@project/common/error/handle-errors.decorator';
 import { ErrorMessages } from '@project/common/error/handle-errors.message';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
+import { FirebaseService } from '@project/lib/firebase/firebase.service';
 import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { EmailLoginDto } from './dto/email-login.dto';
-import { HandleErrors } from '@project/common/error/handle-errors.decorator';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly mailService: MailService,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   @HandleErrors('Error sending OTP')
@@ -100,6 +102,54 @@ export class AuthService {
         },
       },
       'Login successful',
+    );
+  }
+
+  @HandleErrors('Phone login error')
+  async phoneLogin(firebaseIdToken: string): Promise<TResponse<any>> {
+    const decoded = await this.firebaseService.verifyIdToken(firebaseIdToken);
+
+    if (!decoded.phone_number) {
+      throw new AppError(400, 'Phone number not found in token');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { phone: Number(decoded.phone_number) },
+    });
+
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isLogin: true,
+        isVerified: true,
+        lastLoginAt: new Date(),
+        otp: null,
+        otpExpiresAt: null,
+      },
+    });
+
+    const token = this.utils.generateToken({
+      email: user.email ?? '',
+      roles: user.role,
+      sub: user.id,
+    });
+
+    return successResponse(
+      {
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email,
+          employeeID: updatedUser.employeeID,
+          phone: updatedUser.phone,
+          role: updatedUser.role,
+          token,
+        },
+      },
+      'Phone login successful',
     );
   }
 }

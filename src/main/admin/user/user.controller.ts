@@ -7,6 +7,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiConsumes,
@@ -16,13 +17,14 @@ import {
 } from '@nestjs/swagger';
 import { UserEnum } from '@project/common/enum/user.enum';
 import { Roles } from '@project/common/jwt/jwt-roles.decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { RolesGuard } from '@project/common/jwt/jwt-roles.guard';
 import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { AddUserDto } from './dto/add-user.dto';
 import { UserService } from './services/add-profile-info.service';
+
 @ApiTags('Admin')
 @Controller('admin')
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(UserEnum.ADMIN)
 @ApiBearerAuth()
 export class UserController {
