@@ -20,7 +20,10 @@ export class ExperienceController {
   constructor(private readonly experienceService: ExperienceService) {}
 
   @Post('create/single/:userId')
-  async createSingleExperience(dto: ExperienceItemDto, userId: string) {
+  async createSingleExperience(
+    @Body() dto: ExperienceItemDto,
+    @Param('userId') userId: string,
+  ) {
     return this.experienceService.createSingleExperience(dto, userId);
   }
 
