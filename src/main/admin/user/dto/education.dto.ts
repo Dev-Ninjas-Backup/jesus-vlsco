@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -24,6 +25,8 @@ export class EducationItemDto {
   year: number;
 }
 
+export class UpdateEducationItemDto extends PartialType(EducationItemDto) {}
+
 export class EducationDto {
   @ApiProperty({
     type: [EducationItemDto],
@@ -33,4 +36,15 @@ export class EducationDto {
   @ValidateNested({ each: true })
   @Type(() => EducationItemDto)
   educations: EducationItemDto[];
+}
+
+export class UpdateEducationDto {
+  @ApiProperty({
+    type: [UpdateEducationItemDto],
+    description: 'List of education records',
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateEducationItemDto)
+  educations: UpdateEducationItemDto[];
 }

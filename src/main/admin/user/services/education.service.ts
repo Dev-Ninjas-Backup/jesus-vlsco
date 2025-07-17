@@ -4,7 +4,12 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { EducationDto, EducationItemDto } from '../dto/education.dto';
+import {
+  EducationDto,
+  EducationItemDto,
+  UpdateEducationDto,
+  UpdateEducationItemDto,
+} from '../dto/education.dto';
 
 @Injectable()
 export class EducationService {
@@ -34,5 +39,71 @@ export class EducationService {
       },
     });
     return successResponse(education, 'Education added successfully');
+  }
+
+  async getSingleEducation(id: string): Promise<TResponse<any>> {
+    const education = await this.prisma.education.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    return successResponse(education, 'Education found successfully');
+  }
+
+  async getEducations(userId: string): Promise<TResponse<any>> {
+    const educations = await this.prisma.education.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    return successResponse(educations, 'Educations found successfully');
+  }
+
+  async deleteEducation(id: string): Promise<TResponse<any>> {
+    const education = await this.prisma.education.delete({
+      where: {
+        id: id,
+      },
+    });
+    return successResponse(education, 'Education deleted successfully');
+  }
+
+  async deleteEducations(userId: string): Promise<TResponse<any>> {
+    const educations = await this.prisma.education.deleteMany({
+      where: {
+        userId: userId,
+      },
+    });
+    return successResponse(educations, 'Educations deleted successfully');
+  }
+
+  async updateEducation(
+    id: string,
+    dto: UpdateEducationItemDto,
+  ): Promise<TResponse<any>> {
+    const education = await this.prisma.education.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...dto,
+      },
+    });
+    return successResponse(education, 'Education updated successfully');
+  }
+
+  async updateEducations(
+    userId: string,
+    dto: UpdateEducationDto,
+  ): Promise<TResponse<any>> {
+    const educations = await this.prisma.education.updateMany({
+      where: {
+        userId: userId,
+      },
+      data: {
+        ...dto,
+      },
+    });
+    return successResponse(educations, 'Educations updated successfully');
   }
 }
