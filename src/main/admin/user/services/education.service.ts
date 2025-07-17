@@ -96,14 +96,20 @@ export class EducationService {
     userId: string,
     dto: UpdateEducationDto,
   ): Promise<TResponse<any>> {
-    const educations = await this.prisma.education.updateMany({
-      where: {
-        userId: userId,
-      },
-      data: {
-        ...dto,
-      },
-    });
-    return successResponse(educations, 'Educations updated successfully');
+    const updated = [];
+
+    for (const item of dto.educations) {
+      const edu = await this.prisma.education.updateMany({
+        where: {  userId },
+        data: {
+          program: item.program,
+          institution: item.institution,
+          year: item.year,
+        },
+      });
+      updated.push(edu);
+    }
+
+    return successResponse(updated, 'Educations updated successfully');
   }
 }

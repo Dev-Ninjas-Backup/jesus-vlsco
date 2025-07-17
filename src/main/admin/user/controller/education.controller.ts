@@ -59,11 +59,11 @@ export class EducationController {
     return this.educationService.updateEducation(id, dto);
   }
 
-  @Patch('update/multiple/:userId')
-  updateEducations(
-    @Body() dto: UpdateEducationDto,
-    @Param('userId') id: string,
-  ) {
-    return this.educationService.updateEducations(id, dto);
-  }
+  // @Patch('update/multiple/:userId')
+  // updateEducations(
+  //   @Body() dto: UpdateEducationDto,
+  //   @Param('userId') id: string,
+  // ) {
+  //   return this.educationService.updateEducations(id, dto);
+  // }
 }
