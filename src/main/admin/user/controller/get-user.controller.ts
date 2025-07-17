@@ -6,7 +6,7 @@ import { GetUserService } from '../services/get-user.service';
 @ApiTags('Admin -- Get User')
 @ValidateAdmin()
 @ApiBearerAuth()
-@Controller('admin/get-user')
+@Controller('admin/user')
 export class GetUserController {
   constructor(private readonly getUserService: GetUserService) {}
 

@@ -16,6 +16,7 @@ import {
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AddUserDto } from '../dto/add-user.dto';
+import { swaggerSchema } from '../dto/add-user.swagger';
 import { AddUserService } from '../services/add-user.service';
 
 @ApiTags('Admin -- Add User')
@@ -36,7 +37,7 @@ export class AddUserController {
     schema: {
       type: 'object',
       properties: {
-        ...require('../dto/add-user.swagger').swaggerSchema.properties,
+        ...swaggerSchema.properties,
         profileUrl: {
           type: 'string',
           format: 'binary',

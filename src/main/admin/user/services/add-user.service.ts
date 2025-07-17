@@ -42,7 +42,6 @@ export class AddUserService {
         },
       },
     });
-    console.log(user);
 
     const result = await this.prisma.user.findUnique({
       where: { id: user.id },
@@ -50,8 +49,6 @@ export class AddUserService {
         profile: true,
       },
     });
-
-    console.log(result);
 
     return successResponse(result, 'User created successfully');
   }
