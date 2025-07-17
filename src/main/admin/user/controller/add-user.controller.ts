@@ -19,17 +19,17 @@ import { UserEnum } from '@project/common/enum/user.enum';
 import { Roles } from '@project/common/jwt/jwt-roles.decorator';
 import { RolesGuard } from '@project/common/jwt/jwt-roles.guard';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { AddUserDto } from './dto/add-user.dto';
-import { UserService } from './services/add-profile-info.service';
+import { AddUserDto } from '../dto/add-user.dto';
+import { AddUserService } from '../services/add-user.service';
 
 @ApiTags('Admin')
-@Controller('admin')
+@Controller('admin/user')
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles(UserEnum.ADMIN)
 @ApiBearerAuth()
-export class UserController {
+export class AddUserController {
   constructor(
-    private readonly userService: UserService,
+    private readonly addUserService: AddUserService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
@@ -41,7 +41,7 @@ export class UserController {
     schema: {
       type: 'object',
       properties: {
-        ...require('./dto/add-user.swagger').swaggerSchema.properties,
+        ...require('../dto/add-user.swagger').swaggerSchema.properties,
         profileUrl: {
           type: 'string',
           format: 'binary',
@@ -60,10 +60,6 @@ export class UserController {
       file.originalname,
     );
 
-    // * save user with uploaded profileUrl
-    return {
-      message: 'User created successfully',
-      data: { ...dto, profileUrl: uploadedUrl },
-    };
+    return this.addUserService.createUserWithProfile(dto, uploadedUrl.url);
   }
 }

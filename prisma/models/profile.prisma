@@ -49,4 +49,5 @@ enum Department {
   HR
   FINANCE
   MARKETING
+  SEALS
 }
