@@ -17,7 +17,7 @@ import {
 import { EducationService } from '../services/education.service';
 
 @ApiTags('Admin -- Education')
-@Controller('admin/education')
+@Controller('admin/user/education')
 @ValidateAdmin()
 @ApiBearerAuth()
 export class EducationController {
@@ -38,7 +38,7 @@ export class EducationController {
     return this.educationService.getSingleEducation(id);
   }
 
-  @Get('get/multiple/:userId')
+  @Get('get/user/:userId')
   getEducations(@Param('userId') id: string) {
     return this.educationService.getEducations(id);
   }
@@ -57,12 +57,4 @@ export class EducationController {
   update(@Body() dto: UpdateEducationItemDto, @Param('id') id: string) {
     return this.educationService.updateEducation(id, dto);
   }
-
-  // @Patch('update/multiple/:userId')
-  // updateEducations(
-  //   @Body() dto: UpdateEducationDto,
-  //   @Param('userId') id: string,
-  // ) {
-  //   return this.educationService.updateEducations(id, dto);
-  // }
 }
