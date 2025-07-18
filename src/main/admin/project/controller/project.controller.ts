@@ -34,4 +34,13 @@ export class ProjectController {
   ) {
     return this.projectService.assignProjectToTeam(projectId, teamId);
   }
+
+  @ApiOperation({ summary: 'Assign Project to Manager' })
+  @Post('/:projectId/assign-manager/:managerId')
+  assignProjectToManager(
+    @Param('projectId') projectId: string,
+    @Param('managerId') managerId: string,
+  ) {
+    return this.projectService.assignProjectToManager(projectId, managerId);
+  }
 }

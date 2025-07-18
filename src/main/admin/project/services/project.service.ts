@@ -62,6 +62,7 @@ export class ProjectService {
     return successResponse(projectUser, 'Project assigned successfully');
   }
 
+  @HandleError('Failed to assign project')
   async assignProjectToTeam(projectId: string, teamId: string) {
     // 1. Check project
     const project = await this.prisma.project.findUnique({
@@ -98,6 +99,50 @@ export class ProjectService {
         team: {
           connect: {
             id: teamId,
+          },
+        },
+      },
+    });
+    return successResponse(updatedProject, 'Project assigned successfully');
+  }
+
+  @HandleError('Failed to assign project')
+  async assignProjectToManager(projectId: string, managerId: string) {
+    // 1. Check project
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+    if (!project) {
+      throw new AppError(404, 'Project not found');
+    }
+
+    // 2. Check manager
+    const manager = await this.prisma.user.findUnique({
+      where: { id: managerId },
+    });
+    if (!manager) {
+      throw new AppError(404, 'Manager not found');
+    }
+
+    // 3. Check if already assigned (to prevent unique‐constraint errors)
+    const already = await this.prisma.project.findUnique({
+      where: {
+        id: projectId,
+        managerId: managerId,
+      },
+    });
+    if (already) {
+      throw new AppError(400, 'Project already assigned');
+    }
+
+    const updatedProject = await this.prisma.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        manager: {
+          connect: {
+            id: managerId,
           },
         },
       },
