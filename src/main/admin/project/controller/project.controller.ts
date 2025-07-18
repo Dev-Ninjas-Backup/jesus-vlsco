@@ -16,4 +16,8 @@ export class ProjectController {
   createProject(@Body() dto: CreateProjectDto) {
     return this.projectService.createProject(dto);
   }
+
+  assignProject() {
+    return;
+  }
 }

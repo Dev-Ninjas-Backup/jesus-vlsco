@@ -17,18 +17,6 @@ export class CreateProjectDto {
   teamId?: string;
 
   @ApiProperty({
-    example: [
-      '61c3bcad-f0cc-4c29-9b3d-56d45f14d305',
-      '2a51b62d-b943-4a02-9b44-7e95dc3cf624',
-    ],
-    description: 'List of assigned user IDs',
-  })
-  @IsArray()
-  @IsUUID('all', { each: true })
-  @IsOptional()
-  assignTo?: string[];
-
-  @ApiProperty({
     example: 'e3436c4a-dc2b-44af-8b3e-9fc7b9a9e299',
     description: 'Manager user ID',
   })

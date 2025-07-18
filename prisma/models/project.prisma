@@ -1,12 +1,22 @@
 model Project {
-  id              String   @id @default(uuid())
+  id              String  @id @default(uuid())
   teamId          String?
-  assignTo        String[] @default([]) // Array of userIds
-  managerId         String
+  managerId       String
   title           String
   projectLocation String
 
-  team  Team?  @relation(fields: [teamId], references: [id])
-  manager User   @relation(fields: [managerId], references: [id])
-  tasks Task[]
+  team         Team?         @relation(fields: [teamId], references: [id])
+  manager      User          @relation(fields: [managerId], references: [id])
+  projectUsers ProjectUser[]
+  tasks        Task[]
+}
+
+model ProjectUser {
+  id        String  @id @default(uuid())
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@unique([projectId, userId])
 }
