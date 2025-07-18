@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
@@ -17,7 +17,12 @@ export class ProjectController {
     return this.projectService.createProject(dto);
   }
 
-  assignProject() {
-    return;
+  @ApiOperation({ summary: 'Assign Project' })
+  @Post('/:projectId/assign/:userId')
+  assignProject(
+    @Param('projectId') projectId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.projectService.assignProjectToEmployee(projectId, userId);
   }
 }
