@@ -149,4 +149,21 @@ export class ProjectService {
     });
     return successResponse(updatedProject, 'Project assigned successfully');
   }
+
+  async getAProject(id: string): Promise<TResponse<any>> {
+    const project = await this.prisma.project.findUnique({
+      where: { id },
+      include: {
+        team: true,
+        manager: true,
+        projectUsers: {
+          include: {
+            user: true,
+          },
+        },
+        tasks: true,
+      },
+    });
+    return successResponse(project, 'Project found successfully');
+  }
 }
