@@ -28,7 +28,7 @@ export class UpdateRecognitionController {
             @Param('id') id: string,
             @Body() dto: UpdateRecognitionDto
         ) {
-
+            return await this.updateAndDeleteReconitionService.updateRecognition(id,dto)
         }
 
      // Delete Badge by ID
