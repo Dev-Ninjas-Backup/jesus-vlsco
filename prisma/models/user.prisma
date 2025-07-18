@@ -18,6 +18,7 @@ model User {
   payroll    Payroll?
   educations Education[]
   experience Experience[]
+  recognitions RecognitionUser[]
   shifts     Shift[]
 }
 

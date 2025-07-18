@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { UserEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsDateString, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 
 
 export class GetUsersDto {
@@ -27,16 +27,6 @@ export class GetUsersDto {
   @Type(() => Boolean)
   isVerified?: boolean;
 
-
-  @ApiPropertyOptional({ description: 'Filter by date user was created after this date', type: String, format: 'date-time' })
-  @IsOptional()
-  @IsDateString()
-  createdAfter?: Date;
-
-  @ApiPropertyOptional({ description: 'Filter by date user was created before this date', type: String, format: 'date-time' })
-  @IsOptional()
-  @IsDateString()
-  createdBefore?: Date;
 
   @ApiPropertyOptional({ description: 'Sort by field (e.g. createdAt, email)' })
   @IsOptional()
