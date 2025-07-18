@@ -6,9 +6,13 @@ import { GetAllBadgeController } from './controller/get-all-badge.controller';
 import { GetAllBadgeService } from './services/get-all-badge.service';
 import { AddRecognitionService } from './services/add-recognition.service';
 import { AddRecognitionController } from './controller/add-recognition.controller';
+import { UpdateBadgeService } from './services/update-badge.service';
+import { UpdateBadgeController } from './controller/update-badge.controller';
+import { UpdateRecognitionController } from './controller/update-recognition.controller';
+import { UpdateRecognitionService } from './services/update-recognition.service';
 
 @Module({
-  providers: [AddBadgeService,CloudinaryService, GetAllBadgeService, AddRecognitionService],
-  controllers: [AddBadgeController, GetAllBadgeController, AddRecognitionController]
+  providers: [AddBadgeService,CloudinaryService, GetAllBadgeService, AddRecognitionService, UpdateBadgeService, UpdateRecognitionService],
+  controllers: [AddBadgeController, GetAllBadgeController, AddRecognitionController, UpdateBadgeController, UpdateRecognitionController]
 })
 export class RecognitionModule {}
