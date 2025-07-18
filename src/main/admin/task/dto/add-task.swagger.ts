@@ -1,5 +1,3 @@
-import { TaskStatus } from '@prisma/client';
-
 export const addTaskSwaggerSchema = {
   type: 'object',
   properties: {
@@ -20,11 +18,6 @@ export const addTaskSwaggerSchema = {
       example: '2025-08-01T17:00:00Z',
     },
     location: { type: 'string', example: 'Dhaka Office' },
-    status: {
-      type: 'string',
-      enum: [TaskStatus.DAFT, TaskStatus.OPEN, TaskStatus.DONE],
-      example: TaskStatus.DAFT,
-    },
     labels: {
       type: 'array',
       items: { type: 'string' },

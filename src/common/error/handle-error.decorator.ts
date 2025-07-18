@@ -17,6 +17,7 @@ export function HandleError(customMessage?: string, record?: string) {
       try {
         return await method.apply(this, args);
       } catch (error) {
+        console.log(error);
         simplifyError(error, customMessage, record);
       }
     };

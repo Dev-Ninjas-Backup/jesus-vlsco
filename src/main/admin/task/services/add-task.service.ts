@@ -9,9 +9,7 @@ export class AddTaskService {
 
   @HandleError('Failed to create task')
   async createTask(dto: AddTaskDto, fileUrl: string) {
-    // return await this.prisma.task.create({
-    //   data: dto,
-    // });
+   
     return {
       title: dto.title,
       description: dto.description,

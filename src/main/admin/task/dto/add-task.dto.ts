@@ -1,7 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TaskStatus } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
-import { IsArray, IsDate, IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsOptional, IsString } from 'class-validator';
 
 export class AddTaskDto {
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
@@ -31,16 +30,18 @@ export class AddTaskDto {
   @IsString()
   location?: string;
 
-  @ApiPropertyOptional({ enum: TaskStatus, default: TaskStatus.DAFT })
-  @IsOptional()
-  @IsEnum(TaskStatus)
-  status?: TaskStatus;
-
   @ApiPropertyOptional({ example: ['UI', 'High Priority'] })
-  @Transform(({ value }) =>
-    typeof value === 'string' ? JSON.parse(value) : value,
-  )
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (err) {
+        return [value]; 
+      }
+    }
+    return value;
+  })
   @IsArray()
   @IsString({ each: true })
-  labels: string[];
+  labels: any;
 }

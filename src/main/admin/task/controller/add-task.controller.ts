@@ -50,8 +50,7 @@ export class AddTaskController {
     @Body() dto: AddTaskDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(dto, file, 'file');
-    // * upload file to Cloudinary
+    console.log(dto.labels);
     const uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
       file.buffer,
       file.originalname,
