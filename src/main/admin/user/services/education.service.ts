@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -15,6 +16,7 @@ import {
 export class EducationService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Error creating educations')
   async createEducations(
     dto: EducationDto,
     userid: string,
@@ -28,6 +30,7 @@ export class EducationService {
     return successResponse(educations, 'Educations added successfully');
   }
 
+  @HandleError('Error creating education')
   async createSingleEducation(
     dto: EducationItemDto,
     userid: string,
@@ -41,6 +44,7 @@ export class EducationService {
     return successResponse(education, 'Education added successfully');
   }
 
+  @HandleError('Error getting education')
   async getSingleEducation(id: string): Promise<TResponse<any>> {
     const education = await this.prisma.education.findUnique({
       where: {
@@ -50,6 +54,7 @@ export class EducationService {
     return successResponse(education, 'Education found successfully');
   }
 
+  @HandleError('Error getting educations')
   async getEducations(userId: string): Promise<TResponse<any>> {
     const educations = await this.prisma.education.findMany({
       where: {
@@ -59,6 +64,7 @@ export class EducationService {
     return successResponse(educations, 'Educations found successfully');
   }
 
+  @HandleError('Error deleting education')
   async deleteEducation(id: string): Promise<TResponse<any>> {
     const education = await this.prisma.education.delete({
       where: {
@@ -68,6 +74,7 @@ export class EducationService {
     return successResponse(education, 'Education deleted successfully');
   }
 
+  @HandleError('Error deleting educations')
   async deleteEducations(userId: string): Promise<TResponse<any>> {
     const educations = await this.prisma.education.deleteMany({
       where: {
@@ -77,6 +84,7 @@ export class EducationService {
     return successResponse(educations, 'Educations deleted successfully');
   }
 
+  @HandleError('Error updating education')
   async updateEducation(
     id: string,
     dto: UpdateEducationItemDto,
@@ -92,6 +100,7 @@ export class EducationService {
     return successResponse(education, 'Education updated successfully');
   }
 
+  @HandleError('Error updating educations')
   async updateEducations(
     userId: string,
     dto: UpdateEducationDto,

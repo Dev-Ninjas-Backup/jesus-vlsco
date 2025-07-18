@@ -7,11 +7,13 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
 import { RequestShiftDto } from '../dto/request-shift.dto';
 import { UpdateShiftStatusDto } from '../dto/update-shift-status.dto';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class ShiftService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Error assigning shift to employee')
   async assignShiftToEmployee(
     userId: string,
     dto: RequestShiftDto,
@@ -30,6 +32,7 @@ export class ShiftService {
     return successResponse(result, 'Shift assigned successfully');
   }
 
+  @HandleError('Error updating shift status')
   async updateShiftStatus(
     shiftId: string,
     dto: UpdateShiftStatusDto,
@@ -52,6 +55,7 @@ export class ShiftService {
     return successResponse(result, `Shift ${message} successfully`);
   }
 
+  @HandleError('Error updating shift')
   async changeShift(
     shiftId: string,
     dto: ChangeShiftDto,
@@ -71,5 +75,18 @@ export class ShiftService {
     // * TODO: send notification to the user
 
     return successResponse(result, 'Shift updated successfully');
+  }
+
+  @HandleError('Error getting shift by id')
+  async getShiftById(shiftId: string): Promise<TResponse<any>> {
+    const result = await this.prisma.shift.findUnique({
+      where: {
+        id: shiftId,
+      },
+      include: {
+        user: true,
+      },
+    });
+    return successResponse(result, 'Shift found successfully');
   }
 }
