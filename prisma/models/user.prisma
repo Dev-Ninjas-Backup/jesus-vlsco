@@ -19,6 +19,7 @@ model User {
   educations Education[]
   experience Experience[]
   recognitions RecognitionUser[]
+  shifts     Shift[]
 }
 
 enum UserEnum {
