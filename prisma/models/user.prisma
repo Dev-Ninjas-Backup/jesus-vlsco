@@ -16,11 +16,11 @@ model User {
 
   profile      Profile?
   payroll      Payroll?
-  projects      Project[]
+  projects     Project[]
   educations   Education[]
   experience   Experience[]
   shifts       Shift[]
-  tasks        Task[]
+  taskUsers    TaskUser[]
   teamMembers  TeamMembers[]
   projectUsers ProjectUser[]
 }
