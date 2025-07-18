@@ -1,11 +1,19 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { UserEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsDateString, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class GetUsersDto {
-  @ApiPropertyOptional({ description: 'Search by name, email, phone, or employeeID' })
+  @ApiPropertyOptional({
+    description: 'Search by name, email, phone, or employeeID',
+  })
   @IsOptional()
   @IsString()
   searchTerm?: string;
@@ -27,13 +35,20 @@ export class GetUsersDto {
   @Type(() => Boolean)
   isVerified?: boolean;
 
-
-  @ApiPropertyOptional({ description: 'Filter by date user was created after this date', type: String, format: 'date-time' })
+  @ApiPropertyOptional({
+    description: 'Filter by date user was created after this date',
+    type: String,
+    format: 'date-time',
+  })
   @IsOptional()
   @IsDateString()
   createdAfter?: Date;
 
-  @ApiPropertyOptional({ description: 'Filter by date user was created before this date', type: String, format: 'date-time' })
+  @ApiPropertyOptional({
+    description: 'Filter by date user was created before this date',
+    type: String,
+    format: 'date-time',
+  })
   @IsOptional()
   @IsDateString()
   createdBefore?: Date;
@@ -48,13 +63,19 @@ export class GetUsersDto {
   @IsString()
   sortOrder?: 'asc' | 'desc';
 
-  @ApiPropertyOptional({ description: 'Page number for pagination', default: 1 })
+  @ApiPropertyOptional({
+    description: 'Page number for pagination',
+    default: 1,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   page?: number;
 
-  @ApiPropertyOptional({ description: 'Items per page for pagination', default: 10 })
+  @ApiPropertyOptional({
+    description: 'Items per page for pagination',
+    default: 10,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()

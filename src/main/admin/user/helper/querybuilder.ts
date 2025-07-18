@@ -23,12 +23,12 @@ export class PrismaUserQueryBuilder {
     if (searchTerm && searchableFields.length) {
       const orConditions = searchableFields.map((field) => {
         if (field === 'employeeID') {
-        const parsed = Number(searchTerm);
-        if (!isNaN(parsed)) {
-          return { [field]: parsed }; // ✅ numeric match
+          const parsed = Number(searchTerm);
+          if (!isNaN(parsed)) {
+            return { [field]: parsed }; // ✅ numeric match
+          }
+          return null; // skip if input is not a number
         }
-        return null; // skip if input is not a number
-      }
 
         // Handle nested profile fields
         if (field.startsWith('profile.')) {
@@ -51,33 +51,35 @@ export class PrismaUserQueryBuilder {
 
   filter() {
     const excluded = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
-    const filterKeys = Object.keys(this.query).filter((key) => !excluded.includes(key));
+    const filterKeys = Object.keys(this.query).filter(
+      (key) => !excluded.includes(key),
+    );
 
     for (const key of filterKeys) {
       const value = this.query[key];
-        (this.where as any)[key] = value;
+      (this.where as any)[key] = value;
     }
 
     return this;
   }
 
   sort(allowedFields: string[] = ['createdAt']) {
-  const sortInput = this.query.sort?.toString() || '-createdAt';
-  const fields = sortInput.split(',').map((f) => f.trim());
+    const sortInput = this.query.sort?.toString() || '-createdAt';
+    const fields = sortInput.split(',').map((f) => f.trim());
 
-  for (const field of fields) {
-    const direction: 'asc' | 'desc' = field.startsWith('-') ? 'desc' : 'asc';
-    const cleanField = field.replace(/^-/, '');
+    for (const field of fields) {
+      const direction: 'asc' | 'desc' = field.startsWith('-') ? 'desc' : 'asc';
+      const cleanField = field.replace(/^-/, '');
 
-    if (allowedFields.includes(cleanField)) {
-      this.orderBy.push({ [cleanField]: direction } as Prisma.UserOrderByWithRelationInput);
+      if (allowedFields.includes(cleanField)) {
+        this.orderBy.push({
+          [cleanField]: direction,
+        } as Prisma.UserOrderByWithRelationInput);
+      }
     }
+
+    return this;
   }
-
-  return this;
-}
-
-
 
   paginate() {
     const page = Number(this.query.page) || 1;
@@ -92,7 +94,9 @@ export class PrismaUserQueryBuilder {
   build() {
     return {
       where: this.where,
-      orderBy: (this.orderBy.length ? this.orderBy : [{ createdAt: 'desc' }]) as Prisma.UserOrderByWithRelationInput[],
+      orderBy: (this.orderBy.length
+        ? this.orderBy
+        : [{ createdAt: 'desc' }]) as Prisma.UserOrderByWithRelationInput[],
       take: this.take,
       skip: this.skip,
     };
