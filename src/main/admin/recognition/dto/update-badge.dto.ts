@@ -1,15 +1,4 @@
-import { IsEnum,  IsOptional, IsString } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { BadgeCategory } from '@prisma/client';
+import { PartialType } from "@nestjs/swagger";
+import { AddBadgeDto } from "./add-badge.dto";
 
-export class UpdateBadgeDto {
-  @ApiPropertyOptional({ example: 'Creative' })
-  @IsString()
-  @IsOptional()
-  title?: string;
-
-  @ApiPropertyOptional({ enum: BadgeCategory, example: BadgeCategory.MILESTONE })
-  @IsEnum(BadgeCategory)
-  @IsOptional()
-  category?: BadgeCategory;
-}
+export class UpdateBadgeDto extends PartialType(AddBadgeDto) {}
