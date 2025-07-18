@@ -2,10 +2,11 @@ model Project {
   id              String   @id @default(uuid())
   teamId          String?
   assignTo        String[] @default([]) // Array of userIds
-  manager         String
+  managerId         String
   title           String
   projectLocation String
 
   team  Team?  @relation(fields: [teamId], references: [id])
+  manager User   @relation(fields: [managerId], references: [id])
   tasks Task[]
 }

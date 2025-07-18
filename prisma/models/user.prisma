@@ -16,6 +16,7 @@ model User {
 
   profile     Profile?
   payroll     Payroll?
+  manager     Project[]
   educations  Education[]
   experience  Experience[]
   shifts      Shift[]

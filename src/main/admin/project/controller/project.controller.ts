@@ -1,6 +1,7 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { CreateProjectDto } from '../dto/create-project.dto';
 import { ProjectService } from '../services/project.service';
 
 @ApiTags('Admin -- Project')
@@ -12,7 +13,7 @@ export class ProjectController {
 
   @ApiOperation({ summary: 'Create Project' })
   @Post()
-  async createProject() {
-    return this.projectService.createProject();
+  createProject(@Body() dto: CreateProjectDto) {
+    return this.projectService.createProject(dto);
   }
 }
