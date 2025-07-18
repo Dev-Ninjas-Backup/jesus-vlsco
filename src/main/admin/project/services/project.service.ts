@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
-import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class ProjectService {
@@ -24,18 +25,83 @@ export class ProjectService {
 
   @HandleError('Failed to assign project')
   async assignProjectToEmployee(projectId: string, userId: string) {
-    const project = await this.prisma.project.update({
+    // 1. Check project
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+    if (!project) {
+      throw new AppError(404, 'Project not found');
+    }
+
+    // 2. Check user
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    // 3. Check if already assigned (to prevent unique‐constraint errors)
+    const already = await this.prisma.projectUser.findUnique({
+      where: {
+        projectId_userId: {
+          projectId,
+          userId,
+        },
+      },
+    });
+    if (already) {
+      throw new AppError(400, 'Project already assigned');
+    }
+
+    // 4. Finally, create the join record
+    const projectUser = await this.prisma.projectUser.create({
+      data: { projectId, userId },
+    });
+
+    return successResponse(projectUser, 'Project assigned successfully');
+  }
+
+  async assignProjectToTeam(projectId: string, teamId: string) {
+    // 1. Check project
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+    if (!project) {
+      throw new AppError(404, 'Project not found');
+    }
+
+    // 2. Check team
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+    });
+    if (!team) {
+      throw new AppError(404, 'Team not found');
+    }
+
+    // 3. Check if already assigned (to prevent unique‐constraint errors)
+    const already = await this.prisma.project.findUnique({
+      where: {
+        id: projectId,
+        teamId: teamId,
+      },
+    });
+    if (already) {
+      throw new AppError(400, 'Project already assigned');
+    }
+
+    const updatedProject = await this.prisma.project.update({
       where: {
         id: projectId,
       },
       data: {
-        projectUsers: {
-          create: {
-            userId,
+        team: {
+          connect: {
+            id: teamId,
           },
         },
       },
     });
-    return successResponse(project, 'Project assigned successfully');
+    return successResponse(updatedProject, 'Project assigned successfully');
   }
 }

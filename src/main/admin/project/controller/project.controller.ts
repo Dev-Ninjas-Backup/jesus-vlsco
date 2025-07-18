@@ -17,12 +17,21 @@ export class ProjectController {
     return this.projectService.createProject(dto);
   }
 
-  @ApiOperation({ summary: 'Assign Project' })
-  @Post('/:projectId/assign/:userId')
+  @ApiOperation({ summary: 'Assign Project to Employee' })
+  @Post('/:projectId/assign-employee/:userId')
   assignProject(
     @Param('projectId') projectId: string,
     @Param('userId') userId: string,
   ) {
     return this.projectService.assignProjectToEmployee(projectId, userId);
+  }
+
+  @ApiOperation({ summary: 'Assign Project to Team' })
+  @Post('/:projectId/assign-team/:teamId')
+  assignProjectToTeam(
+    @Param('projectId') projectId: string,
+    @Param('teamId') teamId: string,
+  ) {
+    return this.projectService.assignProjectToTeam(projectId, teamId);
   }
 }
