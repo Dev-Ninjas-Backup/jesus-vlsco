@@ -1,12 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ShiftType } from '@prisma/client';
-import { IsDateString, IsEnum, IsInt, IsUUID, Min } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, Min } from 'class-validator';
 
 export class ChangeShiftDto {
-  @ApiProperty({ format: 'uuid' })
-  @IsUUID()
-  shiftId: string;
-
   @ApiProperty({ enum: ShiftType, example: ShiftType.EVENING })
   @IsEnum(ShiftType)
   shiftType: ShiftType;

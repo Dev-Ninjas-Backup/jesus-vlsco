@@ -20,6 +20,8 @@ export class ShiftService {
       data: {
         ...dto,
         userId,
+        startTime: new Date(dto.startTime),
+        endTime: new Date(dto.endTime),
         status: 'APPROVED', // * IMPORTANT: This is always approved
       },
     });

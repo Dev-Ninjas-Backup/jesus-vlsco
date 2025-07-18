@@ -3,7 +3,10 @@ import { ShiftType } from '@prisma/client';
 import { IsDateString, IsEnum, IsInt, Min } from 'class-validator';
 
 export class RequestShiftDto {
-  @ApiProperty({ example: '2025-07-20', description: 'Shift date' })
+  @ApiProperty({
+    example: '2025-07-202025-07-20T00:00:00.000Z',
+    description: 'Shift date (YYYY-MM-DD)',
+  })
   @IsDateString()
   date: string;
 
