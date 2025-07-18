@@ -8,6 +8,8 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
+import { GetUsersDto } from '../dto/get-users.dto';
+import { PrismaUserQueryBuilder } from '../helper/querybuilder';
 
 @Injectable()
 export class GetUserService {
@@ -57,23 +59,56 @@ export class GetUserService {
     return successResponse(data, 'User data fetched successfully');
   }
 
+  // Get All users (employee)
+  @HandleError('Failed to fetch users')
+  async getAllUsers(dto: GetUsersDto) {
+  const builder = new PrismaUserQueryBuilder(dto)
+    .search(['email', 'phone', 'employeeID', 'profile.firstName', 'profile.lastName'])
+    .filter()
+    .sort(['email', 'createdAt', 'employeeID'])
+    .paginate();
+
+  const queryOptions = await builder.build();
+
+  const [users, meta] = await Promise.all([
+    this.prisma.user.findMany({
+      ...queryOptions,
+      include: {
+        profile: true,
+        educations: true,
+        experience: true,
+        payroll: true,
+      },
+    }),
+    builder.countTotal(this.prisma.user),
+  ]);
+
+  return { data: users, meta };
+}
+
+  // Single User get by Id (employee)
   @HandleError('Failed to fetch user data by ID')
   async getUserById(id: string): Promise<TResponse<any>> {
     return this.findUserBy('id', id);
   }
 
+  // Single User get by email (employee)
   @HandleError('Failed to fetch user data by email')
   async getUserByEmail(email: string): Promise<TResponse<any>> {
     return this.findUserBy('email', email);
   }
 
+  // Single User get by phone (employee)
   @HandleError('Failed to fetch user data by phone')
   async getUserByPhone(phone: string): Promise<TResponse<any>> {
     return this.findUserBy('phone', phone);
   }
 
+  // Single User get by employeeID (employee)
   @HandleError('Failed to fetch user data by employee ID')
   async getUserByEmployeeID(employeeID: number): Promise<TResponse<any>> {
     return this.findUserBy('employeeID', employeeID);
   }
+
+
 }
