@@ -60,6 +60,7 @@ export class GetUserService {
   }
 
   // Get All users (employee)
+  @HandleError('Failed to fetch users')
   async getAllUsers(dto: GetUsersDto) {
   const builder = new PrismaUserQueryBuilder(dto)
     .search(['email', 'phone', 'employeeID', 'profile.firstName', 'profile.lastName'])
