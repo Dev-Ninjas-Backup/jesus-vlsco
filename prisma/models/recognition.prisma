@@ -1,0 +1,26 @@
+model Recognition {
+  id                 String              @id @default(uuid())
+  badgeId            String
+  message            String
+  visibility         VisibilityType
+  shouldNotify       Boolean
+  isAllowedToLike    Boolean
+  badge              Badge               @relation(fields: [badgeId], references: [id])
+  recognitionUsers   RecognitionUser[]   // 👈 relation to User through join table
+}
+
+model RecognitionUser {
+  recognitionId String
+  userId        String
+
+  recognition   Recognition @relation(fields: [recognitionId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+
+  @@id([recognitionId, userId]) // composite primary key
+}
+
+enum VisibilityType {
+    Only_Recipient
+    All_user_in_the_company
+    Specific_user_in_the_company
+}
