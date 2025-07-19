@@ -6,9 +6,12 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UpdateBadgeService {
-    constructor(private readonly prisma: PrismaService,private readonly cloudinaryService: CloudinaryService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
-    async updateBadge (id:string,dto:UpdateBadgeDto,icon_url?:string) {
+  async updateBadge(id: string, dto: UpdateBadgeDto, icon_url?: string) {
     // Ensure badge exists
     const badge = await this.prisma.badge.findUniqueOrThrow({ where: { id } });
 
@@ -18,28 +21,26 @@ export class UpdateBadgeService {
       iconImage: icon_url || badge.iconImage,
     };
 
-
     const result = await this.prisma.badge.update({
       where: { id },
       data: updatedData,
     });
 
-    if(icon_url){
-        await this.cloudinaryService.deleteImage(badge.iconImage)
+    if (icon_url) {
+      await this.cloudinaryService.deleteImage(badge.iconImage);
     }
 
     return successResponse(result, 'Badge Updated');
   }
 
   //Deleted Badge
-  async deleteBadge (id:string) {
-   // Ensure badge exists
-  const badge = await this.prisma.badge.findUniqueOrThrow({ where: { id } });
-  const result = await this.prisma.badge.delete({
-    where:{id}
-  })
-  await this.cloudinaryService.deleteImage(badge.iconImage);
-  return successResponse(result,"Badge Deleted")
+  async deleteBadge(id: string) {
+    // Ensure badge exists
+    const badge = await this.prisma.badge.findUniqueOrThrow({ where: { id } });
+    const result = await this.prisma.badge.delete({
+      where: { id },
+    });
+    await this.cloudinaryService.deleteImage(badge.iconImage);
+    return successResponse(result, 'Badge Deleted');
   }
-
 }

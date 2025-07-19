@@ -1,8 +1,13 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { UserEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class GetUsersDto {
   @ApiPropertyOptional({
@@ -28,7 +33,6 @@ export class GetUsersDto {
   @IsBoolean()
   @Type(() => Boolean)
   isVerified?: boolean;
-
 
   @ApiPropertyOptional({ description: 'Sort by field (e.g. createdAt, email)' })
   @IsOptional()

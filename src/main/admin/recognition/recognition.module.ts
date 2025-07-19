@@ -14,7 +14,22 @@ import { GetRecognitionController } from './controller/get-recognition.controlle
 import { GetRecognitionService } from './services/get-recognition.service';
 
 @Module({
-  providers: [AddBadgeService,CloudinaryService, GetAllBadgeService, AddRecognitionService, UpdateBadgeService, UpdateRecognitionService, GetRecognitionService],
-  controllers: [AddBadgeController, GetAllBadgeController, AddRecognitionController, UpdateBadgeController, UpdateRecognitionController,GetRecognitionController]
+  providers: [
+    AddBadgeService,
+    CloudinaryService,
+    GetAllBadgeService,
+    AddRecognitionService,
+    UpdateBadgeService,
+    UpdateRecognitionService,
+    GetRecognitionService,
+  ],
+  controllers: [
+    AddBadgeController,
+    GetAllBadgeController,
+    AddRecognitionController,
+    UpdateBadgeController,
+    UpdateRecognitionController,
+    GetRecognitionController,
+  ],
 })
 export class RecognitionModule {}

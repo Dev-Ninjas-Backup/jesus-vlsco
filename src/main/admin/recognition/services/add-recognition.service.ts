@@ -1,18 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { AddRecognitionDto } from '../dto/add-recognition.dto';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 
 @Injectable()
 export class AddRecognitionService {
-    constructor(private readonly prisma:PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
 
-    async addRecognition (dto:AddRecognitionDto):Promise<TResponse<any>>{
-        // validate input if needed
+  async addRecognition(dto: AddRecognitionDto): Promise<TResponse<any>> {
+    // validate input if needed
     if (!dto.recognitionUserIds?.length) {
       throw new BadRequestException('At least one user must be recognized');
     }
-    
+
     const result = await this.prisma.$transaction(async (tx) => {
       // Step 1: Create Recognition
       const recognition = await tx.recognition.create({
@@ -43,6 +46,6 @@ export class AddRecognitionService {
       };
     });
 
-    return successResponse(result,result.message)
-    }
+    return successResponse(result, result.message);
+  }
 }

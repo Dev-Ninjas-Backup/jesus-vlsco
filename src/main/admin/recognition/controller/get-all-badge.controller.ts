@@ -8,13 +8,12 @@ import { GetAllBadgeService } from '../services/get-all-badge.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class GetAllBadgeController {
-    constructor(private readonly getAllBadgeService:GetAllBadgeService){}
+  constructor(private readonly getAllBadgeService: GetAllBadgeService) {}
 
-    // Get All Badgs 
-    @Get('/all-badgs')
-    @ApiOperation({ summary: 'Get All Badges' })
-    async getAllBadgs(){
-        return await this.getAllBadgeService.getAllBadge()
-    }
-
+  // Get All Badgs
+  @Get('/all-badgs')
+  @ApiOperation({ summary: 'Get All Badges' })
+  async getAllBadgs() {
+    return await this.getAllBadgeService.getAllBadge();
+  }
 }

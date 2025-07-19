@@ -8,8 +8,15 @@ import { UserModule } from './admin/user/user.module';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [AuthModule, UserModule, SurveyModule, ShiftModule, ProjectModule, RecognitionModule, TaskModule],
+  imports: [
+    AuthModule,
+    UserModule,
+    SurveyModule,
+    ShiftModule,
+    ProjectModule,
+    RecognitionModule,
+    TaskModule,
+  ],
   controllers: [],
-
 })
-export class MainModule { }
+export class MainModule {}

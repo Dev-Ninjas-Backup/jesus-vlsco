@@ -10,19 +10,17 @@ import { AddRecognitionDto } from '../dto/add-recognition.dto';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class AddRecognitionController {
-    constructor(private readonly addRecognitionService:AddRecognitionService){}
+  constructor(private readonly addRecognitionService: AddRecognitionService) {}
 
-    @Post('/add-recognition')
-    @ApiBody(
-        {
-            description:"Recognition Creation",
-            schema: {
-                type:'object',
-                properties:{...addRecognitionSwaggerScham.properties}
-            }
-        }
-    )
-    async addRecognition(@Body() dto:AddRecognitionDto){
-        return await this.addRecognitionService.addRecognition(dto)
-    }
+  @Post('/add-recognition')
+  @ApiBody({
+    description: 'Recognition Creation',
+    schema: {
+      type: 'object',
+      properties: { ...addRecognitionSwaggerScham.properties },
+    },
+  })
+  async addRecognition(@Body() dto: AddRecognitionDto) {
+    return await this.addRecognitionService.addRecognition(dto);
+  }
 }

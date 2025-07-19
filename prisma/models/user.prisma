@@ -18,6 +18,7 @@ model User {
   payroll      Payroll?
   projects     Project[]
   educations   Education[]
+  recognitions RecognitionUser[]
   experience   Experience[]
   shifts       Shift[]
   taskUsers    TaskUser[]

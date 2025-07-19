@@ -6,7 +6,7 @@ import { successResponse } from '@project/common/utils/response.util';
 
 @Injectable()
 export class GetRecognitionService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async getRecognitions(dto: GetRecognitionDto) {
     const { search, startDate, endDate, page = 1, limit = 10 } = dto;
@@ -50,14 +50,17 @@ export class GetRecognitionService {
       }),
     ]);
 
-    return successResponse({
-      data,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+    return successResponse(
+      {
+        data,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
       },
-    },"Get All Recognition");
+      'Get All Recognition',
+    );
   }
 }

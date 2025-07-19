@@ -32,6 +32,7 @@ export class AddTaskDto {
       try {
         return JSON.parse(value);
       } catch (err) {
+        console.info(err);
         return [value];
       }
     }

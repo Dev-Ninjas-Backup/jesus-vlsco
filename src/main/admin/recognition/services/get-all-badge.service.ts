@@ -6,18 +6,21 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class GetAllBadgeService {
-    constructor(private readonly prisma:PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
 
-    @HandleError('Error Geting Badge')
-    async getAllBadge (){
-      const badges = await this.prisma.badge.findMany();
-      const grouped = badges.reduce((acc, badge) => {
-      const category = badge.category as BadgeCategory;
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(badge);
-      return acc;
-    }, {} as Record<BadgeCategory, typeof badges>);
+  @HandleError('Error Geting Badge')
+  async getAllBadge() {
+    const badges = await this.prisma.badge.findMany();
+    const grouped = badges.reduce(
+      (acc, badge) => {
+        const category = badge.category as BadgeCategory;
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(badge);
+        return acc;
+      },
+      {} as Record<BadgeCategory, typeof badges>,
+    );
 
-    return successResponse(grouped,'Badges Fetched Successfully')
-    }
+    return successResponse(grouped, 'Badges Fetched Successfully');
+  }
 }

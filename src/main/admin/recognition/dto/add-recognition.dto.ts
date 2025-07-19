@@ -1,6 +1,13 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { VisibilityType } from "@prisma/client";
-import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsNotEmpty, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { VisibilityType } from '@prisma/client';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+} from 'class-validator';
 
 export class AddRecognitionDto {
   @ApiProperty({
@@ -42,7 +49,10 @@ export class AddRecognitionDto {
   isAllowedToLike: boolean;
 
   @ApiProperty({
-    example: ['d27f0c35-a2f9-4827-b0ce-f33eab91b789', 'e14d5f6a-dc65-4e88-814f-59cdfe25bb62'],
+    example: [
+      'd27f0c35-a2f9-4827-b0ce-f33eab91b789',
+      'e14d5f6a-dc65-4e88-814f-59cdfe25bb62',
+    ],
     description: 'List of user IDs who are recipients of the recognition.',
     type: [String],
   })
