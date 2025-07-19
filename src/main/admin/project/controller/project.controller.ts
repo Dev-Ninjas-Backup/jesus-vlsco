@@ -36,13 +36,19 @@ export class ProjectController {
     return this.projectService.assignProjectToEmployees(projectId, dto.employees);
   }
 
-  @ApiOperation({ summary: 'Assign Project to Team' })
+  @ApiOperation({ summary: 'Assign Project to Team or Update Project Team' })
   @Patch(':projectId/assign-team/:teamId')
   assignProjectToTeam(
     @Param('projectId') projectId: string,
     @Param('teamId') teamId: string,
   ) {
-    return this.projectService.assignProjectToTeam(projectId, teamId);
+    return this.projectService.setProjectTeam(projectId, teamId);
+  }
+
+  @ApiOperation({ summary: 'Remove Project Team' })
+  @Patch(':projectId/remove-team')
+  removeProjectTeam(@Param('projectId') projectId: string) {
+    return this.projectService.removeProjectTeam(projectId);
   }
 
   @ApiOperation({ summary: 'Assign Project to Manager' })

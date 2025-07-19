@@ -57,9 +57,9 @@ export class ProjectService {
     return successResponse(projectUser, 'Project assigned successfully');
   }
 
-  // ========== ASSIGN TEAM ==========
-  @HandleError('Failed to assign project')
-  async assignProjectToTeam(projectId: string, teamId: string) {
+  // ========== ASSIGN OR SET NEW TEAM  ==========
+  @HandleError('Failed to set project team')
+  async setProjectTeam(projectId: string, teamId: string) {
     const project = await this.ensureProjectExists(projectId);
     await this.ensureTeamExists(teamId);
 
@@ -74,9 +74,28 @@ export class ProjectService {
       },
     });
 
+    return successResponse(updatedProject, 'Project team set successfully');
+  }
+
+  // ========== REMOVE TEAM ==========
+  @HandleError('Failed to remove project team')
+  async removeProjectTeam(projectId: string) {
+    const project = await this.ensureProjectExists(projectId);
+
+    if (!project.teamId) {
+      throw new AppError(400, 'Project has no team assigned');
+    }
+
+    const updatedProject = await this.prisma.project.update({
+      where: { id: projectId },
+      data: {
+        team: { disconnect: true },
+      },
+    });
+
     return successResponse(
       updatedProject,
-      'Project assigned to team successfully',
+      'Project team removed successfully',
     );
   }
 

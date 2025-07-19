@@ -11,12 +11,12 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     AuthModule,
     UserModule,
-    SurveyModule,
+    RecognitionModule,
     ShiftModule,
     ProjectModule,
-    RecognitionModule,
     TaskModule,
+    SurveyModule,
   ],
   controllers: [],
 })
-export class MainModule {}
+export class MainModule { }
