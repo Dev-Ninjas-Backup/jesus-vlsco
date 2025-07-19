@@ -1,7 +1,8 @@
-import { Body, Controller, Param, Post, Get, Patch, Delete } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { AssignEmployeesToProjectDto } from '../dto/project.dto';
 import { ProjectService } from '../services/project.service';
 
 @ApiTags('Admin -- Project')
@@ -9,7 +10,7 @@ import { ProjectService } from '../services/project.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) {}
+  constructor(private readonly projectService: ProjectService) { }
 
   @ApiOperation({ summary: 'Create Project' })
   @Post()
@@ -24,6 +25,15 @@ export class ProjectController {
     @Param('userId') userId: string,
   ) {
     return this.projectService.assignProjectToEmployee(projectId, userId);
+  }
+
+  @ApiOperation({ summary: 'Assign Project to Employees' })
+  @Patch(':projectId/assign-employees')
+  assignProjects(
+    @Param('projectId') projectId: string,
+    @Body() dto: AssignEmployeesToProjectDto,
+  ) {
+    return this.projectService.assignProjectToEmployees(projectId, dto.employees);
   }
 
   @ApiOperation({ summary: 'Assign Project to Team' })

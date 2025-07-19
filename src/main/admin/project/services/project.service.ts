@@ -10,7 +10,7 @@ import { CreateProjectDto } from '../dto/create-project.dto';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   // ========== CREATE ==========
   @HandleError('Failed to create project')
@@ -37,6 +37,21 @@ export class ProjectService {
 
     const projectUser = await this.prisma.projectUser.create({
       data: { projectId, userId },
+    });
+
+    return successResponse(projectUser, 'Project assigned successfully');
+  }
+
+  // ========== ASSIGN MULTI EMPLOYEE ==========
+  @HandleError('Failed to assign project to employees')
+  async assignProjectToEmployees(projectId: string, userIds: string[]) {
+    await this.ensureProjectExists(projectId);
+
+    const uniqueIds = this.removeDuplicateIds(userIds);
+    await this.ensureUsersExists(uniqueIds);
+
+    const projectUser = await this.prisma.projectUser.createMany({
+      data: uniqueIds.map((userId) => ({ projectId, userId })),
     });
 
     return successResponse(projectUser, 'Project assigned successfully');
@@ -162,11 +177,24 @@ export class ProjectService {
     return user;
   }
 
+  private async ensureUsersExists(userIds: string[]) {
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+    });
+    if (users.length !== userIds.length)
+      throw new AppError(404, 'User not found');
+    return users;
+  }
+
   private async ensureTeamExists(teamId: string) {
     const team = await this.prisma.team.findUnique({
       where: { id: teamId },
     });
     if (!team) throw new AppError(404, 'Team not found');
     return team;
+  }
+
+  private removeDuplicateIds(ids: string[]) {
+    return Array.from(new Set(ids));
   }
 }
