@@ -4,6 +4,6 @@ import { ShiftService } from './services/shift.service';
 
 @Module({
   controllers: [ShiftController],
-  providers: [ShiftService]
+  providers: [ShiftService],
 })
 export class ShiftModule {}

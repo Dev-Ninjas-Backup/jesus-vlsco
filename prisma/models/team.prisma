@@ -1,0 +1,20 @@
+model Team {
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+
+  members  TeamMembers[]
+  projects Project[]
+}
+
+model TeamMembers {
+  id      String  @id @default(uuid())
+  teamId  String
+  userId  String
+  isAdmin Boolean @default(false)
+
+  team Team @relation(fields: [teamId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([teamId, userId]) // Prevent duplicate membership
+}

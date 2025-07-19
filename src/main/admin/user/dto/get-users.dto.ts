@@ -5,7 +5,9 @@ import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString } from 'class-validat
 
 
 export class GetUsersDto {
-  @ApiPropertyOptional({ description: 'Search by name, email, phone, or employeeID' })
+  @ApiPropertyOptional({
+    description: 'Search by name, email, phone, or employeeID',
+  })
   @IsOptional()
   @IsString()
   searchTerm?: string;
@@ -38,13 +40,19 @@ export class GetUsersDto {
   @IsString()
   sortOrder?: 'asc' | 'desc';
 
-  @ApiPropertyOptional({ description: 'Page number for pagination', default: 1 })
+  @ApiPropertyOptional({
+    description: 'Page number for pagination',
+    default: 1,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   page?: number;
 
-  @ApiPropertyOptional({ description: 'Items per page for pagination', default: 10 })
+  @ApiPropertyOptional({
+    description: 'Items per page for pagination',
+    default: 10,
+  })
   @IsOptional()
   @Type(() => Number)
   @IsNumber()

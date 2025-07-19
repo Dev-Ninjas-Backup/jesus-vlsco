@@ -12,9 +12,11 @@ export class GetUserController {
   constructor(private readonly getUserService: GetUserService) {}
 
   // All user get (employee)
-  
+
   @Get()
-  @ApiOperation({ summary: 'Get all users with optional filters, search, and pagination' })
+  @ApiOperation({
+    summary: 'Get all users with optional filters, search, and pagination',
+  })
   async getAllUsers(@Query() query: GetUsersDto) {
     return await this.getUserService.getAllUsers(query);
   }

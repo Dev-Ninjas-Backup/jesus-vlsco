@@ -62,29 +62,35 @@ export class GetUserService {
   // Get All users (employee)
   @HandleError('Failed to fetch users')
   async getAllUsers(dto: GetUsersDto) {
-  const builder = new PrismaUserQueryBuilder(dto)
-    .search(['email', 'phone', 'employeeID', 'profile.firstName', 'profile.lastName'])
-    .filter()
-    .sort(['email', 'createdAt', 'employeeID'])
-    .paginate();
+    const builder = new PrismaUserQueryBuilder(dto)
+      .search([
+        'email',
+        'phone',
+        'employeeID',
+        'profile.firstName',
+        'profile.lastName',
+      ])
+      .filter()
+      .sort(['email', 'createdAt', 'employeeID'])
+      .paginate();
 
-  const queryOptions = await builder.build();
+    const queryOptions = await builder.build();
 
-  const [users, meta] = await Promise.all([
-    this.prisma.user.findMany({
-      ...queryOptions,
-      include: {
-        profile: true,
-        educations: true,
-        experience: true,
-        payroll: true,
-      },
-    }),
-    builder.countTotal(this.prisma.user),
-  ]);
+    const [users, meta] = await Promise.all([
+      this.prisma.user.findMany({
+        ...queryOptions,
+        include: {
+          profile: true,
+          educations: true,
+          experience: true,
+          payroll: true,
+        },
+      }),
+      builder.countTotal(this.prisma.user),
+    ]);
 
-  return { data: users, meta };
-}
+    return { data: users, meta };
+  }
 
   // Single User get by Id (employee)
   @HandleError('Failed to fetch user data by ID')
@@ -109,6 +115,4 @@ export class GetUserService {
   async getUserByEmployeeID(employeeID: number): Promise<TResponse<any>> {
     return this.findUserBy('employeeID', employeeID);
   }
-
-
 }
