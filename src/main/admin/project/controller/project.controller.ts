@@ -44,6 +44,15 @@ export class ProjectController {
     return this.projectService.assignProjectToManager(projectId, managerId);
   }
 
+  @ApiOperation({ summary: 'Update manager of a Project' })
+  @Patch('/:projectId/update-manager/:managerId')
+  updateProjectManager(
+    @Param('projectId') projectId: string,
+    @Param('managerId') managerId: string,
+  ) {
+    return this.projectService.updateProjectManager(projectId, managerId);
+  }
+
   @ApiOperation({ summary: 'Get a Project' })
   @Get(':id')
   getAProject(@Param('id') id: string) {
