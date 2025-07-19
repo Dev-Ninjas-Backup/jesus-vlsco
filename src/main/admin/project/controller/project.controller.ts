@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
@@ -14,8 +23,8 @@ import { ProjectService } from '../services/project.service';
 export class ProjectController {
   constructor(
     private readonly projectService: ProjectService,
-    private readonly getAllProjectsServices: GetAllProjectsService
-  ) { }
+    private readonly getAllProjectsServices: GetAllProjectsService,
+  ) {}
 
   @ApiOperation({ summary: 'Create Project' })
   @Post()
@@ -38,7 +47,10 @@ export class ProjectController {
     @Param('projectId') projectId: string,
     @Body() dto: AssignEmployeesToProjectDto,
   ) {
-    return this.projectService.assignProjectToEmployees(projectId, dto.employees);
+    return this.projectService.assignProjectToEmployees(
+      projectId,
+      dto.employees,
+    );
   }
 
   @ApiOperation({ summary: 'Assign Project to Team or Update Project Team' })

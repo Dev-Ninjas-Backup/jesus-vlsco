@@ -5,7 +5,7 @@ import { GetProjectsDto } from '../dto/get-projects.dto';
 
 @Injectable()
 export class GetAllProjectsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getAllProjects(filters: GetProjectsDto): Promise<TResponse<any>> {
     const {
@@ -29,7 +29,10 @@ export class GetAllProjectsService {
     if (managerId) where.managerId = managerId;
     if (teamId) where.teamId = teamId;
     if (projectLocation) {
-      where.projectLocation = { contains: projectLocation, mode: 'insensitive' };
+      where.projectLocation = {
+        contains: projectLocation,
+        mode: 'insensitive',
+      };
     }
     if (createdAfter || createdBefore) {
       where.createdAt = {};
@@ -84,7 +87,7 @@ export class GetAllProjectsService {
           page,
           limit,
           pages: Math.ceil(total / limit),
-        }
+        },
       },
     };
   }

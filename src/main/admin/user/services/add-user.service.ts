@@ -10,7 +10,7 @@ import { AddUserDto } from '../dto/add-user.dto';
 
 @Injectable()
 export class AddUserService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Error creating user')
   async createUserWithProfile(
@@ -20,7 +20,7 @@ export class AddUserService {
     // * check if email already exists
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
-    })
+    });
 
     if (existingUser) {
       throw new AppError(400, 'Email already exists');
@@ -29,7 +29,7 @@ export class AddUserService {
     // * check if phone already exists
     const existingPhone = await this.prisma.user.findUnique({
       where: { phone: dto.phone },
-    })
+    });
 
     if (existingPhone) {
       throw new AppError(400, 'Phone already exists');
@@ -38,7 +38,7 @@ export class AddUserService {
     // * check if employeeID already exists
     const existingEmployeeID = await this.prisma.user.findUnique({
       where: { employeeID: dto.employeeID },
-    })
+    });
 
     if (existingEmployeeID) {
       throw new AppError(400, 'Employee ID already exists');

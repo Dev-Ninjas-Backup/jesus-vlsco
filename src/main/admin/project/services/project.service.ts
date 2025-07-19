@@ -10,7 +10,7 @@ import { CreateProjectDto } from '../dto/create-project.dto';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   // ========== CREATE ==========
   @HandleError('Failed to create project')
@@ -93,10 +93,7 @@ export class ProjectService {
       },
     });
 
-    return successResponse(
-      updatedProject,
-      'Project team removed successfully',
-    );
+    return successResponse(updatedProject, 'Project team removed successfully');
   }
 
   // ========== ASSIGN MANAGER ==========

@@ -22,7 +22,9 @@ export class GetProjectsDto {
   @IsUUID()
   teamId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by a user assigned to the project' })
+  @ApiPropertyOptional({
+    description: 'Filter by a user assigned to the project',
+  })
   @IsOptional()
   @IsUUID()
   assignedUserId?: string;
@@ -42,12 +44,16 @@ export class GetProjectsDto {
   @IsIn(['DAFT', 'OPEN', 'DONE'])
   status?: 'DAFT' | 'OPEN' | 'DONE';
 
-  @ApiPropertyOptional({ description: 'Only include projects created after this date' })
+  @ApiPropertyOptional({
+    description: 'Only include projects created after this date',
+  })
   @IsOptional()
   @IsDateString()
   createdAfter?: string;
 
-  @ApiPropertyOptional({ description: 'Only include projects created before this date' })
+  @ApiPropertyOptional({
+    description: 'Only include projects created before this date',
+  })
   @IsOptional()
   @IsDateString()
   createdBefore?: string;
@@ -67,7 +73,10 @@ export class GetProjectsDto {
   @Max(100)
   limit?: number = 10;
 
-  @ApiPropertyOptional({ description: 'Sort by field', enum: ['title', 'projectLocation', 'createdAt'] })
+  @ApiPropertyOptional({
+    description: 'Sort by field',
+    enum: ['title', 'projectLocation', 'createdAt'],
+  })
   @IsOptional()
   @IsIn(['title', 'projectLocation', 'createdAt'])
   sortBy?: 'title' | 'projectLocation' | 'createdAt' = 'createdAt';

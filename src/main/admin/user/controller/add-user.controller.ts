@@ -27,7 +27,7 @@ export class AddUserController {
   constructor(
     private readonly addUserService: AddUserService,
     private readonly cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new user with profile photo' })
@@ -59,6 +59,9 @@ export class AddUserController {
       );
     }
 
-    return this.addUserService.createUserWithProfile(dto, uploadedUrl?.url || null);
+    return this.addUserService.createUserWithProfile(
+      dto,
+      uploadedUrl?.url || null,
+    );
   }
 }

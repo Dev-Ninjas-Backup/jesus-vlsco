@@ -6,6 +6,7 @@ import { SurveyModule } from './admin/survey/survey.module';
 import { TaskModule } from './admin/task/task.module';
 import { UserModule } from './admin/user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { TeamModule } from './admin/team/team.module';
 
 @Module({
   imports: [
@@ -13,10 +14,11 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     RecognitionModule,
     ShiftModule,
+    TeamModule,
     ProjectModule,
     TaskModule,
     SurveyModule,
   ],
   controllers: [],
 })
-export class MainModule { }
+export class MainModule {}
