@@ -13,8 +13,8 @@ model TeamMembers {
   userId  String
   isAdmin Boolean @default(false)
 
-  team Team @relation(fields: [teamId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, userId]) // Prevent duplicate membership
 }

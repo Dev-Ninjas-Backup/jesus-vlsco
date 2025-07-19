@@ -22,7 +22,7 @@ export class ProjectService {
     return successResponse(project, 'Project added successfully');
   }
 
-  // ========== ASSIGN USER ==========
+  // ========== ASSIGN EMPLOYEE ==========
   @HandleError('Failed to assign project')
   async assignProjectToEmployee(projectId: string, userId: string) {
     await this.ensureProjectExists(projectId);
@@ -131,6 +131,18 @@ export class ProjectService {
     }
 
     return successResponse(project, 'Project found successfully');
+  }
+
+  // ========== DELETE A PROJECT ==========
+  @HandleError('Failed to delete project')
+  async deleteProject(id: string): Promise<TResponse<any>> {
+    await this.ensureProjectExists(id);
+
+    const project = await this.prisma.project.delete({
+      where: { id },
+    });
+
+    return successResponse(project, 'Project deleted successfully');
   }
 
   // ========== PRIVATE HELPERS ==========

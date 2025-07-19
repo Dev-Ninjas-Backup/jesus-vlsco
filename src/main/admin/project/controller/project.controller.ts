@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Get, Patch } from '@nestjs/common';
+import { Body, Controller, Param, Post, Get, Patch, Delete } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
@@ -18,7 +18,7 @@ export class ProjectController {
   }
 
   @ApiOperation({ summary: 'Assign Project to Employee' })
-  @Patch('/:projectId/assign-employee/:userId')
+  @Patch(':projectId/assign-employee/:userId')
   assignProject(
     @Param('projectId') projectId: string,
     @Param('userId') userId: string,
@@ -27,7 +27,7 @@ export class ProjectController {
   }
 
   @ApiOperation({ summary: 'Assign Project to Team' })
-  @Patch('/:projectId/assign-team/:teamId')
+  @Patch(':projectId/assign-team/:teamId')
   assignProjectToTeam(
     @Param('projectId') projectId: string,
     @Param('teamId') teamId: string,
@@ -36,7 +36,7 @@ export class ProjectController {
   }
 
   @ApiOperation({ summary: 'Assign Project to Manager' })
-  @Patch('/:projectId/assign-manager/:managerId')
+  @Patch(':projectId/assign-manager/:managerId')
   assignProjectToManager(
     @Param('projectId') projectId: string,
     @Param('managerId') managerId: string,
@@ -45,12 +45,18 @@ export class ProjectController {
   }
 
   @ApiOperation({ summary: 'Update manager of a Project' })
-  @Patch('/:projectId/update-manager/:managerId')
+  @Patch(':projectId/update-manager/:managerId')
   updateProjectManager(
     @Param('projectId') projectId: string,
     @Param('managerId') managerId: string,
   ) {
     return this.projectService.updateProjectManager(projectId, managerId);
+  }
+
+  @ApiOperation({ summary: 'Delete Project' })
+  @Delete(':id')
+  deleteProject(@Param('id') id: string) {
+    return this.projectService.deleteProject(id);
   }
 
   @ApiOperation({ summary: 'Get a Project' })
