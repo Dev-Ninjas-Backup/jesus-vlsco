@@ -4,7 +4,7 @@ export function HandleError(customMessage?: string, record?: string) {
   return function <T>(
     _target: T,
     _propertyName: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     descriptor: TypedPropertyDescriptor<(...args: unknown[]) => Promise<any>>,
   ) {
     const method = descriptor.value;
@@ -17,7 +17,6 @@ export function HandleError(customMessage?: string, record?: string) {
       try {
         return await method.apply(this, args);
       } catch (error) {
-        console.log(error);
         simplifyError(error, customMessage, record);
       }
     };

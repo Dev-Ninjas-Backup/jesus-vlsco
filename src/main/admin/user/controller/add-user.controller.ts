@@ -50,12 +50,18 @@ export class AddUserController {
     @Body() dto: AddUserDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    // * upload file to Cloudinary
-    const uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-      file.buffer,
-      file.originalname,
-    );
+    let uploadedUrl = null;
 
-    return this.addUserService.createUserWithProfile(dto, uploadedUrl.url);
+    if (file) {
+      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
+        file.buffer,
+        file.originalname,
+      );
+    }
+
+    return this.addUserService.createUserWithProfile(
+      dto,
+      uploadedUrl?.url || null,
+    );
   }
 }

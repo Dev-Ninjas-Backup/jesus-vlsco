@@ -6,16 +6,18 @@ import { SurveyModule } from './admin/survey/survey.module';
 import { TaskModule } from './admin/task/task.module';
 import { UserModule } from './admin/user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { TeamModule } from './admin/team/team.module';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
-    SurveyModule,
-    ShiftModule,
-    ProjectModule,
     RecognitionModule,
+    ShiftModule,
+    TeamModule,
+    ProjectModule,
     TaskModule,
+    SurveyModule,
   ],
   controllers: [],
 })

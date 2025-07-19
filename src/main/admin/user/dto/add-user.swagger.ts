@@ -43,3 +43,27 @@ export const swaggerSchema = {
     profileUrl: { type: 'string', format: 'binary' },
   },
 };
+
+export const updateUserSwaggerSchema = {
+  type: 'object',
+  properties: {
+    email: { type: 'string', example: 'user@example.com' },
+    phone: { type: 'string', example: '+8801234567890' },
+    employeeID: { type: 'integer', example: 1001 },
+    role: { type: 'string', enum: [UserEnum.ADMIN, UserEnum.EMPLOYEE] },
+    firstName: { type: 'string' },
+    lastName: { type: 'string' },
+    gender: { type: 'string', enum: [Gender.MALE, Gender.FEMALE] },
+    jobTitle: { type: 'string', enum: Object.values(JopTitle) },
+    department: { type: 'string', enum: Object.values(Department) },
+    address: { type: 'string' },
+    city: { type: 'string' },
+    state: { type: 'string' },
+    dob: { type: 'string', format: 'date-time' },
+    country: { type: 'string' },
+    nationality: { type: 'string' },
+    password: { type: 'string' },
+    pinCode: { type: 'integer', example: 1234 },
+    profileUrl: { type: 'string', format: 'binary' },
+  },
+};
