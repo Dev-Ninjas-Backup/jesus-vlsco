@@ -14,10 +14,16 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  profile    Profile?
-  payroll    Payroll?
-  educations Education[]
-  experience Experience[]
+  profile      Profile?
+  payroll      Payroll?
+  projects     Project[]
+  educations   Education[]
+  recognitions RecognitionUser[]
+  experience   Experience[]
+  shifts       Shift[]
+  taskUsers    TaskUser[]
+  teamMembers  TeamMembers[]
+  projectUsers ProjectUser[]
 }
 
 enum UserEnum {

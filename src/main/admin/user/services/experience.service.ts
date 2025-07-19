@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -14,6 +15,7 @@ import {
 export class ExperienceService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Error adding experience')
   async createExperiences(
     dto: ExperienceDto,
     userId: string,
@@ -27,6 +29,7 @@ export class ExperienceService {
     return successResponse(experiences, 'Experiences added successfully');
   }
 
+  @HandleError('Error adding experience')
   async createSingleExperience(
     dto: ExperienceItemDto,
     userId: string,
@@ -40,6 +43,7 @@ export class ExperienceService {
     return successResponse(experience, 'Experience added successfully');
   }
 
+  @HandleError('Error getting experience')
   async getSingleExperience(id: string): Promise<TResponse<any>> {
     const experience = await this.prisma.experience.findUnique({
       where: {
@@ -49,6 +53,7 @@ export class ExperienceService {
     return successResponse(experience, 'Experience found successfully');
   }
 
+  @HandleError('Error getting experience')
   async getExperiences(userId: string): Promise<TResponse<any>> {
     const experiences = await this.prisma.experience.findMany({
       where: {
@@ -58,6 +63,7 @@ export class ExperienceService {
     return successResponse(experiences, 'Experiences found successfully');
   }
 
+  @HandleError('Error deleting experience')
   async deleteExperience(id: string): Promise<TResponse<any>> {
     const experience = await this.prisma.experience.delete({
       where: {
@@ -67,6 +73,7 @@ export class ExperienceService {
     return successResponse(experience, 'Experience deleted successfully');
   }
 
+  @HandleError('Error deleting experience')
   async deleteExperiences(userId: string): Promise<TResponse<any>> {
     const experiences = await this.prisma.experience.deleteMany({
       where: {
@@ -76,6 +83,7 @@ export class ExperienceService {
     return successResponse(experiences, 'All experiences deleted successfully');
   }
 
+  @HandleError('Error updating experience')
   async updateExperience(
     id: string,
     dto: UpdateExperienceItemDto,

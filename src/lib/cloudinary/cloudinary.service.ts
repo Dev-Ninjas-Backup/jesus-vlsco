@@ -43,7 +43,17 @@ export class CloudinaryService {
     });
   }
 
-  async deleteImage(publicId: string): Promise<void> {
+  private extractPublicId(url: string): string {
+    const urlObj = new URL(url);
+    const parts = urlObj.pathname.split('/');
+    const filenameWithExt = parts.slice(-1)[0]; // e.g. Screenshot 2025-07-10 at 10.07.04 PM.png
+    const folder = parts.slice(-2, -1)[0]; // e.g. profile-images
+    const filename = path.parse(filenameWithExt).name;
+    return `${folder}/${filename}`;
+  }
+
+  async deleteImage(url: string): Promise<void> {
+    const publicId = await this.extractPublicId(url);
     await cloudinary.uploader.destroy(publicId);
   }
 }
