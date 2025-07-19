@@ -3,10 +3,6 @@ export const addTaskSwaggerSchema = {
   properties: {
     title: { type: 'string', example: 'Design Homepage' },
     description: { type: 'string', example: 'Design the main landing page UI' },
-    projectId: {
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-    },
     startTime: {
       type: 'string',
       format: 'date-time',

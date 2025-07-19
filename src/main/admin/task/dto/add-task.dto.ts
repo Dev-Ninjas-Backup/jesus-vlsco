@@ -3,10 +3,6 @@ import { Transform, Type } from 'class-transformer';
 import { IsArray, IsDate, IsOptional, IsString } from 'class-validator';
 
 export class AddTaskDto {
-  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000' })
-  @IsString()
-  projectId: string;
-
   @ApiProperty({ example: 'Design Homepage' })
   @IsString()
   title: string;
@@ -36,7 +32,7 @@ export class AddTaskDto {
       try {
         return JSON.parse(value);
       } catch (err) {
-        return [value]; 
+        return [value];
       }
     }
     return value;
