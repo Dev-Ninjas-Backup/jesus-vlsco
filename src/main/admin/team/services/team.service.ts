@@ -79,9 +79,8 @@ export class TeamService {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
-    const team = await this.prisma.team.update({
-      where: { id: teamId },
-      data: { members: { connect: { id: userId } } },
+    const team = await this.prisma.teamMembers.create({
+      data: { teamId, userId },
     });
 
     return successResponse(team, 'Member added to team successfully');
@@ -94,9 +93,8 @@ export class TeamService {
 
     const uniqueIds = this.utils.removeDuplicateIds(userIds);
 
-    const team = await this.prisma.team.update({
-      where: { id: teamId },
-      data: { members: { connect: uniqueIds.map((userId) => ({ id: userId })) } },
+    const team = await this.prisma.teamMembers.createMany({
+      data: uniqueIds.map((userId) => ({ teamId, userId })),
     });
 
     return successResponse(team, 'Members added to team successfully');
@@ -119,10 +117,9 @@ export class TeamService {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
-    const team = await this.prisma.team.update({
-      where: { id: teamId },
-      data: { members: { connect: { id: userId, isAdmin: true } } },
-    });
+    const team = await this.prisma.teamMembers.create({
+      data: { teamId, userId, isAdmin: true },
+    })
 
     return successResponse(team, 'Admin added to team successfully');
   }
@@ -146,10 +143,10 @@ export class TeamService {
 
     await this.utils.ensureMemberExistsInTeam(teamId, userId);
 
-    const team = await this.prisma.team.update({
-      where: { id: teamId },
-      data: { members: { update: { where: { id: userId }, data: { isAdmin: true } } } },
-    });
+    const team = await this.prisma.teamMembers.update({
+      where: { teamId_userId: { teamId, userId } },
+      data: { isAdmin: true },
+    })
 
     return successResponse(team, 'User made admin successfully');
   }
@@ -161,10 +158,10 @@ export class TeamService {
 
     await this.utils.ensureMemberExistsInTeam(teamId, userId);
 
-    const team = await this.prisma.team.update({
-      where: { id: teamId },
-      data: { members: { update: { where: { id: userId }, data: { isAdmin: false } } } },
-    });
+    const team = await this.prisma.teamMembers.update({
+      where: { teamId_userId: { teamId, userId } },
+      data: { isAdmin: false },
+    })
 
     return successResponse(team, 'Admin made user successfully');
   }
@@ -176,10 +173,9 @@ export class TeamService {
 
     await this.utils.ensureMemberExistsInTeam(teamId, userId);
 
-    const team = await this.prisma.team.update({
-      where: { id: teamId },
-      data: { members: { disconnect: { id: userId } } },
-    });
+    const team = await this.prisma.teamMembers.delete({
+      where: { teamId_userId: { teamId, userId } },
+    })
 
     return successResponse(team, 'User removed from team successfully');
   }
