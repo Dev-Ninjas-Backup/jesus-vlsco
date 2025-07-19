@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { ExperienceDto, ExperienceItemDto } from '../dto/experience.dto';
+import { ExperienceDto, ExperienceItemDto, UpdateExperienceItemDto } from '../dto/experience.dto';
 import { ExperienceService } from '../services/experience.service';
 
 @ApiTags('Admin -- Experience')
@@ -27,7 +27,7 @@ export class ExperienceController {
     return this.experienceService.createSingleExperience(dto, userId);
   }
 
-  @Post('create/multiple/:userId')
+  @Post('create/user/:userId')
   async createExperiences(
     @Body() dto: ExperienceDto,
     @Param('userId') userId: string,
@@ -41,22 +41,22 @@ export class ExperienceController {
   }
 
   @Get('get/user/:userId')
-  async getExperiences(userId: string) {
+  async getExperiences(@Param('userId') userId: string) {
     return this.experienceService.getExperiences(userId);
   }
 
   @Delete('delete/single/:id')
-  async deleteExperience(id: string) {
+  async deleteExperience(@Param('id') id: string) {
     return this.experienceService.deleteExperience(id);
   }
 
-  @Delete('delete/multiple/:userId')
-  async deleteExperiences(userId: string) {
+  @Delete('delete/user/:userId')
+  async deleteExperiences(@Param('userId') userId: string) {
     return this.experienceService.deleteExperiences(userId);
   }
 
   @Patch('update/single/:id')
-  async updateExperience(id: string, dto: any) {
+  async updateExperience(@Param('id') id: string, dto: UpdateExperienceItemDto) {
     return this.experienceService.updateExperience(id, dto);
   }
 }
