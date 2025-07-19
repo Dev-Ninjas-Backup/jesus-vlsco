@@ -1,8 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { GetProjectsDto } from '../dto/get-projects.dto';
 import { AssignEmployeesToProjectDto } from '../dto/project.dto';
+import { GetAllProjectsService } from '../services/get-all-projects.service';
 import { ProjectService } from '../services/project.service';
 
 @ApiTags('Admin -- Project')
@@ -10,7 +12,10 @@ import { ProjectService } from '../services/project.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) { }
+  constructor(
+    private readonly projectService: ProjectService,
+    private readonly getAllProjectsServices: GetAllProjectsService
+  ) { }
 
   @ApiOperation({ summary: 'Create Project' })
   @Post()
@@ -79,5 +84,11 @@ export class ProjectController {
   @Get(':id')
   getAProject(@Param('id') id: string) {
     return this.projectService.getAProject(id);
+  }
+
+  @ApiOperation({ summary: 'Get all Projects' })
+  @Get()
+  async getAll(@Query() query: GetProjectsDto) {
+    return this.getAllProjectsServices.getAllProjects(query);
   }
 }

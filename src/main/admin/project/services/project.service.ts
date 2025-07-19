@@ -156,7 +156,9 @@ export class ProjectService {
         projectUsers: {
           include: { user: true },
         },
-        tasks: true,
+        tasks: {
+          include: { tasksUsers: { include: { user: true } } },
+        },
       },
     });
 
