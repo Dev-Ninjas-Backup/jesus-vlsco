@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { TaskStatus } from '@prisma/client';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse, TResponse } from '@project/common/utils/response.util';
@@ -67,6 +68,7 @@ export class TaskService {
     return successResponse(taskUser, 'Task unassigned successfully');
   }
 
+  @HandleError('Error assigning employees to task')
   async assignEmployeesToTask(taskId: string, dto: AssignEmployeesToTaskDto): Promise<TResponse<any>> {
     await this.utils.ensureTaskExists(taskId);
     await this.utils.ensureUsersExists(dto.employees);
@@ -78,5 +80,31 @@ export class TaskService {
     });
 
     return successResponse(taskUser, 'Task assigned successfully');
+  }
+
+  @HandleError('Error updating project of task')
+  async updateProjectOfTask(taskId: string, projectId: string) {
+    await this.utils.ensureTaskExists(taskId);
+    await this.utils.ensureProjectExists(projectId);
+
+    const task = await this.prisma.task.update({
+      where: { id: taskId },
+      data: {
+        project: { connect: { id: projectId } },
+      },
+    });
+
+    return successResponse(task, 'Task updated successfully');
+  }
+
+  async updateStatus(taskId: string, status: TaskStatus) {
+    await this.utils.ensureTaskExists(taskId);
+    const task = await this.prisma.task.update({
+      where: { id: taskId },
+      data: {
+        status,
+      },
+    });
+    return successResponse(task, 'Task updated successfully');
   }
 }

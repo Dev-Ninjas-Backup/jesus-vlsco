@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsUUID } from 'class-validator';
+import { TaskStatus } from '@prisma/client';
+import { IsArray, IsEnum, IsUUID } from 'class-validator';
 
 export class AssignEmployeesToTaskDto {
   @ApiProperty({
@@ -13,4 +14,14 @@ export class AssignEmployeesToTaskDto {
   @IsArray()
   @IsUUID('4', { each: true })
   employees: string[];
+}
+
+export class UpdateTaskStatusDto {
+  @ApiProperty({
+    example: TaskStatus.DONE,
+    enum: TaskStatus,
+    description: 'Task status',
+  })
+  @IsEnum(TaskStatus)
+  status: TaskStatus
 }

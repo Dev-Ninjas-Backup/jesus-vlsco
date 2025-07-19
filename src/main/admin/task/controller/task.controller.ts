@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { TaskStatus } from '@prisma/client';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { AssignEmployeesToTaskDto } from '../dto/task.dto';
+import { AssignEmployeesToTaskDto, UpdateTaskStatusDto } from '../dto/task.dto';
 import { TaskService } from '../services/task.service';
 
 @ApiTags('Admin -- Task')
@@ -45,5 +46,17 @@ export class TaskController {
   @Patch(':taskId/unassign/:userId')
   unassignEmployeeFromTask(@Param('taskId') taskId: string, @Param('userId') userId: string) {
     return this.taskService.unassignEmployeeFromTask(taskId, userId);
+  }
+
+  @ApiOperation({ summary: 'Update project of task' })
+  @Patch(':taskId/project/:projectId')
+  updateProjectOfTask(@Param('taskId') taskId: string, @Param('projectId') projectId: string) {
+    return this.taskService.updateProjectOfTask(taskId, projectId);
+  }
+
+  @ApiOperation({ summary: 'Update status of task' })
+  @Patch(':taskId/status')
+  updateStatus(@Param('taskId') taskId: string, @Query() dto: UpdateTaskStatusDto) {
+    return this.taskService.updateStatus(taskId, dto.status);
   }
 }
