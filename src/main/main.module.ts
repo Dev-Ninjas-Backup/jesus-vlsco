@@ -7,6 +7,7 @@ import { TaskModule } from './admin/task/task.module';
 import { UserModule } from './admin/user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { SettingsModule } from './admin/settings/settings.module';
+import { AnnouncementModule } from './admin/announcement/announcement.module';
 
 @Module({
   imports: [
@@ -18,7 +19,9 @@ import { SettingsModule } from './admin/settings/settings.module';
     RecognitionModule,
     TaskModule,
     SettingsModule,
+    AnnouncementModule,
   ],
   controllers: [],
+  providers: [],
 })
 export class MainModule {}
