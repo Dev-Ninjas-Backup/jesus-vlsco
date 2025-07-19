@@ -31,7 +31,7 @@ export default defineConfig([
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: {
       '@typescript-eslint/no-empty-object-type': 'warn',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-namespace': 'warn',
       'no-undef': 'off',
     },

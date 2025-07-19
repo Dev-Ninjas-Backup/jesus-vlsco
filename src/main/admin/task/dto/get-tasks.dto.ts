@@ -31,22 +31,30 @@ export class GetTasksDto {
   @IsEnum(TaskStatus)
   status?: TaskStatus;
 
-  @ApiPropertyOptional({ description: 'Search keyword in title or description' })
+  @ApiPropertyOptional({
+    description: 'Search keyword in title or description',
+  })
   @IsOptional()
   @IsString()
   search?: string;
 
-  @ApiPropertyOptional({ description: 'Filter tasks starting after this date/time' })
+  @ApiPropertyOptional({
+    description: 'Filter tasks starting after this date/time',
+  })
   @IsOptional()
   @IsDateString()
   startAfter?: string;
 
-  @ApiPropertyOptional({ description: 'Filter tasks ending before this date/time' })
+  @ApiPropertyOptional({
+    description: 'Filter tasks ending before this date/time',
+  })
   @IsOptional()
   @IsDateString()
   endBefore?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by labels (tasks containing all these labels)' })
+  @ApiPropertyOptional({
+    description: 'Filter by labels (tasks containing all these labels)',
+  })
   @IsOptional()
   @IsArray()
   @ArrayNotEmpty()
@@ -68,7 +76,10 @@ export class GetTasksDto {
   @Max(100)
   limit?: number = 10;
 
-  @ApiPropertyOptional({ description: 'Sort by field', enum: ['startTime', 'endTime', 'createdAt'] })
+  @ApiPropertyOptional({
+    description: 'Sort by field',
+    enum: ['startTime', 'endTime', 'createdAt'],
+  })
   @IsOptional()
   @IsIn(['startTime', 'endTime', 'createdAt'])
   sortBy?: 'startTime' | 'endTime' | 'createdAt' = 'createdAt';

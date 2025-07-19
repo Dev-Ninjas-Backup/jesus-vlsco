@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTeamsDto } from '../dto/get-teams.dto';
@@ -13,8 +22,8 @@ import { TeamService } from '../services/team.service';
 export class TeamController {
   constructor(
     private readonly teamService: TeamService,
-    private readonly getAllTeamsService: GetAllTeamsService
-  ) { }
+    private readonly getAllTeamsService: GetAllTeamsService,
+  ) {}
 
   @ApiOperation({ summary: 'Get all teams' })
   @Get('get-all-teams')
@@ -30,7 +39,10 @@ export class TeamController {
 
   @ApiOperation({ summary: 'Update a team' })
   @Patch(':teamId')
-  async updateATeam(@Body() dto: CreateTeamDto, @Param('teamId') teamId: string) {
+  async updateATeam(
+    @Body() dto: CreateTeamDto,
+    @Param('teamId') teamId: string,
+  ) {
     return this.teamService.updateATeam(teamId, dto);
   }
 
@@ -54,14 +66,23 @@ export class TeamController {
 
   @ApiOperation({ summary: 'Add user to team' })
   @Patch(':teamId/add-user/:userId')
-  async addMemberToTeam(@Param('teamId') teamId: string, @Param('userId') userId: string) {
+  async addMemberToTeam(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.teamService.addMemberToTeam(teamId, userId);
   }
 
   @ApiOperation({ summary: 'Add users to team' })
   @Patch(':teamId/users')
-  async addMembersToTeam(@Param('teamId') teamId: string, @Body() addMembersToTeamDto: AddMembersToTeamDto) {
-    return this.teamService.addMembersToTeam(teamId, addMembersToTeamDto.members);
+  async addMembersToTeam(
+    @Param('teamId') teamId: string,
+    @Body() addMembersToTeamDto: AddMembersToTeamDto,
+  ) {
+    return this.teamService.addMembersToTeam(
+      teamId,
+      addMembersToTeamDto.members,
+    );
   }
 
   @ApiOperation({ summary: 'Get team members' })
@@ -72,7 +93,10 @@ export class TeamController {
 
   @ApiOperation({ summary: 'Add admin to team' })
   @Patch(':teamId/add-admin/:userId')
-  async addAdminToTeam(@Param('teamId') teamId: string, @Param('userId') userId: string) {
+  async addAdminToTeam(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.teamService.addAdminToTeam(teamId, userId);
   }
 
@@ -84,19 +108,28 @@ export class TeamController {
 
   @ApiOperation({ summary: 'Convert user to admin' })
   @Patch(':teamId/admin/:userId')
-  async convertUserToAdmin(@Param('teamId') teamId: string, @Param('userId') userId: string) {
+  async convertUserToAdmin(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.teamService.convertUserToAdmin(teamId, userId);
   }
 
   @ApiOperation({ summary: 'Convert admin to user' })
   @Patch(':teamId/user/:userId')
-  async convertAdminToUser(@Param('teamId') teamId: string, @Param('userId') userId: string) {
+  async convertAdminToUser(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.teamService.convertAdminToUser(teamId, userId);
   }
 
   @ApiOperation({ summary: 'Remove user from team' })
   @Delete(':teamId/user/:userId')
-  async removeMemberFromTeam(@Param('teamId') teamId: string, @Param('userId') userId: string) {
+  async removeMemberFromTeam(
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ) {
     return this.teamService.removeMemberFromTeam(teamId, userId);
   }
 }

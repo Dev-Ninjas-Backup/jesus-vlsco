@@ -9,6 +9,11 @@ import { UpdateTaskService } from './services/update-task.service';
 
 @Module({
   controllers: [AddTaskController, UpdateTaskController, TaskController],
-  providers: [AddTaskService, CloudinaryService, TaskService, UpdateTaskService],
+  providers: [
+    AddTaskService,
+    CloudinaryService,
+    TaskService,
+    UpdateTaskService,
+  ],
 })
-export class TaskModule { }
+export class TaskModule {}

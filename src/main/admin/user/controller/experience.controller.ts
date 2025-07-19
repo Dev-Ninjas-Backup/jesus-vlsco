@@ -9,7 +9,11 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { ExperienceDto, ExperienceItemDto, UpdateExperienceItemDto } from '../dto/experience.dto';
+import {
+  ExperienceDto,
+  ExperienceItemDto,
+  UpdateExperienceItemDto,
+} from '../dto/experience.dto';
 import { ExperienceService } from '../services/experience.service';
 
 @ApiTags('Admin -- Experience')
@@ -56,7 +60,10 @@ export class ExperienceController {
   }
 
   @Patch('update/single/:id')
-  async updateExperience(@Param('id') id: string, dto: UpdateExperienceItemDto) {
+  async updateExperience(
+    @Param('id') id: string,
+    dto: UpdateExperienceItemDto,
+  ) {
     return this.experienceService.updateExperience(id, dto);
   }
 }

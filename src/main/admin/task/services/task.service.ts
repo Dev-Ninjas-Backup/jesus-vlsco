@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { TaskStatus } from '@prisma/client';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { GetTasksDto } from '../dto/get-tasks.dto';
@@ -12,8 +15,8 @@ import { AssignEmployeesToTaskDto } from '../dto/task.dto';
 export class TaskService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utils: UtilsService
-  ) { }
+    private readonly utils: UtilsService,
+  ) {}
 
   @HandleError('Error getting all tasks')
   async getAllTasks(filters: GetTasksDto): Promise<TResponse<any>> {
@@ -69,7 +72,10 @@ export class TaskService {
     });
 
     return successResponse(
-      { data: tasks, meta: { total, page, limit, pages: Math.ceil(total / limit) } },
+      {
+        data: tasks,
+        meta: { total, page, limit, pages: Math.ceil(total / limit) },
+      },
       'Tasks fetched successfully',
     );
   }
@@ -92,7 +98,10 @@ export class TaskService {
   }
 
   @HandleError('Error assigning employee to task')
-  async assignEmployeeToTask(taskId: string, userId: string): Promise<TResponse<any>> {
+  async assignEmployeeToTask(
+    taskId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTaskExists(taskId);
     await this.utils.ensureUserExists(userId);
 
@@ -111,7 +120,10 @@ export class TaskService {
   }
 
   @HandleError('Error un assigning employee from task')
-  async unassignEmployeeFromTask(taskId: string, userId: string): Promise<TResponse<any>> {
+  async unassignEmployeeFromTask(
+    taskId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTaskExists(taskId);
     await this.utils.ensureUserExists(userId);
 
@@ -123,7 +135,10 @@ export class TaskService {
   }
 
   @HandleError('Error assigning employees to task')
-  async assignEmployeesToTask(taskId: string, dto: AssignEmployeesToTaskDto): Promise<TResponse<any>> {
+  async assignEmployeesToTask(
+    taskId: string,
+    dto: AssignEmployeesToTaskDto,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTaskExists(taskId);
     await this.utils.ensureUsersExists(dto.employees);
 

@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
@@ -9,8 +12,8 @@ import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
 export class TeamService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utils: UtilsService
-  ) { }
+    private readonly utils: UtilsService,
+  ) {}
 
   // ================ Team CRUD ================
   @HandleError('Failed to create team')
@@ -50,13 +53,14 @@ export class TeamService {
     await this.utils.ensureTeamExists(id);
 
     const team = await this.prisma.team.findUnique({
-      where: { id }, include: {
+      where: { id },
+      include: {
         members: {
-          include: { user: true }
+          include: { user: true },
         },
         projects: {
-          include: { projectUsers: { include: { user: true } } }
-        }
+          include: { projectUsers: { include: { user: true } } },
+        },
       },
     });
 
@@ -75,7 +79,10 @@ export class TeamService {
 
   // ================ Team Members ================
   @HandleError('Failed to add member to team')
-  async addMemberToTeam(teamId: string, userId: string): Promise<TResponse<any>> {
+  async addMemberToTeam(
+    teamId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
@@ -87,7 +94,10 @@ export class TeamService {
   }
 
   @HandleError('Failed to add members to team')
-  async addMembersToTeam(teamId: string, userIds: string[]): Promise<TResponse<any>> {
+  async addMembersToTeam(
+    teamId: string,
+    userIds: string[],
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUsersExists(userIds);
 
@@ -113,13 +123,16 @@ export class TeamService {
   }
 
   @HandleError('Failed to add admin to team')
-  async addAdminToTeam(teamId: string, userId: string): Promise<TResponse<any>> {
+  async addAdminToTeam(
+    teamId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
     const team = await this.prisma.teamMembers.create({
       data: { teamId, userId, isAdmin: true },
-    })
+    });
 
     return successResponse(team, 'Admin added to team successfully');
   }
@@ -137,7 +150,10 @@ export class TeamService {
   }
 
   @HandleError('Failed to convert user to admin')
-  async convertUserToAdmin(teamId: string, userId: string): Promise<TResponse<any>> {
+  async convertUserToAdmin(
+    teamId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
@@ -146,13 +162,16 @@ export class TeamService {
     const team = await this.prisma.teamMembers.update({
       where: { teamId_userId: { teamId, userId } },
       data: { isAdmin: true },
-    })
+    });
 
     return successResponse(team, 'User made admin successfully');
   }
 
   @HandleError('Failed to convert admin to user')
-  async convertAdminToUser(teamId: string, userId: string): Promise<TResponse<any>> {
+  async convertAdminToUser(
+    teamId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
@@ -161,13 +180,16 @@ export class TeamService {
     const team = await this.prisma.teamMembers.update({
       where: { teamId_userId: { teamId, userId } },
       data: { isAdmin: false },
-    })
+    });
 
     return successResponse(team, 'Admin made user successfully');
   }
 
   @HandleError('Failed to remove member from team')
-  async removeMemberFromTeam(teamId: string, userId: string): Promise<TResponse<any>> {
+  async removeMemberFromTeam(
+    teamId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(teamId);
     await this.utils.ensureUserExists(userId);
 
@@ -175,7 +197,7 @@ export class TeamService {
 
     const team = await this.prisma.teamMembers.delete({
       where: { teamId_userId: { teamId, userId } },
-    })
+    });
 
     return successResponse(team, 'User removed from team successfully');
   }

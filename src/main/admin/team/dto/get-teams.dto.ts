@@ -21,7 +21,9 @@ export class GetTeamsDto {
   @IsUUID()
   memberId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by project ID (teams having this project)' })
+  @ApiPropertyOptional({
+    description: 'Filter by project ID (teams having this project)',
+  })
   @IsOptional()
   @IsUUID()
   projectId?: string;
@@ -41,7 +43,10 @@ export class GetTeamsDto {
   @Max(100)
   limit?: number = 10;
 
-  @ApiPropertyOptional({ description: 'Sort by field', enum: ['title', 'createdAt'] })
+  @ApiPropertyOptional({
+    description: 'Sort by field',
+    enum: ['title', 'createdAt'],
+  })
   @IsOptional()
   @IsIn(['title', 'createdAt'])
   sortBy?: 'title' | 'createdAt' = 'createdAt';

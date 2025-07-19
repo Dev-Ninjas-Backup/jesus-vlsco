@@ -34,4 +34,4 @@ import { UpdateUserService } from './services/update-user.service';
     PayrollService,
   ],
 })
-export class UserModule { }
+export class UserModule {}

@@ -28,12 +28,16 @@ export class UpdateTaskController {
   constructor(
     private readonly updateTaskService: UpdateTaskService,
     private readonly cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   @Patch(':taskId')
-  @ApiOperation({ summary: 'Update an existing task (with optional new attachment)' })
+  @ApiOperation({
+    summary: 'Update an existing task (with optional new attachment)',
+  })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ schema: { type: 'object', properties: updateTaskSwaggerSchema.properties } })
+  @ApiBody({
+    schema: { type: 'object', properties: updateTaskSwaggerSchema.properties },
+  })
   @UseInterceptors(FileInterceptor('attachment'))
   async updateTask(
     @Param('taskId') taskId: string,
@@ -42,10 +46,12 @@ export class UpdateTaskController {
   ) {
     let uploadedUrl: string | null = null;
     if (file) {
-      uploadedUrl = (await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      )).url;
+      uploadedUrl = (
+        await this.cloudinaryService.uploadImageFromBuffer(
+          file.buffer,
+          file.originalname,
+        )
+      ).url;
     }
     return this.updateTaskService.updateTask(taskId, dto, uploadedUrl);
   }

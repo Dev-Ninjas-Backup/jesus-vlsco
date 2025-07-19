@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UpdateTaskDto } from '../dto/task.dto';
 
 @Injectable()
 export class UpdateTaskService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to update task')
   async updateTask(
@@ -16,7 +19,9 @@ export class UpdateTaskService {
     attachmentUrl: string | null,
   ): Promise<TResponse<any>> {
     // 1. Ensure task exists
-    const existing = await this.prisma.task.findUnique({ where: { id: taskId } });
+    const existing = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
     if (!existing) {
       throw new AppError(404, 'Task not found');
     }

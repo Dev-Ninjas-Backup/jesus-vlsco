@@ -24,7 +24,7 @@ export class UpdateTaskStatusDto {
     description: 'Task status',
   })
   @IsEnum(TaskStatus)
-  status: TaskStatus
+  status: TaskStatus;
 }
 
-export class UpdateTaskDto extends PartialType(AddTaskDto) { }
+export class UpdateTaskDto extends PartialType(AddTaskDto) {}

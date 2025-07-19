@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetTeamsDto } from '../dto/get-teams.dto';
 
 @Injectable()
 export class GetAllTeamsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getAllTeamsService(filters: GetTeamsDto): Promise<TResponse<any>> {
     const {
@@ -49,14 +52,17 @@ export class GetAllTeamsService {
       },
     });
 
-    return successResponse({
-      teams: data,
-      meta: {
-        total,
-        page,
-        limit,
-        pages: Math.ceil(total / limit),
+    return successResponse(
+      {
+        teams: data,
+        meta: {
+          total,
+          page,
+          limit,
+          pages: Math.ceil(total / limit),
+        },
       },
-    }, 'Teams data fetched successfully');
+      'Teams data fetched successfully',
+    );
   }
 }

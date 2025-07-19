@@ -28,12 +28,16 @@ export class UpdateUserController {
   constructor(
     private readonly updateUserService: UpdateUserService,
     private readonly cloudinaryService: CloudinaryService,
-  ) { }
+  ) {}
 
   @Patch(':userId')
-  @ApiOperation({ summary: 'Update an existing user with optional new profile photo' })
+  @ApiOperation({
+    summary: 'Update an existing user with optional new profile photo',
+  })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({ schema: { type: 'object', properties: updateUserSwaggerSchema.properties } })
+  @ApiBody({
+    schema: { type: 'object', properties: updateUserSwaggerSchema.properties },
+  })
   @UseInterceptors(FileInterceptor('profileUrl'))
   async updateUser(
     @Param('userId') userId: string,
@@ -42,10 +46,12 @@ export class UpdateUserController {
   ) {
     let uploadedUrl: string | null = null;
     if (file) {
-      uploadedUrl = (await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      )).url;
+      uploadedUrl = (
+        await this.cloudinaryService.uploadImageFromBuffer(
+          file.buffer,
+          file.originalname,
+        )
+      ).url;
     }
     return this.updateUserService.updateUser(userId, dto, uploadedUrl);
   }

@@ -1,20 +1,26 @@
-import { PartialType } from "@nestjs/mapped-types"
-import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator"
+import { PartialType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateTeamDto {
   @ApiProperty({ example: 'Amdadul HQ' })
   @IsString()
   @IsNotEmpty()
-  title: string
+  title: string;
 
   @ApiProperty({ example: 'Amdadul HQ Description' })
   @IsString()
   @IsOptional()
-  description: string
+  description: string;
 }
 
-export class UpdateTeamDto extends PartialType(CreateTeamDto) { }
+export class UpdateTeamDto extends PartialType(CreateTeamDto) {}
 
 export class AddMembersToTeamDto {
   @ApiProperty({

@@ -13,7 +13,7 @@ export class PayrollController {
   constructor(
     private readonly addPayrollService: AddPayrollService,
     private readonly payrollService: PayrollService,
-  ) { }
+  ) {}
 
   @Patch('payrate/:userId')
   async updatePayRate(

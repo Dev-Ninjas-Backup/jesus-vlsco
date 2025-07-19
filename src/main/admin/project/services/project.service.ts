@@ -13,8 +13,8 @@ import { CreateProjectDto } from '../dto/create-project.dto';
 export class ProjectService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utils: UtilsService
-  ) { }
+    private readonly utils: UtilsService,
+  ) {}
 
   // ========== CREATE ==========
   @HandleError('Failed to create project')

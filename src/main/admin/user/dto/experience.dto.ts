@@ -8,7 +8,7 @@ import {
   IsDateString,
   IsEnum,
   IsString,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 export class ExperienceItemDto {
@@ -49,4 +49,4 @@ export class ExperienceDto {
   experiences: ExperienceItemDto[];
 }
 
-export class UpdateExperienceItemDto extends PartialType(ExperienceItemDto) { }
+export class UpdateExperienceItemDto extends PartialType(ExperienceItemDto) {}

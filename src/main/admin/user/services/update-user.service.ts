@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
@@ -10,8 +13,8 @@ import { UpdateProfileDto } from '../dto/update-profile.dto';
 export class UpdateUserService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utils: UtilsService
-  ) { }
+    private readonly utils: UtilsService,
+  ) {}
 
   @HandleError('Failed to update user')
   async updateUser(
@@ -24,15 +27,21 @@ export class UpdateUserService {
 
     // 2. Unique checks if changing email/phone/employeeID
     if (dto.email && dto.email !== existing.email) {
-      const dup = await this.prisma.user.findUnique({ where: { email: dto.email } });
+      const dup = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
       if (dup) throw new AppError(400, 'Email already exists');
     }
     if (dto.phone && dto.phone !== existing.phone) {
-      const dup = await this.prisma.user.findUnique({ where: { phone: dto.phone } });
+      const dup = await this.prisma.user.findUnique({
+        where: { phone: dto.phone },
+      });
       if (dup) throw new AppError(400, 'Phone already exists');
     }
     if (dto.employeeID && dto.employeeID !== existing.employeeID) {
-      const dup = await this.prisma.user.findUnique({ where: { employeeID: dto.employeeID } });
+      const dup = await this.prisma.user.findUnique({
+        where: { employeeID: dto.employeeID },
+      });
       if (dup) throw new AppError(400, 'Employee ID already exists');
     }
 
@@ -69,7 +78,7 @@ export class UpdateUserService {
           upsert: {
             create: profileData,
             update: profileData,
-          }
+          },
         },
       },
       include: { profile: true },
