@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TResponse } from '@project/common/utils/response.util';
+import { successResponse, TResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetTeamsDto } from '../dto/get-teams.dto';
 
@@ -49,18 +49,14 @@ export class GetAllTeamsService {
       },
     });
 
-    return {
-      success: true,
-      message: 'Teams data fetched successfully',
-      data: {
-        teams: data,
-        meta: {
-          total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit),
-        },
-      }
-    }
+    return successResponse({
+      teams: data,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    }, 'Teams data fetched successfully');
   }
 }

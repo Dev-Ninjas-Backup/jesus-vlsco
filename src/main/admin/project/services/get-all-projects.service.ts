@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { TResponse } from '@project/common/utils/response.util';
+import { successResponse, TResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetProjectsDto } from '../dto/get-projects.dto';
 
 @Injectable()
 export class GetAllProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getAllProjects(filters: GetProjectsDto): Promise<TResponse<any>> {
     const {
@@ -77,18 +77,14 @@ export class GetAllProjectsService {
     });
 
     // Return a paginated envelope
-    return {
-      success: true,
-      message: 'Projects fetched successfully',
-      data: {
-        projects: data,
-        meta: {
-          total,
-          page,
-          limit,
-          pages: Math.ceil(total / limit),
-        },
+    return successResponse({
+      projects: data,
+      meta: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
       },
-    };
+    }, 'Projects data fetched successfully');
   }
 }

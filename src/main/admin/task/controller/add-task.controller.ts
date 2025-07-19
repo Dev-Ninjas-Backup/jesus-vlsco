@@ -21,7 +21,7 @@ import { addTaskSwaggerSchema } from '../dto/add-task.swagger';
 import { AddTaskService } from '../services/add-task.service';
 
 @ApiTags('Admin -- Add Task')
-@Controller('admin/task')
+@Controller('admin/task/add')
 @ValidateAdmin()
 @ApiBearerAuth()
 export class AddTaskController {
