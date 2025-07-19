@@ -85,6 +85,14 @@ export class UtilsService {
     return project;
   }
 
+  async ensureTaskExists(taskId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+    });
+    if (!task) throw new AppError(404, 'Task not found');
+    return task;
+  }
+
   async ensureMemberExistsInTeam(teamId: string, userId: string) {
     const member = await this.prisma.teamMembers.findUnique({
       where: { teamId_userId: { teamId, userId } },
