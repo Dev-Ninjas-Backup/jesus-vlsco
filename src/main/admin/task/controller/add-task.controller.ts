@@ -53,7 +53,6 @@ export class AddTaskController {
     @Param('projectId') projectId: string,
   ) {
     let uploadedUrl = null;
-    console.log(projectId);
 
     if (file) {
       uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(

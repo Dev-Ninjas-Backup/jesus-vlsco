@@ -27,7 +27,7 @@ export class AddUserController {
   constructor(
     private readonly addUserService: AddUserService,
     private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new user with profile photo' })
@@ -50,12 +50,15 @@ export class AddUserController {
     @Body() dto: AddUserDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    // * upload file to Cloudinary
-    const uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-      file.buffer,
-      file.originalname,
-    );
+    let uploadedUrl = null;
 
-    return this.addUserService.createUserWithProfile(dto, uploadedUrl.url);
+    if (file) {
+      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
+        file.buffer,
+        file.originalname,
+      );
+    }
+
+    return this.addUserService.createUserWithProfile(dto, uploadedUrl?.url || null);
   }
 }
