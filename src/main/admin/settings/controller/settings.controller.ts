@@ -8,6 +8,10 @@ import { UpdateCompanyService } from '../services/update-company.service';
 import { UpdateCompanyWithBranchesDto } from '../dto/updateCompany.dto';
 import { updateCompanyWithBranchesSwagger } from '../dto/updateCompanyWithBranch.swagger';
 import { SettingsService } from '../services/settings.service';
+import { CreateCompanyBranchNestedDto } from '../dto/createCompanyBranch.dto';
+import { AddBranchService } from '../services/add-branch.service';
+import { addBranchSwagger } from '../dto/add-branch-in-company.swagger';
+import { DeleteCompanyBranchService } from '../services/delete-company-branch.service';
 
 @ApiTags('Admin -- Settings')
 @Controller('admin/settings')
@@ -16,15 +20,19 @@ import { SettingsService } from '../services/settings.service';
 export class SettingsController {
     constructor(private readonly createCompanyService: CreateCompanyService, //
     private readonly updateCompanyService: UpdateCompanyService,
-    private readonly getCompanyService: SettingsService, // Assuming you have a service to get company details    
+    private readonly getCompanyService: SettingsService, // Assuming you have a service to get company details   
+    private readonly addBranchService: AddBranchService, // Assuming you have a service to add branches 
+    private readonly deleteCompanyBranchService: DeleteCompanyBranchService, // Assuming you have a service to delete branches
     // private readonly cloudinaryService: CloudinaryService
     ) {}
 
+    // Get all companies with branches
     @Get('get-companies')
     async getCompanies() {
         return this.getCompanyService.getCompanyWithBranches();
     }
 
+    // create and update company and branches
     @Post('create-company')
     @ApiBody({
         description: 'Comapny creation with branches',
@@ -49,6 +57,7 @@ export class SettingsController {
         return this.createCompanyService.createCompany(dto);
     }
 
+    // Update company and branches
     @Patch('update-company/:companyId')
     @ApiBody({
         description: 'Update company and branches',
@@ -71,5 +80,51 @@ export class SettingsController {
         //     );
         // }
         return this.updateCompanyService.updateCompanyWithBranches(companyId,dto);
+    }
+
+    // Add a new branch to an existing company
+    @Post('add-branch/:companyId')
+    @ApiBody({
+        description: 'Add a new branch to an existing company',
+        schema: {
+            ...addBranchSwagger 
+        },
+    })
+    async addBranch(
+        @Param('companyId') companyId: string,
+        @Body() dto: CreateCompanyBranchNestedDto,
+        // @UploadedFile() file: Express.Multer.File,
+    ) {
+        // let uploadedUrl;
+        // if (file) {
+        //     uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
+        //         file.buffer,
+        //         file.originalname,
+        //     );
+        // }
+        return this.addBranchService.addBranchToCompany(companyId, dto);
+    }
+
+    // Delete a branch from a company
+    @Post('delete-branch/:branchId')
+    @ApiBody({
+        description: 'Delete a branch from a company',
+        schema: {
+            type: 'object',
+            properties: {
+                companyId: {
+                    type: 'string',
+                    example: 'company_12345',
+                    description: 'ID of the company to which the branch belongs',
+                },
+            },
+            required: ['companyId'],
+        },
+    })
+    async deleteBranch(
+        @Param('branchId') branchId: string,
+        @Body('companyId') companyId: string,
+    ) {
+        return this.deleteCompanyBranchService.deleteBranch(companyId, branchId);
     }
 }

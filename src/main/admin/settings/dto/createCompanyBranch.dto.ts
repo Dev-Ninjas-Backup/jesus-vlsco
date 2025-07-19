@@ -17,7 +17,6 @@ export class CreateCompanyBranchNestedDto {
     description: 'User ID of the branch manager (optional)',
     required: false,
   })
-
   @IsString()
   managerId: string;
 }
