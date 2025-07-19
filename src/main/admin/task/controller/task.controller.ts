@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { TaskStatus } from '@prisma/client';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetTasksDto } from '../dto/get-tasks.dto';
 import { AssignEmployeesToTaskDto, UpdateTaskStatusDto } from '../dto/task.dto';
 import { TaskService } from '../services/task.service';
 
@@ -14,8 +14,8 @@ export class TaskController {
 
   @ApiOperation({ summary: 'Get all tasks' })
   @Get()
-  getAllTasks() {
-    return this.taskService.getAllTasks();
+  async getAllTasks(@Query() query: GetTasksDto) {
+    return this.taskService.getAllTasks(query);
   }
 
   @ApiOperation({ summary: 'Get task by id' })
