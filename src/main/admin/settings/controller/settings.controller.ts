@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UploadedFile } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateCompanyService } from '../services/create-company.service';
@@ -18,11 +18,11 @@ import { DeleteCompanyBranchService } from '../services/delete-company-branch.se
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SettingsController {
-    constructor(private readonly createCompanyService: CreateCompanyService, //
+    constructor(private readonly createCompanyService: CreateCompanyService, 
     private readonly updateCompanyService: UpdateCompanyService,
-    private readonly getCompanyService: SettingsService, // Assuming you have a service to get company details   
-    private readonly addBranchService: AddBranchService, // Assuming you have a service to add branches 
-    private readonly deleteCompanyBranchService: DeleteCompanyBranchService, // Assuming you have a service to delete branches
+    private readonly getCompanyService: SettingsService, 
+    private readonly addBranchService: AddBranchService, 
+    private readonly deleteCompanyBranchService: DeleteCompanyBranchService, 
     // private readonly cloudinaryService: CloudinaryService
     ) {}
 
@@ -106,7 +106,7 @@ export class SettingsController {
     }
 
     // Delete a branch from a company
-    @Post('delete-branch/:branchId')
+    @Delete('delete-branch/:branchId')
     @ApiBody({
         description: 'Delete a branch from a company',
         schema: {

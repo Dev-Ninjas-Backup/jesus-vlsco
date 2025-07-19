@@ -9,7 +9,17 @@ export class SettingsService {
     async getCompanyWithBranches() {
         const company = await this.prisma.companies.findMany({
             include: {
-                branches: true, // Assuming 'branches' is the relation name in your Prisma schema
+                branches: {
+                    select: {
+                        id: true,
+                        name: true,
+                        location: true,
+                        managerId: true, 
+                    },
+                    include:{
+                        manager:true
+                    }
+                }, 
             },
         });
 
