@@ -6,6 +6,7 @@ import { SurveyModule } from './admin/survey/survey.module';
 import { TaskModule } from './admin/task/task.module';
 import { UserModule } from './admin/user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { SettingsModule } from './admin/settings/settings.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { AuthModule } from './auth/auth.module';
     ProjectModule,
     RecognitionModule,
     TaskModule,
+    SettingsModule,
   ],
   controllers: [],
 })
