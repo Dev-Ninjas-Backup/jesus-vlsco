@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { ENVEnum } from '@project/common/enum/env.enum';
+import { AppError } from '@project/common/error/handle-error.app';
 import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class UtilsService {
@@ -13,8 +15,18 @@ export class UtilsService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly prisma: PrismaService,
+  ) { }
 
+  sanitizedResponse(sto: any, data: any) {
+    return plainToInstance(sto, data, { excludeExtraneousValues: true });
+  }
+
+  removeDuplicateIds(ids: string[]) {
+    return Array.from(new Set(ids));
+  }
+
+  // * AUTH UTILS
   async hash(value: string): Promise<string> {
     return bcrypt.hash(value, this.saltRounds);
   }
@@ -39,7 +51,45 @@ export class UtilsService {
     return { otp, expiryTime };
   }
 
-  sanitizedResponse(sto: any, data: any) {
-    return plainToInstance(sto, data, { excludeExtraneousValues: true });
+  // * DB UTILS
+  async ensureTeamExists(teamId: string) {
+    const team = await this.prisma.team.findUnique({
+      where: { id: teamId },
+    });
+    if (!team) throw new AppError(404, 'Team not found');
+    return team;
+  }
+
+  async ensureUserExists(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) throw new AppError(404, 'User not found');
+    return user;
+  }
+
+  async ensureUsersExists(userIds: string[]) {
+    const users = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+    });
+    if (users.length !== userIds.length)
+      throw new AppError(404, 'User not found');
+    return users;
+  }
+
+  async ensureProjectExists(projectId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+    if (!project) throw new AppError(404, 'Project not found');
+    return project;
+  }
+
+  async ensureMemberExistsInTeam(teamId: string, userId: string) {
+    const member = await this.prisma.teamMembers.findUnique({
+      where: { teamId_userId: { teamId, userId } },
+    });
+    if (!member) throw new AppError(404, 'Member not found');
+    return member;
   }
 }

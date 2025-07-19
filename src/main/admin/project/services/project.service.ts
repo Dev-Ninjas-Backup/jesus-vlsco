@@ -6,11 +6,15 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utils: UtilsService
+  ) { }
 
   // ========== CREATE ==========
   @HandleError('Failed to create project')
@@ -25,8 +29,8 @@ export class ProjectService {
   // ========== ASSIGN EMPLOYEE ==========
   @HandleError('Failed to assign project')
   async assignProjectToEmployee(projectId: string, userId: string) {
-    await this.ensureProjectExists(projectId);
-    await this.ensureUserExists(userId);
+    await this.utils.ensureProjectExists(projectId);
+    await this.utils.ensureUserExists(userId);
 
     const already = await this.prisma.projectUser.findUnique({
       where: {
@@ -45,10 +49,10 @@ export class ProjectService {
   // ========== ASSIGN MULTI EMPLOYEE ==========
   @HandleError('Failed to assign project to employees')
   async assignProjectToEmployees(projectId: string, userIds: string[]) {
-    await this.ensureProjectExists(projectId);
+    await this.utils.ensureProjectExists(projectId);
 
-    const uniqueIds = this.removeDuplicateIds(userIds);
-    await this.ensureUsersExists(uniqueIds);
+    const uniqueIds = this.utils.removeDuplicateIds(userIds);
+    await this.utils.ensureUsersExists(uniqueIds);
 
     const projectUser = await this.prisma.projectUser.createMany({
       data: uniqueIds.map((userId) => ({ projectId, userId })),
@@ -60,8 +64,8 @@ export class ProjectService {
   // ========== ASSIGN OR SET NEW TEAM  ==========
   @HandleError('Failed to set project team')
   async setProjectTeam(projectId: string, teamId: string) {
-    const project = await this.ensureProjectExists(projectId);
-    await this.ensureTeamExists(teamId);
+    const project = await this.utils.ensureProjectExists(projectId);
+    await this.utils.ensureTeamExists(teamId);
 
     if (project.teamId === teamId) {
       throw new AppError(400, 'Project already assigned to this team');
@@ -80,7 +84,7 @@ export class ProjectService {
   // ========== REMOVE TEAM ==========
   @HandleError('Failed to remove project team')
   async removeProjectTeam(projectId: string) {
-    const project = await this.ensureProjectExists(projectId);
+    const project = await this.utils.ensureProjectExists(projectId);
 
     if (!project.teamId) {
       throw new AppError(400, 'Project has no team assigned');
@@ -99,8 +103,8 @@ export class ProjectService {
   // ========== ASSIGN MANAGER ==========
   @HandleError('Failed to assign project')
   async assignProjectToManager(projectId: string, managerId: string) {
-    const project = await this.ensureProjectExists(projectId);
-    await this.ensureUserExists(managerId);
+    const project = await this.utils.ensureProjectExists(projectId);
+    await this.utils.ensureUserExists(managerId);
 
     if (project.managerId === managerId) {
       throw new AppError(400, 'Project already assigned to this manager');
@@ -122,8 +126,8 @@ export class ProjectService {
   // ========== UPDATE MANAGER ==========
   @HandleError('Failed to update project manager')
   async updateProjectManager(projectId: string, managerId: string) {
-    const project = await this.ensureProjectExists(projectId);
-    await this.ensureUserExists(managerId);
+    const project = await this.utils.ensureProjectExists(projectId);
+    await this.utils.ensureUserExists(managerId);
 
     if (project.managerId === managerId) {
       throw new AppError(400, 'Project already assigned to this manager');
@@ -169,50 +173,12 @@ export class ProjectService {
   // ========== DELETE A PROJECT ==========
   @HandleError('Failed to delete project')
   async deleteProject(id: string): Promise<TResponse<any>> {
-    await this.ensureProjectExists(id);
+    await this.utils.ensureProjectExists(id);
 
     const project = await this.prisma.project.delete({
       where: { id },
     });
 
     return successResponse(project, 'Project deleted successfully');
-  }
-
-  // ========== PRIVATE HELPERS ==========
-  private async ensureProjectExists(projectId: string) {
-    const project = await this.prisma.project.findUnique({
-      where: { id: projectId },
-    });
-    if (!project) throw new AppError(404, 'Project not found');
-    return project;
-  }
-
-  private async ensureUserExists(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) throw new AppError(404, 'User not found');
-    return user;
-  }
-
-  private async ensureUsersExists(userIds: string[]) {
-    const users = await this.prisma.user.findMany({
-      where: { id: { in: userIds } },
-    });
-    if (users.length !== userIds.length)
-      throw new AppError(404, 'User not found');
-    return users;
-  }
-
-  private async ensureTeamExists(teamId: string) {
-    const team = await this.prisma.team.findUnique({
-      where: { id: teamId },
-    });
-    if (!team) throw new AppError(404, 'Team not found');
-    return team;
-  }
-
-  private removeDuplicateIds(ids: string[]) {
-    return Array.from(new Set(ids));
   }
 }
