@@ -1,7 +1,9 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetTeamsDto } from '../dto/get-teams.dto';
 import { AddMembersToTeamDto, CreateTeamDto } from '../dto/team.dto';
+import { GetAllTeamsService } from '../services/get-all-team.service';
 import { TeamService } from '../services/team.service';
 
 @ApiTags('Admin -- Team')
@@ -9,7 +11,16 @@ import { TeamService } from '../services/team.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class TeamController {
-  constructor(private readonly teamService: TeamService) { }
+  constructor(
+    private readonly teamService: TeamService,
+    private readonly getAllTeamsService: GetAllTeamsService
+  ) { }
+
+  @ApiOperation({ summary: 'Get all teams' })
+  @Get('get-all-teams')
+  async getAllTeams(@Query() query: GetTeamsDto) {
+    return this.getAllTeamsService.getAllTeamsService(query);
+  }
 
   @ApiOperation({ summary: 'Create a team' })
   @Post()
