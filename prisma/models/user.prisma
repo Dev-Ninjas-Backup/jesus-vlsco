@@ -24,8 +24,10 @@ model User {
   taskUsers    TaskUser[]
   teamMembers  TeamMembers[]
   projectUsers ProjectUser[]
-
   companiesBranch CompaniesBranch[]
+  likeAnnoucement AnnoucementReactedUser[]
+  Announcement Announcement[]
+
 }
 
 enum UserEnum {
