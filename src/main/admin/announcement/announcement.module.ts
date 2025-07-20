@@ -4,9 +4,10 @@ import { CreateAnnouncementCategoryService } from './services/create-announcemen
 import { GetAnnouncementCategoryService } from './services/get-announcement-category.service';
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
+import { CreateAnnouncementService } from './services/create-announcement.service';
 
 @Module({
   controllers: [AnnouncementController],
-  providers: [CreateAnnouncementCategoryService, GetAnnouncementCategoryService, UpdateAnnouncementCategoryService, DeleteAnnouncementCategoryService]
+  providers: [CreateAnnouncementCategoryService, GetAnnouncementCategoryService, UpdateAnnouncementCategoryService, DeleteAnnouncementCategoryService, CreateAnnouncementService]
 })
 export class AnnouncementModule {}
