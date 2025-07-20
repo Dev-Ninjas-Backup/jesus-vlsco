@@ -17,11 +17,11 @@ import {
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AddTaskDto } from '../dto/add-task.dto';
-import { addTaskSwaggerSchema } from '../dto/add-task.swagger';
+import { addTaskSwaggerSchema } from '../dto/task.swagger';
 import { AddTaskService } from '../services/add-task.service';
 
 @ApiTags('Admin -- Add Task')
-@Controller('admin/task')
+@Controller('admin/task/add')
 @ValidateAdmin()
 @ApiBearerAuth()
 export class AddTaskController {
@@ -53,7 +53,6 @@ export class AddTaskController {
     @Param('projectId') projectId: string,
   ) {
     let uploadedUrl = null;
-    console.log(projectId);
 
     if (file) {
       uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
