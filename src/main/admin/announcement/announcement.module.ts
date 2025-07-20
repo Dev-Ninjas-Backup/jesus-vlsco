@@ -5,9 +5,10 @@ import { GetAnnouncementCategoryService } from './services/get-announcement-cate
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
 import { CreateAnnouncementService } from './services/create-announcement.service';
+import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [AnnouncementController],
-  providers: [CreateAnnouncementCategoryService, GetAnnouncementCategoryService, UpdateAnnouncementCategoryService, DeleteAnnouncementCategoryService, CreateAnnouncementService]
+  providers: [CreateAnnouncementCategoryService, GetAnnouncementCategoryService, UpdateAnnouncementCategoryService, DeleteAnnouncementCategoryService, CreateAnnouncementService,CloudinaryService]
 })
 export class AnnouncementModule {}
