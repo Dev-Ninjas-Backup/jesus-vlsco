@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -14,8 +15,35 @@ export class AddUserService {
   @HandleError('Error creating user')
   async createUserWithProfile(
     dto: AddUserDto,
-    uploadedUrl: string,
+    uploadedUrl: string | null,
   ): Promise<TResponse<any>> {
+    // * check if email already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new AppError(400, 'Email already exists');
+    }
+
+    // * check if phone already exists
+    const existingPhone = await this.prisma.user.findUnique({
+      where: { phone: dto.phone },
+    });
+
+    if (existingPhone) {
+      throw new AppError(400, 'Phone already exists');
+    }
+
+    // * check if employeeID already exists
+    const existingEmployeeID = await this.prisma.user.findUnique({
+      where: { employeeID: dto.employeeID },
+    });
+
+    if (existingEmployeeID) {
+      throw new AppError(400, 'Employee ID already exists');
+    }
+
     const user = await this.prisma.user.create({
       data: {
         phone: dto.phone,

@@ -19,6 +19,10 @@ export function simplifyError(
         throw new ConflictException(`${record} already exists`);
       case 'P2025':
         throw new NotFoundException(`${record} not found`);
+      default:
+        throw new InternalServerErrorException(
+          `Database error: ${error.message}`,
+        );
     }
   }
 

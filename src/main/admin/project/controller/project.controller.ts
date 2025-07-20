@@ -1,7 +1,19 @@
-import { Body, Controller, Param, Post, Get, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { GetProjectsDto } from '../dto/get-projects.dto';
+import { AssignEmployeesToProjectDto } from '../dto/project.dto';
+import { GetAllProjectsService } from '../services/get-all-projects.service';
 import { ProjectService } from '../services/project.service';
 
 @ApiTags('Admin -- Project')
@@ -9,7 +21,10 @@ import { ProjectService } from '../services/project.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class ProjectController {
-  constructor(private readonly projectService: ProjectService) {}
+  constructor(
+    private readonly projectService: ProjectService,
+    private readonly getAllProjectsServices: GetAllProjectsService,
+  ) {}
 
   @ApiOperation({ summary: 'Create Project' })
   @Post()
@@ -18,7 +33,7 @@ export class ProjectController {
   }
 
   @ApiOperation({ summary: 'Assign Project to Employee' })
-  @Patch('/:projectId/assign-employee/:userId')
+  @Patch(':projectId/assign-employee/:userId')
   assignProject(
     @Param('projectId') projectId: string,
     @Param('userId') userId: string,
@@ -26,17 +41,35 @@ export class ProjectController {
     return this.projectService.assignProjectToEmployee(projectId, userId);
   }
 
-  @ApiOperation({ summary: 'Assign Project to Team' })
-  @Patch('/:projectId/assign-team/:teamId')
+  @ApiOperation({ summary: 'Assign Project to Employees' })
+  @Patch(':projectId/assign-employees')
+  assignProjects(
+    @Param('projectId') projectId: string,
+    @Body() dto: AssignEmployeesToProjectDto,
+  ) {
+    return this.projectService.assignProjectToEmployees(
+      projectId,
+      dto.employees,
+    );
+  }
+
+  @ApiOperation({ summary: 'Assign Project to Team or Update Project Team' })
+  @Patch(':projectId/assign-team/:teamId')
   assignProjectToTeam(
     @Param('projectId') projectId: string,
     @Param('teamId') teamId: string,
   ) {
-    return this.projectService.assignProjectToTeam(projectId, teamId);
+    return this.projectService.setProjectTeam(projectId, teamId);
+  }
+
+  @ApiOperation({ summary: 'Remove Project Team' })
+  @Patch(':projectId/remove-team')
+  removeProjectTeam(@Param('projectId') projectId: string) {
+    return this.projectService.removeProjectTeam(projectId);
   }
 
   @ApiOperation({ summary: 'Assign Project to Manager' })
-  @Patch('/:projectId/assign-manager/:managerId')
+  @Patch(':projectId/assign-manager/:managerId')
   assignProjectToManager(
     @Param('projectId') projectId: string,
     @Param('managerId') managerId: string,
@@ -44,9 +77,30 @@ export class ProjectController {
     return this.projectService.assignProjectToManager(projectId, managerId);
   }
 
+  @ApiOperation({ summary: 'Update manager of a Project' })
+  @Patch(':projectId/update-manager/:managerId')
+  updateProjectManager(
+    @Param('projectId') projectId: string,
+    @Param('managerId') managerId: string,
+  ) {
+    return this.projectService.updateProjectManager(projectId, managerId);
+  }
+
+  @ApiOperation({ summary: 'Delete Project' })
+  @Delete(':id')
+  deleteProject(@Param('id') id: string) {
+    return this.projectService.deleteProject(id);
+  }
+
   @ApiOperation({ summary: 'Get a Project' })
   @Get(':id')
   getAProject(@Param('id') id: string) {
     return this.projectService.getAProject(id);
+  }
+
+  @ApiOperation({ summary: 'Get all Projects' })
+  @Get()
+  async getAll(@Query() query: GetProjectsDto) {
+    return this.getAllProjectsServices.getAllProjects(query);
   }
 }
