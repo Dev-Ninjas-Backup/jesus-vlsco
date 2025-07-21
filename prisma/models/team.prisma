@@ -6,8 +6,9 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members  TeamMembers[]
-  projects Project[]
+  members     TeamMembers[]
+  projects    Project[]
+  teamSurveys TeamSurvey[]
 }
 
 model TeamMembers {
@@ -23,4 +24,17 @@ model TeamMembers {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([teamId, userId]) // Prevent duplicate membership
+}
+
+model TeamSurvey {
+  id String @id @default(uuid())
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId String
+
+  survey   Survey @relation(fields: [surveyId], references: [id])
+  surveyId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

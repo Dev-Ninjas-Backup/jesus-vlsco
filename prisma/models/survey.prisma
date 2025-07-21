@@ -1,0 +1,117 @@
+model SurveyTemplate {
+  id          String  @id @default(uuid())
+  title       String
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questions SurveyQuestions[]
+  surveys   Survey[]
+}
+
+model Survey {
+  id           String    @id @default(uuid())
+  title        String
+  surveyType   String
+  description  String?
+  publishTime  DateTime?
+  showOnFeed   Boolean   @default(false)
+  reminderTime DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  template   SurveyTemplate? @relation(fields: [templateId], references: [id])
+  templateId String?
+
+  questions   SurveyQuestions[]
+  teamSurveys TeamSurvey[]
+  surveyUsers SurveyUser[]
+  responses   SurveyResponse[]
+}
+
+model SurveyQuestions {
+  id               String  @id @default(uuid())
+  surveyTemplateId String?
+  surveyId         String?
+
+  question        String
+  description     String?
+  isRequired      Boolean
+  captureLocation Boolean
+  type            SurveyQuestionType
+  order           Int
+  multiSelect     Boolean
+  rangeStart      Int?
+  rangeEnd        Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  template SurveyTemplate? @relation(fields: [surveyTemplateId], references: [id])
+  survey   Survey?         @relation(fields: [surveyId], references: [id])
+
+  options QuestionOption[]
+  answers SurveyAnswer[]
+}
+
+enum SurveyQuestionType {
+  SINGLE_SELECT
+  MULTI_SELECT
+  OPEN_ENDED
+  RANGE
+}
+
+model QuestionOption {
+  id         String @id @default(uuid())
+  questionId String
+  text       String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  question SurveyQuestions @relation(fields: [questionId], references: [id])
+  answers  SurveyAnswer[]
+}
+
+model SurveyUser {
+  id          String  @id @default(uuid())
+  userId      String
+  surveyId    String
+  isResponded Boolean
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  survey Survey @relation(fields: [surveyId], references: [id])
+}
+
+model SurveyResponse {
+  id          String   @id @default(uuid())
+  surveyId    String
+  userId      String
+  submittedAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  survey  Survey         @relation(fields: [surveyId], references: [id])
+  answers SurveyAnswer[]
+}
+
+model SurveyAnswer {
+  id         String  @id @default(uuid())
+  responseId String
+  questionId String
+  optionId   String?
+  answerText String?
+  rate       Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  response SurveyResponse  @relation(fields: [responseId], references: [id])
+  question SurveyQuestions @relation(fields: [questionId], references: [id])
+  option   QuestionOption? @relation(fields: [optionId], references: [id])
+}
