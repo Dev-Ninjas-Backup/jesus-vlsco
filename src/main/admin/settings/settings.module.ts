@@ -7,7 +7,13 @@ import { AddBranchService } from './services/add-branch.service';
 import { DeleteCompanyBranchService } from './services/delete-company-branch.service';
 
 @Module({
-  providers: [SettingsService, CreateCompanyService, UpdateCompanyService, AddBranchService, DeleteCompanyBranchService],
-  controllers: [SettingsController]
+  providers: [
+    SettingsService,
+    CreateCompanyService,
+    UpdateCompanyService,
+    AddBranchService,
+    DeleteCompanyBranchService,
+  ],
+  controllers: [SettingsController],
 })
 export class SettingsModule {}

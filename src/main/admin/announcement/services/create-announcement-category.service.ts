@@ -6,19 +6,20 @@ import { CreateAnnouncementCategoryDto } from '../dto/createAnnouncementCategory
 
 @Injectable()
 export class CreateAnnouncementCategoryService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
+  // Create a new announcement category
+  @HandleError('Error creating announcement category')
+  async createCategory(dto: CreateAnnouncementCategoryDto) {
+    const category = await this.prisma.announcementCategory.create({
+      data: {
+        ...dto,
+      },
+    });
 
-    // Create a new announcement category
-    @HandleError('Error creating announcement category')
-    async createCategory(dto:CreateAnnouncementCategoryDto) {
-        const category = await this.prisma.announcementCategory.create({
-            data: {
-                ...dto
-            },
-        });
-
-        return successResponse(category, 'Announcement category created successfully');
-    }
-
+    return successResponse(
+      category,
+      'Announcement category created successfully',
+    );
+  }
 }

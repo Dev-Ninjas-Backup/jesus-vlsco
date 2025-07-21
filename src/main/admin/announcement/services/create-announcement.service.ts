@@ -6,23 +6,27 @@ import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
 
 @Injectable()
 export class CreateAnnouncementService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-    // Create a new announcement
-    @HandleError('Error creating announcement')
-    async createAnnouncement(data: CreateAnnouncementDto,url:string,userId: string) {
-        const announcement = await this.prisma.announcement.create({
-            data:{
-                createdBy: userId,
-                title:data.title,
-                description: data.description,
-                audience:data.audience,
-                sendEmailNotification:data.sendEmailNotification,
-                enabledReadReceipt: data.enabledReadReceipt,
-                categoryId: data.categoryId,
-            }
-        });
+  // Create a new announcement
+  @HandleError('Error creating announcement')
+  async createAnnouncement(
+    data: CreateAnnouncementDto,
+    url: string,
+    userId: string,
+  ) {
+    const announcement = await this.prisma.announcement.create({
+      data: {
+        createdBy: userId,
+        title: data.title,
+        description: data.description,
+        audience: data.audience,
+        sendEmailNotification: data.sendEmailNotification,
+        enabledReadReceipt: data.enabledReadReceipt,
+        categoryId: data.categoryId,
+      },
+    });
 
-        return successResponse(announcement, 'Announcement created successfully');
-    }
+    return successResponse(announcement, 'Announcement created successfully');
+  }
 }

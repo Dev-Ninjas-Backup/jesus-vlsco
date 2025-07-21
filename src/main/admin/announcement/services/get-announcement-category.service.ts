@@ -5,22 +5,24 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class GetAnnouncementCategoryService {
+  constructor(private readonly prisma: PrismaService) {}
 
-    constructor(private readonly prisma: PrismaService) {}
+  // Get all announcement categories
+  @HandleError('Error retrieving announcement categories')
+  async getCategories() {
+    const categories = await this.prisma.announcementCategory.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
 
-    // Get all announcement categories
-    @HandleError('Error retrieving announcement categories')
-    async getCategories() {
-        const categories = await this.prisma.announcementCategory.findMany({
-            orderBy: {
-                createdAt: 'desc',
-            },
-        });
-
-        if (!categories || categories.length === 0) {
-            throw new Error('No announcement categories found');
-        }
-
-        return successResponse(categories, 'Announcement categories retrieved successfully');
+    if (!categories || categories.length === 0) {
+      throw new Error('No announcement categories found');
     }
+
+    return successResponse(
+      categories,
+      'Announcement categories retrieved successfully',
+    );
+  }
 }

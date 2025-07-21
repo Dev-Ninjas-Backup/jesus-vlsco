@@ -9,6 +9,13 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [AnnouncementController],
-  providers: [CreateAnnouncementCategoryService, GetAnnouncementCategoryService, UpdateAnnouncementCategoryService, DeleteAnnouncementCategoryService, CreateAnnouncementService,CloudinaryService]
+  providers: [
+    CreateAnnouncementCategoryService,
+    GetAnnouncementCategoryService,
+    UpdateAnnouncementCategoryService,
+    DeleteAnnouncementCategoryService,
+    CreateAnnouncementService,
+    CloudinaryService,
+  ],
 })
 export class AnnouncementModule {}

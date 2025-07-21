@@ -1,4 +1,3 @@
-
 export const updateCompanyWithBranchesSwagger = {
   schema: {
     type: 'object',
@@ -20,7 +19,8 @@ export const updateCompanyWithBranchesSwagger = {
       },
       branches: {
         type: 'array',
-        description: 'List of existing branches to update (only changed fields)',
+        description:
+          'List of existing branches to update (only changed fields)',
         items: {
           type: 'object',
           properties: {

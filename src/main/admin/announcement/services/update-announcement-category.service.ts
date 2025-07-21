@@ -6,18 +6,21 @@ import { UpdateAnnouncementCategoryDto } from '../dto/updateAnnounementCategory.
 
 @Injectable()
 export class UpdateAnnouncementCategoryService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-    // Update an existing announcement category
-    @HandleError('Error updating announcement category')
-    async updateCategory(dto:UpdateAnnouncementCategoryDto,id:string) {
-        const updatedCategory = await this.prisma.announcementCategory.update({
-            where: { id },
-            data: {
-               ...dto
-            },
-        });
+  // Update an existing announcement category
+  @HandleError('Error updating announcement category')
+  async updateCategory(dto: UpdateAnnouncementCategoryDto, id: string) {
+    const updatedCategory = await this.prisma.announcementCategory.update({
+      where: { id },
+      data: {
+        ...dto,
+      },
+    });
 
-        return successResponse(updatedCategory, 'Announcement category updated successfully');
-    }
+    return successResponse(
+      updatedCategory,
+      'Announcement category updated successfully',
+    );
+  }
 }

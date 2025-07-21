@@ -33,7 +33,10 @@ export class CreateAnnouncementDto {
   @IsString()
   audience: string;
 
-  @ApiProperty({ example: 'cat_abc123', description: 'ID of the selected category' })
+  @ApiProperty({
+    example: 'cat_abc123',
+    description: 'ID of the selected category',
+  })
   @IsString()
   categoryId: string;
 

@@ -5,7 +5,7 @@ import { successResponse } from '@project/common/utils/response.util';
 
 @Injectable()
 export class UpdateCompanyService {
-     constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async updateCompanyWithBranches(
     companyId: string,
@@ -27,7 +27,7 @@ export class UpdateCompanyService {
         data: {
           ...(dto.name && { name: dto.name }),
           ...(dto.location && { location: dto.location }),
-        //   ...(dto.logo && { logo: dto.logo }),
+          //   ...(dto.logo && { logo: dto.logo }),
         },
       });
 
@@ -41,7 +41,9 @@ export class UpdateCompanyService {
           });
 
           if (!existingBranch || existingBranch.companyId !== companyId) {
-            throw new NotFoundException(`Branch with ID ${id} not found or doesn't belong to this company`);
+            throw new NotFoundException(
+              `Branch with ID ${id} not found or doesn't belong to this company`,
+            );
           }
 
           await tx.companiesBranch.update({
@@ -51,7 +53,10 @@ export class UpdateCompanyService {
         }
       }
 
-      return successResponse(updatedCompany, 'Company and branches updated successfully');
-  })
+      return successResponse(
+        updatedCompany,
+        'Company and branches updated successfully',
+      );
+    });
   }
 }

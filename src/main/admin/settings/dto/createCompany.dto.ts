@@ -1,7 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsOptional, IsString, ValidateNested } from "class-validator";
-import { CreateCompanyBranchNestedDto } from "./createCompanyBranch.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { CreateCompanyBranchNestedDto } from './createCompanyBranch.dto';
 
 export class CreateCompanyWithBranchDto {
   @ApiProperty({ example: 'TechCorp Inc.', description: 'Company name' })
@@ -17,14 +17,14 @@ export class CreateCompanyWithBranchDto {
   @IsNotEmpty()
   location: string;
 
-//   @ApiProperty({
-//     example: 'https://example.com/logo.png',
-//     description: 'Optional logo URL',
-//     required: false,
-//   })
-//   @IsOptional()
-//   @IsString()
-//   logo?: string;
+  //   @ApiProperty({
+  //     example: 'https://example.com/logo.png',
+  //     description: 'Optional logo URL',
+  //     required: false,
+  //   })
+  //   @IsOptional()
+  //   @IsString()
+  //   logo?: string;
 
   @ApiProperty({
     type: [CreateCompanyBranchNestedDto],
