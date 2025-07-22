@@ -1,3 +1,4 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { SurveyStatus, SurveyType } from '@prisma/client';
 import { Type } from 'class-transformer';
@@ -56,3 +57,5 @@ export class CreateSurveyDto {
   @Type(() => QuestionDto)
   questions: QuestionDto[];
 }
+
+export class UpdateSurveyDto extends PartialType(CreateSurveyDto) { }

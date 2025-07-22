@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateSurveyFromTemplateDto } from '../dto/create-survey-from-template.dto';
-import { CreateSurveyDto } from '../dto/survey.dto';
+import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
 
 @Injectable()
 export class SurveyService {
@@ -119,9 +119,49 @@ export class SurveyService {
 
   async getAllSurveys() { }
 
-  async getSurvey(id: string) { }
+  async getSurvey(id: string): Promise<TResponse<any>> {
+    const survey = await this.prisma.survey.findUnique({
+      where: { id },
+      include: {
+        questions: {
+          include: {
+            options: true,
+          },
+        },
+      },
+    });
 
-  async deleteSurvey(id: string) { }
+    if (!survey) {
+      throw new AppError(404, 'Survey not found');
+    }
 
-  async updateSurvey(id: string, dto: any) { }
+    return successResponse(survey, 'Survey found successfully');
+  }
+
+  async deleteSurvey(id: string): Promise<TResponse<any>> {
+    await this.utils.ensureSurveyExists(id);
+
+    const result = await this.prisma.survey.delete({
+      where: { id },
+    });
+
+    return successResponse(result, 'Survey deleted successfully')
+  }
+
+  async updateSurvey(id: string, dto: UpdateSurveyDto) {
+    await this.utils.ensureSurveyExists(id);
+    const survey = await this.prisma.survey.update({
+      where: { id },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        surveyType: dto.surveyType,
+        status: dto.status,
+        publishTime: dto.publishTime ? new Date(dto.publishTime) : null,
+        reminderTime: dto.reminderTime ? new Date(dto.reminderTime) : null,
+        showOnFeed: dto.showOnFeed ?? false,
+      },
+    });
+    return successResponse(survey, 'Survey updated successfully');
+  }
 }

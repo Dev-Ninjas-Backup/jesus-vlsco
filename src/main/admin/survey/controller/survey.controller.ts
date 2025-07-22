@@ -10,7 +10,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateSurveyFromTemplateDto } from '../dto/create-survey-from-template.dto';
-import { CreateSurveyDto } from '../dto/survey.dto';
+import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
 import { SurveyService } from '../services/survey.service';
 
 @ApiTags('Admin -- Survey')
@@ -41,11 +41,17 @@ export class SurveyController {
   async getAllSurveys() { }
 
   @Get(':id')
-  async getSurvey() { }
+  async getSurvey(@Param('id') id: string) {
+    return this.surveyService.getSurvey(id);
+  }
 
   @Patch(':id')
-  async updateSurvey() { }
+  async updateSurvey(@Param('id') id: string, @Body() dto: UpdateSurveyDto) {
+    return this.surveyService.updateSurvey(id, dto);
+  }
 
   @Delete(':id/delete')
-  async deleteSurvey() { }
+  async deleteSurvey(@Param('id') id: string) {
+    return this.surveyService.deleteSurvey(id);
+  }
 }

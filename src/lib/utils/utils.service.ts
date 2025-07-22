@@ -108,4 +108,12 @@ export class UtilsService {
     if (!question) throw new AppError(404, 'Question not found');
     return question;
   }
+
+  async ensureSurveyExists(surveyId: string) {
+    const survey = await this.prisma.survey.findUnique({
+      where: { id: surveyId },
+    });
+    if (!survey) throw new AppError(404, 'Survey not found');
+    return survey;
+  }
 }
