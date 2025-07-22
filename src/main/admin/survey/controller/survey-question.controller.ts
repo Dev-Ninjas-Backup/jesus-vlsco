@@ -1,7 +1,18 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CreateQuestionTargetDto, GetSurveyQuestionsDto } from '../dto/get-question.dto';
+import {
+  CreateQuestionTargetDto,
+  GetSurveyQuestionsDto,
+} from '../dto/get-question.dto';
 import { QuestionDto, UpdateQuestionDto } from '../dto/question.dto';
 import { SurveyQuestionService } from '../services/survey-question.service';
 
@@ -10,7 +21,7 @@ import { SurveyQuestionService } from '../services/survey-question.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyQuestionController {
-  constructor(private readonly surveyQuestionService: SurveyQuestionService) { }
+  constructor(private readonly surveyQuestionService: SurveyQuestionService) {}
 
   @Get()
   getAllSurveyQuestions(@Query() dto: GetSurveyQuestionsDto) {
@@ -28,7 +39,11 @@ export class SurveyQuestionController {
     @Query() data: CreateQuestionTargetDto,
     @Body() dto: QuestionDto,
   ) {
-    return this.surveyQuestionService.createQuestion(targetId, data.targetType, dto);
+    return this.surveyQuestionService.createQuestion(
+      targetId,
+      data.targetType,
+      dto,
+    );
   }
 
   @Patch('update/:id')
