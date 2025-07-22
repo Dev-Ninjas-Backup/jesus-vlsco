@@ -58,4 +58,4 @@ export class CreateSurveyDto {
   questions: QuestionDto[];
 }
 
-export class UpdateSurveyDto extends PartialType(CreateSurveyDto) { }
+export class UpdateSurveyDto extends PartialType(CreateSurveyDto) {}

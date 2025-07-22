@@ -25,7 +25,9 @@ export class CreateSurveyFromTemplateDto {
   @IsString()
   title?: string;
 
-  @ApiPropertyOptional({ example: 'This survey will assess employee engagement.' })
+  @ApiPropertyOptional({
+    example: 'This survey will assess employee engagement.',
+  })
   @IsOptional()
   @IsString()
   description?: string;

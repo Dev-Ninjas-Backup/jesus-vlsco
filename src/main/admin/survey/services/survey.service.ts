@@ -14,7 +14,7 @@ export class SurveyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   async createSurvey(
     userId: string,
@@ -104,10 +104,10 @@ export class SurveyService {
             surveyId: survey.id,
             options: q.options?.length
               ? {
-                create: q.options.map((o) => ({
-                  text: o.text,
-                })),
-              }
+                  create: q.options.map((o) => ({
+                    text: o.text,
+                  })),
+                }
               : undefined,
           },
         });
@@ -117,7 +117,7 @@ export class SurveyService {
     });
   }
 
-  async getAllSurveys() { }
+  async getAllSurveys() {}
 
   async getSurvey(id: string): Promise<TResponse<any>> {
     const survey = await this.prisma.survey.findUnique({
@@ -145,7 +145,7 @@ export class SurveyService {
       where: { id },
     });
 
-    return successResponse(result, 'Survey deleted successfully')
+    return successResponse(result, 'Survey deleted successfully');
   }
 
   async updateSurvey(id: string, dto: UpdateSurveyDto) {

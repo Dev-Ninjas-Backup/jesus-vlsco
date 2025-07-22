@@ -18,7 +18,7 @@ import { SurveyService } from '../services/survey.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyController {
-  constructor(private readonly surveyService: SurveyService) { }
+  constructor(private readonly surveyService: SurveyService) {}
 
   @Post()
   async createSurvey(
@@ -38,7 +38,7 @@ export class SurveyController {
   }
 
   @Get()
-  async getAllSurveys() { }
+  async getAllSurveys() {}
 
   @Get(':id')
   async getSurvey(@Param('id') id: string) {
