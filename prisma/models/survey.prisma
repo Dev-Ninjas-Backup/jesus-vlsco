@@ -25,7 +25,7 @@ model Survey {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  template   SurveyTemplate? @relation(fields: [templateId], references: [id])
+  template   SurveyTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   templateId String?
 
   questions   SurveyQuestions[]

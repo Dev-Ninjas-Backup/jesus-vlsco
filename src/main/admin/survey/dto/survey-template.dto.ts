@@ -1,4 +1,3 @@
-import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { Type } from 'class-transformer';
@@ -29,9 +28,17 @@ export class CreateSurveyTemplateDto {
   questions: QuestionDto[];
 }
 
-export class UpdateSurveyTemplateDto extends PartialType(
-  CreateSurveyTemplateDto,
-) {}
+export class UpdateSurveyTemplateDto {
+  @ApiProperty({ example: 'Update Survey Template' })
+  @IsString()
+  @IsOptional()
+  title?: string;
+
+  @ApiProperty({ example: 'This is a update survey template' })
+  @IsString()
+  @IsOptional()
+  description?: string;
+}
 
 export class GetAllSurveyTemplateDto extends PaginationDto {
   @ApiProperty({ required: false })
