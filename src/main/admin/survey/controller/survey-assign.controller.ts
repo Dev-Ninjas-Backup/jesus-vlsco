@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { AssignTeamsToASurveyDto, AssignUsersToASurveyDto, RemoveTeamsFromASurveyDto, RemoveUsersFromASurveyDto } from '../dto/survey-assign.dto';
@@ -53,5 +53,10 @@ export class SurveyAssignController {
       removeTeamFromASurveyDto.teamIds,
       surveyId,
     );
+  }
+
+  @Get('all-users/:surveyId')
+  async getAllAssignedUsersOfASurvey(@Param('surveyId') surveyId: string) {
+    return this.surveyAssignService.getAllAssignedUsersOfASurvey(surveyId);
   }
 }

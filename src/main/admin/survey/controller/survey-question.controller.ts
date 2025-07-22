@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -51,7 +52,7 @@ export class SurveyQuestionController {
     return this.surveyQuestionService.updateQuestion(id, dto);
   }
 
-  @Patch('delete/:id')
+  @Delete('delete/:id')
   deleteQuestion(@Param('id') id: string) {
     return this.surveyQuestionService.deleteQuestion(id);
   }
