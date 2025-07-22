@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import {
   successPaginatedResponse,
   successResponse,
@@ -6,16 +7,19 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
 import {
   GetSurveyQuestionsDto,
   QuestionSourceType,
 } from '../dto/get-question.dto';
 import { QuestionDto, UpdateQuestionDto } from '../dto/question.dto';
-import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class SurveyQuestionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utils: UtilsService,
+  ) {}
 
   async getAllSurveyQuestions(
     dto: GetSurveyQuestionsDto,
@@ -165,5 +169,13 @@ export class SurveyQuestionService {
 
       return successResponse(updated, 'Question updated successfully');
     });
+  }
+
+  async deleteQuestion(id: string): Promise<TResponse<any>> {
+    await this.utils.ensureQuestionExists(id);
+    const question = await this.prisma.surveyQuestions.delete({
+      where: { id },
+    });
+    return successResponse(question, 'Question deleted successfully');
   }
 }

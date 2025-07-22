@@ -50,4 +50,9 @@ export class SurveyQuestionController {
   updateQuestion(@Param('id') id: string, @Body() dto: UpdateQuestionDto) {
     return this.surveyQuestionService.updateQuestion(id, dto);
   }
+
+  @Patch('delete/:id')
+  deleteQuestion(@Param('id') id: string) {
+    return this.surveyQuestionService.deleteQuestion(id);
+  }
 }

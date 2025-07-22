@@ -100,4 +100,12 @@ export class UtilsService {
     if (!member) throw new AppError(404, 'Member not found');
     return member;
   }
+
+  async ensureQuestionExists(questionId: string) {
+    const question = await this.prisma.surveyQuestions.findUnique({
+      where: { id: questionId },
+    });
+    if (!question) throw new AppError(404, 'Question not found');
+    return question;
+  }
 }
