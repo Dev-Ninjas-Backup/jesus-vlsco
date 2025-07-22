@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { SurveyService } from '../services/survey.service';
+import { CreateSurveyDto } from '../dto/survey.dto';
 
 @ApiTags('Admin -- Survey')
 @Controller('admin/survey')
@@ -11,7 +12,7 @@ export class SurveyController {
   constructor(private readonly surveyService: SurveyService) { }
 
   @Post()
-  async createSurvey(@GetUser('userId') userId: string, @Body() dto: any) {
+  async createSurvey(@GetUser('userId') userId: string, @Body() dto: CreateSurveyDto) {
     return this.surveyService.createSurvey(userId, dto);
    }
 
