@@ -1,7 +1,13 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { SurveyQuestionType } from "@prisma/client";
-import { Type } from "class-transformer";
-import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class QuestionOptionDto {
   @ApiProperty({ example: 'Very Satisfied' })
@@ -16,14 +22,17 @@ export class QuestionDto {
   @IsNotEmpty()
   question: string;
 
-  @ApiProperty({ example: 'Rate your satisfaction on a scale of 1–5', required: false })
+  @ApiProperty({
+    example: 'Rate your satisfaction on a scale of 1–5',
+    required: false,
+  })
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiProperty({ enum: SurveyQuestionType, example: SurveyQuestionType.SELECT })
+  @ApiProperty({ enum: ['SELECT', 'RANGE', 'OPEN_ENDED'], example: 'SELECT' })
   @IsNotEmpty()
-  type: SurveyQuestionType;
+  type: 'SELECT' | 'RANGE' | 'OPEN_ENDED';
 
   @ApiProperty({ example: 1 })
   @IsInt()

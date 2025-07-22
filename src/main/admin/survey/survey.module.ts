@@ -6,6 +6,6 @@ import { SurveyTemplateService } from './services/survey-template.service';
 
 @Module({
   controllers: [SurveyTemplateController, SurveyController],
-  providers: [SurveyService, SurveyTemplateService]
+  providers: [SurveyService, SurveyTemplateService],
 })
-export class SurveyModule { }
+export class SurveyModule {}

@@ -26,4 +26,4 @@ import { AuthModule } from './auth/auth.module';
   controllers: [],
   providers: [],
 })
-export class MainModule { }
+export class MainModule {}
