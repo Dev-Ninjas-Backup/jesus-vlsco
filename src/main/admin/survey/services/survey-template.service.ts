@@ -11,10 +11,11 @@ import {
   GetAllSurveyTemplateDto,
   UpdateSurveyTemplateDto,
 } from '../dto/survey-template.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class SurveyTemplateService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createSurveyTemplate(
     dto: CreateSurveyTemplateDto,
@@ -62,21 +63,21 @@ export class SurveyTemplateService {
 
     const where = searchTerm
       ? {
-        OR: [
-          {
-            title: {
-              contains: searchTerm,
-              mode: this.prisma.utils.QueryMode.insensitive,
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: this.prisma.utils.QueryMode.insensitive,
+              },
             },
-          },
-          {
-            description: {
-              contains: searchTerm,
-              mode: this.prisma.utils.QueryMode.insensitive,
+            {
+              description: {
+                contains: searchTerm,
+                mode: this.prisma.utils.QueryMode.insensitive,
+              },
             },
-          },
-        ],
-      }
+          ],
+        }
       : {};
 
     const [surveyTemplates, totalCount] = await this.prisma.$transaction([
@@ -92,7 +93,7 @@ export class SurveyTemplateService {
             },
           },
           surveys: true,
-        }
+        },
       }),
       this.prisma.surveyTemplate.count({ where }),
     ]);
@@ -116,17 +117,23 @@ export class SurveyTemplateService {
           },
         },
         surveys: true,
-      }
+      },
     });
 
     if (!surveyTemplate) {
-      throw new Error('Survey Template not found');
+      throw new AppError(400, 'Survey Template not found');
     }
 
-    return successResponse(surveyTemplate, 'Survey Template found successfully');
+    return successResponse(
+      surveyTemplate,
+      'Survey Template found successfully',
+    );
   }
 
-  async updateSurveyTemplate(id: string, dto: UpdateSurveyTemplateDto): Promise<TResponse<any>> {
+  async updateSurveyTemplate(
+    id: string,
+    dto: UpdateSurveyTemplateDto,
+  ): Promise<TResponse<any>> {
     const surveyTemplate = await this.prisma.surveyTemplate.update({
       where: { id },
       data: {
@@ -171,5 +178,4 @@ export class SurveyTemplateService {
 
     return successResponse(result, 'Survey Template deleted successfully');
   }
-
 }

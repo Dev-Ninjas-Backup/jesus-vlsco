@@ -70,3 +70,59 @@ export class QuestionDto {
   @IsOptional()
   options?: string[];
 }
+
+export class UpdateQuestionDto {
+  @ApiProperty({ example: 'How satisfied are you with your job?' })
+  @IsString()
+  @IsOptional()
+  question?: string;
+
+  @ApiProperty({
+    example: 'Rate your satisfaction on a scale of 1–5',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @ApiProperty({ enum: ['SELECT', 'RANGE', 'OPEN_ENDED'], example: 'SELECT' })
+  @IsOptional()
+  type?: 'SELECT' | 'RANGE' | 'OPEN_ENDED';
+
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
+  order?: number;
+
+  @ApiProperty({ example: true })
+  @IsBoolean()
+  @Type(() => Boolean)
+  @IsOptional()
+  isRequired?: boolean;
+
+  @ApiProperty({ example: false })
+  @IsBoolean()
+  @IsOptional()
+  captureLocation?: boolean;
+
+  @ApiProperty({ example: false })
+  @IsBoolean()
+  @IsOptional()
+  multiSelect?: boolean;
+
+  @ApiProperty({ example: 1, required: false })
+  @IsInt()
+  @IsOptional()
+  rangeStart?: number;
+
+  @ApiProperty({ example: 5, required: false })
+  @IsInt()
+  @IsOptional()
+  rangeEnd?: number;
+
+  @ApiProperty({ type: String, required: false, example: ['1', '2', '3'] })
+  @IsArray()
+  @IsOptional()
+  options?: string[];
+}

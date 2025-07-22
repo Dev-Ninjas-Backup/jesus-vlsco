@@ -1,4 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import {
@@ -13,7 +22,7 @@ import { SurveyTemplateService } from '../services/survey-template.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyTemplateController {
-  constructor(private readonly surveyTemplateService: SurveyTemplateService) { }
+  constructor(private readonly surveyTemplateService: SurveyTemplateService) {}
 
   @Post()
   async createSurveyTemplate(@Body() dto: CreateSurveyTemplateDto) {
@@ -31,7 +40,10 @@ export class SurveyTemplateController {
   }
 
   @Patch(':id')
-  async updateSurveyTemplate(@Param('id') id: string, dto: UpdateSurveyTemplateDto) {
+  async updateSurveyTemplate(
+    @Param('id') id: string,
+    dto: UpdateSurveyTemplateDto,
+  ) {
     return this.surveyTemplateService.updateSurveyTemplate(id, dto);
   }
 
