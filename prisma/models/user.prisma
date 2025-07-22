@@ -27,6 +27,8 @@ model User {
   companiesBranch CompaniesBranch[]
   likeAnnoucement AnnoucementReactedUser[]
   Announcement    Announcement[]
+  survey          Survey[]
+  surveyUser      SurveyUser[]
 }
 
 enum UserEnum {

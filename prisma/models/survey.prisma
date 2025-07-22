@@ -11,12 +11,15 @@ model SurveyTemplate {
 }
 
 model Survey {
-  id           String    @id @default(uuid())
-  title        String
-  surveyType   String
-  description  String?
+  id String @id @default(uuid())
+
+  title       String
+  description String?
+
+  surveyType   SurveyType
+  status       SurveyStatus @default(DRAFT)
   publishTime  DateTime?
-  showOnFeed   Boolean   @default(false)
+  showOnFeed   Boolean      @default(false)
   reminderTime DateTime?
 
   createdAt DateTime @default(now())
@@ -29,89 +32,36 @@ model Survey {
   teamSurveys TeamSurvey[]
   surveyUsers SurveyUser[]
   responses   SurveyResponse[]
+
+  createdBy String
+  user      User   @relation(fields: [createdBy], references: [id])
 }
 
-model SurveyQuestions {
-  id               String  @id @default(uuid())
-  surveyTemplateId String?
-  surveyId         String?
-
-  question        String
-  description     String?
-  isRequired      Boolean
-  captureLocation Boolean
-  type            SurveyQuestionType
-  order           Int
-  multiSelect     Boolean
-  rangeStart      Int?
-  rangeEnd        Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  template SurveyTemplate? @relation(fields: [surveyTemplateId], references: [id])
-  survey   Survey?         @relation(fields: [surveyId], references: [id])
-
-  options QuestionOption[]
-  answers SurveyAnswer[]
+enum SurveyType {
+  EmployeeSatisfaction
+  EmployeeEngagement
+  HealthAndSafety
+  BenefitsSatisfaction
+  WorkLifeBalance
+  WorkEnvironment
+  TeamCollaboration
+  NewPolicyAwareness
 }
 
-enum SurveyQuestionType {
-  SINGLE_SELECT
-  MULTI_SELECT
-  OPEN_ENDED
-  RANGE
-}
-
-model QuestionOption {
-  id         String @id @default(uuid())
-  questionId String
-  text       String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  question SurveyQuestions @relation(fields: [questionId], references: [id])
-  answers  SurveyAnswer[]
+enum SurveyStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
 }
 
 model SurveyUser {
-  id          String  @id @default(uuid())
-  userId      String
-  surveyId    String
-  isResponded Boolean
+  id       String @id @default(uuid())
+  userId   String
+  surveyId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  survey Survey @relation(fields: [surveyId], references: [id])
-}
-
-model SurveyResponse {
-  id          String   @id @default(uuid())
-  surveyId    String
-  userId      String
-  submittedAt DateTime
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  survey  Survey         @relation(fields: [surveyId], references: [id])
-  answers SurveyAnswer[]
-}
-
-model SurveyAnswer {
-  id         String  @id @default(uuid())
-  responseId String
-  questionId String
-  optionId   String?
-  answerText String?
-  rate       Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  response SurveyResponse  @relation(fields: [responseId], references: [id])
-  question SurveyQuestions @relation(fields: [questionId], references: [id])
-  option   QuestionOption? @relation(fields: [optionId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
 }
