@@ -11,7 +11,7 @@ export class SurveyAssignService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly utilsService: UtilsService,
-  ) { }
+  ) {}
 
   async assignUsersToASurvey(
     userIds: string[],
@@ -75,7 +75,9 @@ export class SurveyAssignService {
     return successResponse(surveyTeams, 'Teams removed successfully');
   }
 
-  async getAllAssignedUsersOfASurvey(surveyId: string): Promise<TResponse<any>> {
+  async getAllAssignedUsersOfASurvey(
+    surveyId: string,
+  ): Promise<TResponse<any>> {
     // Users directly assigned to the survey
     const surveyUsers = await this.prismaService.surveyUser.findMany({
       where: { surveyId },

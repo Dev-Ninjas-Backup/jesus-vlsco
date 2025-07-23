@@ -1,7 +1,12 @@
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { AssignTeamsToASurveyDto, AssignUsersToASurveyDto, RemoveTeamsFromASurveyDto, RemoveUsersFromASurveyDto } from '../dto/survey-assign.dto';
+import {
+  AssignTeamsToASurveyDto,
+  AssignUsersToASurveyDto,
+  RemoveTeamsFromASurveyDto,
+  RemoveUsersFromASurveyDto,
+} from '../dto/survey-assign.dto';
 import { SurveyAssignService } from '../services/survey-assign.service';
 
 @ApiTags('Admin -- Survey Assign')
@@ -9,7 +14,7 @@ import { SurveyAssignService } from '../services/survey-assign.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyAssignController {
-  constructor(private readonly surveyAssignService: SurveyAssignService) { }
+  constructor(private readonly surveyAssignService: SurveyAssignService) {}
 
   @Patch('assign-users/:surveyId')
   async assignUsersToASurvey(

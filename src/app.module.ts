@@ -1,14 +1,18 @@
+import { BullModule } from '@nestjs/bullmq';
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { ENVEnum } from './common/enum/env.enum';
 import { JwtStrategy } from './common/jwt/jwt.strategy';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { LibModule } from './lib/lib.module';
 import { MainModule } from './main/main.module';
-import { MulterModule } from './lib/multer/multer.module';
+import { NotificationModule } from './main/notification/notification.module';
 
 @Module({
   imports: [
@@ -16,21 +20,47 @@ import { MulterModule } from './lib/multer/multer.module';
       isGlobal: true,
     }),
 
+    CacheModule.register({
+      isGlobal: true,
+    }),
+
+    EventEmitterModule.forRoot(),
+
+    ScheduleModule.forRoot(),
+
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => {
+        const host = configService.getOrThrow<string>(ENVEnum.REDIS_HOST);
+        const port = configService.getOrThrow<string>(ENVEnum.REDIS_PORT);
+
+        return {
+          connection: {
+            host,
+            port: parseInt(port, 10),
+          },
+        };
+      },
+    }),
+
+    NotificationModule,
+
     PassportModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (config: ConfigService) => ({
-        secret: await config.get(ENVEnum.JWT_SECRET),
+        secret: await config.getOrThrow(ENVEnum.JWT_SECRET),
         signOptions: {
-          expiresIn: await config.get(ENVEnum.JWT_EXPIRES_IN),
+          expiresIn: await config.getOrThrow(ENVEnum.JWT_EXPIRES_IN),
         },
       }),
-      inject: [ConfigService],
     }),
 
     MainModule,
-    MulterModule,
+
     LibModule,
   ],
   controllers: [AppController],
