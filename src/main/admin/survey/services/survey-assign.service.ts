@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -11,8 +12,9 @@ export class SurveyAssignService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly utilsService: UtilsService,
-  ) { }
+  ) {}
 
+  @HandleError('Error assigning users to a survey')
   async assignUsersToASurvey(
     userIds: string[],
     surveyId: string,
@@ -28,6 +30,7 @@ export class SurveyAssignService {
     return successResponse(surveyUsers, 'Users assigned successfully');
   }
 
+  @HandleError('Error removing users from a survey')
   async removeUsersFromASurvey(
     userIds: string[],
     surveyId: string,
@@ -46,6 +49,7 @@ export class SurveyAssignService {
     return successResponse(surveyUsers, 'Users removed successfully');
   }
 
+  @HandleError('Error assigning teams to a survey')
   async assignTeamToASurvey(
     teamIds: string[],
     surveyId: string,
@@ -68,15 +72,18 @@ export class SurveyAssignService {
     });
 
     await this.prismaService.surveyUser.createMany({
-      data: teams.flatMap((team) => team.members.map((member) => ({
-        userId: member.user.id,
-        surveyId,
-      }))),
+      data: teams.flatMap((team) =>
+        team.members.map((member) => ({
+          userId: member.user.id,
+          surveyId,
+        })),
+      ),
     });
 
     return successResponse(surveyTeams, 'Teams assigned successfully');
   }
 
+  @HandleError('Error removing teams from a survey')
   async removeTeamFromASurvey(
     teamIds: string[],
     surveyId: string,
@@ -101,6 +108,7 @@ export class SurveyAssignService {
     return successResponse(surveyTeams, 'Teams removed successfully');
   }
 
+  @HandleError('Error getting all assigned users of a survey')
   async getAllAssignedUsersOfASurvey(
     surveyId: string,
   ): Promise<TResponse<any>> {

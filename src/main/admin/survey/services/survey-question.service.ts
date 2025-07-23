@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successPaginatedResponse,
   successResponse,
@@ -21,6 +22,7 @@ export class SurveyQuestionService {
     private readonly utils: UtilsService,
   ) {}
 
+  @HandleError('Failed to get all questions')
   async getAllSurveyQuestions(
     dto: GetSurveyQuestionsDto,
   ): Promise<TPaginatedResponse<any>> {
@@ -55,6 +57,7 @@ export class SurveyQuestionService {
     );
   }
 
+  @HandleError('Failed to get a question')
   async getAQuestion(id: string): Promise<TResponse<any>> {
     const question = await this.prisma.surveyQuestions.findUnique({
       where: { id },
@@ -68,6 +71,7 @@ export class SurveyQuestionService {
     return successResponse(question, 'Question found successfully');
   }
 
+  @HandleError('Failed to create a question')
   async createQuestion(
     targetId: string,
     targetType: 'survey' | 'surveyTemplate',
@@ -102,6 +106,7 @@ export class SurveyQuestionService {
     return successResponse(question, 'Question created successfully');
   }
 
+  @HandleError('Failed to update a question')
   async updateQuestion(
     id: string,
     dto: UpdateQuestionDto,
@@ -171,6 +176,7 @@ export class SurveyQuestionService {
     });
   }
 
+  @HandleError('Failed to delete a question')
   async deleteQuestion(id: string): Promise<TResponse<any>> {
     await this.utils.ensureQuestionExists(id);
     const question = await this.prisma.surveyQuestions.delete({

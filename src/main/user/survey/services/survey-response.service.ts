@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { SubmitSurveyResponseDto } from '../dto/survey-response.dto';
 
 @Injectable()
 export class SurveyResponseService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError("Failed to submit survey response")
+  @HandleError('Failed to submit survey response')
   async submitSurveyResponse(
     userId: string,
     surveyId: string,

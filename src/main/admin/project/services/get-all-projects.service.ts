@@ -5,11 +5,13 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetProjectsDto } from '../dto/get-projects.dto';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class GetAllProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Error getting projects')
   async getAllProjects(filters: GetProjectsDto): Promise<TResponse<any>> {
     const {
       managerId,

@@ -5,11 +5,13 @@ import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class AddRecognitionService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Failed to create recognition')
   async addRecognition(dto: AddRecognitionDto): Promise<TResponse<any>> {
     // validate input if needed
     if (!dto.recognitionUserIds?.length) {

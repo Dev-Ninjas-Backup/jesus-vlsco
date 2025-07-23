@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
+import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import {
   CreateTimeOffRequestDto,
   UpdateTimeOffRequestDto,
 } from '../dto/off-day-request.dto';
-import { successResponse } from '@project/common/utils/response.util';
 
 @Injectable()
 export class OffDayRequestService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Unable to create time off request')
   async createOffDayRequset(dto: CreateTimeOffRequestDto, userId: string) {
     const { startDate, endDate, reason, isFullDayOff, totalDaysOff } = dto;
 
@@ -26,6 +28,7 @@ export class OffDayRequestService {
     return successResponse(result, 'Time off request created successfully');
   }
 
+  @HandleError('Unable to get off day requests')
   async getOffDayRequests(userId: string) {
     const requests = await this.prisma.timeOffRequest.findMany({
       where: { userId },
@@ -35,6 +38,7 @@ export class OffDayRequestService {
     return successResponse(requests, 'Off day requests retrieved successfully');
   }
 
+  @HandleError('Unable to update time off request')
   async updateOffDayRequest(
     requestId: string,
     dto: UpdateTimeOffRequestDto,
@@ -69,6 +73,7 @@ export class OffDayRequestService {
     );
   }
 
+  @HandleError('Unable to delete time off request')
   async deleteOffDayRequest(userId: string, requestId: string) {
     const existingRequest = await this.prisma.timeOffRequest.findUnique({
       where: { id: requestId },

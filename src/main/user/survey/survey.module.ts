@@ -7,7 +7,11 @@ import { SurveyService } from './services/survey.service';
 import { SurveyAnswerService } from './services/survey-answer.service';
 
 @Module({
-  controllers: [SurveyController, SurveyAnswerController, SurveyResponseController],
+  controllers: [
+    SurveyController,
+    SurveyAnswerController,
+    SurveyResponseController,
+  ],
   providers: [SurveyService, SurveyAnswerService, SurveyResponseService],
 })
-export class SurveyModule { }
+export class SurveyModule {}

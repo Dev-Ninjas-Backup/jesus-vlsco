@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
@@ -14,8 +15,9 @@ export class SurveyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
+  @HandleError('Failed to create survey')
   async createSurvey(
     userId: string,
     dto: CreateSurveyDto,
@@ -51,6 +53,7 @@ export class SurveyService {
     return successResponse(survey, 'Survey created successfully');
   }
 
+  @HandleError('Failed to create survey from template')
   async createSurveyFromTemplate(
     userId: string,
     templateId: string,
@@ -104,10 +107,10 @@ export class SurveyService {
             surveyId: survey.id,
             options: q.options?.length
               ? {
-                create: q.options.map((o) => ({
-                  text: o.text,
-                })),
-              }
+                  create: q.options.map((o) => ({
+                    text: o.text,
+                  })),
+                }
               : undefined,
           },
         });
@@ -117,8 +120,10 @@ export class SurveyService {
     });
   }
 
-  async getAllSurveys() { }
+  @HandleError('Failed to get all surveys')
+  async getAllSurveys() {}
 
+  @HandleError('Failed to get survey')
   async getSurvey(id: string): Promise<TResponse<any>> {
     const survey = await this.prisma.survey.findUnique({
       where: { id },
@@ -138,6 +143,7 @@ export class SurveyService {
     return successResponse(survey, 'Survey found successfully');
   }
 
+  @HandleError('Failed to delete survey')
   async deleteSurvey(id: string): Promise<TResponse<any>> {
     await this.utils.ensureSurveyExists(id);
 
@@ -148,6 +154,7 @@ export class SurveyService {
     return successResponse(result, 'Survey deleted successfully');
   }
 
+  @HandleError('Failed to update survey')
   async updateSurvey(id: string, dto: UpdateSurveyDto) {
     await this.utils.ensureSurveyExists(id);
     const survey = await this.prisma.survey.update({

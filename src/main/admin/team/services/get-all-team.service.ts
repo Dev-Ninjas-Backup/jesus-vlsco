@@ -5,11 +5,13 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetTeamsDto } from '../dto/get-teams.dto';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class GetAllTeamsService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError("Can't get all teams")
   async getAllTeamsService(filters: GetTeamsDto): Promise<TResponse<any>> {
     const {
       title,

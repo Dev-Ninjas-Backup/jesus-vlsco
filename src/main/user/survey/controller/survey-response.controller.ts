@@ -17,6 +17,10 @@ export class SurveyResponseController {
     @Param('surveyId') surveyId: string,
     @Body() dto: SubmitSurveyResponseDto,
   ) {
-    return this.surveyResponseService.submitSurveyResponse(userId, surveyId, dto);
+    return this.surveyResponseService.submitSurveyResponse(
+      userId,
+      surveyId,
+      dto,
+    );
   }
 }

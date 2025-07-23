@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { CreateCompanyWithBranchDto } from '../dto/createCompany.dto';
 import { successResponse } from '@project/common/utils/response.util';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class CreateCompanyService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Failed to create company')
   async createCompany(dto: CreateCompanyWithBranchDto) {
     const result = await this.prisma.$transaction(async (tx) => {
       const company = await tx.companies.create({

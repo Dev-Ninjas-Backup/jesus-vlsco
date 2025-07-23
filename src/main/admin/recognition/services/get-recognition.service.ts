@@ -3,11 +3,13 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetRecognitionDto } from '../dto/recognition.dto';
 import { Prisma } from '@prisma/client';
 import { successResponse } from '@project/common/utils/response.util';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class GetRecognitionService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError("Can't get recognitions")
   async getRecognitions(dto: GetRecognitionDto) {
     const { search, startDate, endDate, page = 1, limit = 10 } = dto;
 

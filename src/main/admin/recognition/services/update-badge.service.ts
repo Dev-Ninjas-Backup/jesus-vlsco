@@ -3,6 +3,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UpdateBadgeDto } from '../dto/add-badge.dto';
 import { successResponse } from '@project/common/utils/response.util';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class UpdateBadgeService {
@@ -11,6 +12,7 @@ export class UpdateBadgeService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  @HandleError('Failed to update badge')
   async updateBadge(id: string, dto: UpdateBadgeDto, icon_url?: string) {
     // Ensure badge exists
     const badge = await this.prisma.badge.findUniqueOrThrow({ where: { id } });
@@ -34,6 +36,7 @@ export class UpdateBadgeService {
   }
 
   //Deleted Badge
+  @HandleError('Failed to delete badge')
   async deleteBadge(id: string) {
     // Ensure badge exists
     const badge = await this.prisma.badge.findUniqueOrThrow({ where: { id } });

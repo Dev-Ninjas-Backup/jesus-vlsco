@@ -3,11 +3,13 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 import { SurveyAnswer } from '@prisma/client';
 import { SubmitQuestionAnswerDto } from '../dto/survey-answer.dto';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class SurveyAnswerService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Failed to submit survey response')
   async submitQuestionAnswer(userId: string, dto: SubmitQuestionAnswerDto) {
     const { surveyId, questionId, answerText, rate, selectedOptions } = dto;
 

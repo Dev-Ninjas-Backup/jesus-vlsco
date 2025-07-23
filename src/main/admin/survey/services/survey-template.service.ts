@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successPaginatedResponse,
   successResponse,
@@ -11,12 +13,12 @@ import {
   GetAllSurveyTemplateDto,
   UpdateSurveyTemplateDto,
 } from '../dto/survey-template.dto';
-import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class SurveyTemplateService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Failed to create survey template')
   async createSurveyTemplate(
     dto: CreateSurveyTemplateDto,
   ): Promise<TResponse<any>> {
@@ -53,6 +55,7 @@ export class SurveyTemplateService {
     );
   }
 
+  @HandleError('Failed to get all survey templates')
   async getAllSurveyTemplate(
     query: GetAllSurveyTemplateDto,
   ): Promise<TPaginatedResponse<any>> {
@@ -107,6 +110,7 @@ export class SurveyTemplateService {
     );
   }
 
+  @HandleError('Failed to get survey template')
   async getSurveyTemplate(id: string): Promise<TResponse<any>> {
     const surveyTemplate = await this.prisma.surveyTemplate.findUnique({
       where: { id },
@@ -130,6 +134,7 @@ export class SurveyTemplateService {
     );
   }
 
+  @HandleError('Failed to update survey template')
   async updateSurveyTemplate(
     id: string,
     dto: UpdateSurveyTemplateDto,
@@ -148,6 +153,7 @@ export class SurveyTemplateService {
     );
   }
 
+  @HandleError('Failed to delete survey template')
   async deleteSurveyTemplate(id: string): Promise<TResponse<any>> {
     const result = await this.prisma.$transaction(async (tx) => {
       // Delete the survey template first

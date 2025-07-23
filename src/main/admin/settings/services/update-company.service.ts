@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
+import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UpdateCompanyWithBranchesDto } from '../dto/updateCompany.dto';
-import { successResponse } from '@project/common/utils/response.util';
 
 @Injectable()
 export class UpdateCompanyService {
   constructor(private readonly prisma: PrismaService) {}
 
+  @HandleError('Failed to update company')
   async updateCompanyWithBranches(
     companyId: string,
     dto: UpdateCompanyWithBranchesDto,

@@ -10,17 +10,26 @@ import {
 } from 'class-validator';
 
 export class SelectedOptionDto {
-  @ApiProperty({ type: String, example: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f' })
+  @ApiProperty({
+    type: String,
+    example: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f',
+  })
   @IsUUID()
   optionId: string;
 }
 
 export class SubmitQuestionAnswerDto {
-  @ApiProperty({ type: String, example: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f' })
+  @ApiProperty({
+    type: String,
+    example: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f',
+  })
   @IsUUID()
   surveyId: string;
 
-  @ApiProperty({ type: String, example: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f' })
+  @ApiProperty({
+    type: String,
+    example: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f',
+  })
   @IsUUID()
   questionId: string;
 
@@ -34,7 +43,10 @@ export class SubmitQuestionAnswerDto {
   @IsInt()
   rate?: number;
 
-  @ApiProperty({ type: [SelectedOptionDto], example: [{ optionId: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f' }] })
+  @ApiProperty({
+    type: [SelectedOptionDto],
+    example: [{ optionId: '6f2f2f2f-2f2f-2f2f-2f2f-2f2f2f2f2f2f' }],
+  })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
