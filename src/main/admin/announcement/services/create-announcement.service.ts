@@ -39,13 +39,14 @@ export class CreateAnnouncementService {
         attachments: {
           createMany: { data: urls.map((url) => ({ file: url })) },
         },
-        ...(data.teams && {
-          teamAnnouncements: {
-            createMany: {
-              data: data.teams.map((teamId) => ({ teamId })),
+        ...(data.teams &&
+          data.teams.length > 0 && {
+            teamAnnouncements: {
+              createMany: {
+                data: data.teams.map((teamId) => ({ teamId })),
+              },
             },
-          },
-        }),
+          }),
       },
     });
 

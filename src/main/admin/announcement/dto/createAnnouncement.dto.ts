@@ -109,10 +109,10 @@ export class CreateAnnouncementDto {
         return JSON.parse(value);
       } catch (err) {
         console.info(err);
-        return [value];
+        return [];
       }
     }
-    return value;
+    return [];
   })
   @IsArray()
   @IsString({ each: true })
