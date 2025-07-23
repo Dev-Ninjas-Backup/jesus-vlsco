@@ -6,10 +6,10 @@ import {
   Param,
   Patch,
   Post,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
@@ -39,39 +39,46 @@ export class AnnouncementController {
 
   // Create a new announcement category
   @Post('create-announcement')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files')) 
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    description: 'Announcement category creation with file upload',
+    description: 'Announcement creation with file uploads',
     schema: {
       type: 'object',
       properties: {
         ...createAnnouncementSwagger.properties,
-        file: {
-          type: 'string',
-          format: 'binary',
+        files: {
+          type: 'array', 
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+          description: 'Multiple file uploads (optional)',
         },
       },
-      required: [...createAnnouncementSwagger.required, 'file'],
     },
   })
   async createAnnouncement(
     @Body() dto: CreateAnnouncementDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[],
     @GetUser('userId') userId: string,
   ) {
-    let uploadedUrl = null;
+    let uploadedUrls: { url: string }[] = [];
 
-    if (file) {
-      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
+    if (files && files.length > 0) {
+      uploadedUrls = await Promise.all(
+        files.map(async (file) => {
+          return await this.cloudinaryService.uploadImageFromBuffer(
+            file.buffer,
+            file.originalname,
+          );
+        }),
       );
     }
 
     return await this.createAnnouncementService.createAnnouncement(
       dto,
-      uploadedUrl?.url || null,
+      uploadedUrls.map((file) => file.url), // Only pass the URL array
       userId,
     );
   }

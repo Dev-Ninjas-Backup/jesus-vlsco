@@ -7,14 +7,9 @@ export const createAnnouncementSwagger = {
       description: 'Title of the announcement',
     },
     description: {
-      type: 'object',
+      type: 'string',
       example: '<p>We’ll be performing maintenance...</p>',
       description: 'Rich text description stored as JSON',
-    },
-    audience: {
-      type: 'string',
-      example: 'ALL_EMPLOYEES',
-      description: 'Target audience for the announcement',
     },
     categoryId: {
       type: 'string',
@@ -42,6 +37,20 @@ export const createAnnouncementSwagger = {
       example: false,
       description: 'Should read receipt tracking be enabled?',
     },
+    isForAllUsers: {
+      type: 'boolean',
+      example: false,
+      description: 'Should this announcement be sent to all users?',
+    },
+    teams: {
+      type: 'array',
+      description: 'Optional list of teams to notify',
+      items: {
+        type: 'string',
+        example: 'team_abc123',
+        description: 'ID of the team',
+      },
+    },
   },
-  required: ['title', 'description', 'audience', 'categoryId', 'publishedNow'],
+  required: ['title', 'description', 'categoryId', 'publishedNow'],
 };

@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -7,7 +7,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 export class AttachmentInput {
@@ -17,15 +17,6 @@ export class AttachmentInput {
   })
   @IsString()
   url: string;
-}
-
-export class AnnouncementTeams {
-  @ApiProperty({
-    example: 'team_abc123',
-    description: 'ID of the selected team',
-  })
-  @IsUUID()
-  teamId: string;
 }
 
 export class CreateAnnouncementDto {
@@ -105,14 +96,25 @@ export class CreateAnnouncementDto {
   @Type(() => AttachmentInput)
   attachments?: AttachmentInput[];
 
-  @ApiProperty({
-    type: [AnnouncementTeams],
-    description: 'Optional list of teams to notify',
-    required: false,
+  @ApiPropertyOptional({
+    type: [String],
+    example: [
+      'b0aa6d20-6741-4eb8-93bb-66edf79a475d',
+      'b0aa6d20-6741-4eb8-93bb-66edf79a475f',
+    ],
   })
-  @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (err) {
+        console.info(err);
+        return [value];
+      }
+    }
+    return value;
+  })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AnnouncementTeams)
-  teams?: AnnouncementTeams[];
+  @IsString({ each: true })
+  teams?: string[];
 }

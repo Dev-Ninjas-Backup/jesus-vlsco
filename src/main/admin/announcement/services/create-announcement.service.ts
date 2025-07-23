@@ -6,16 +6,15 @@ import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
 
 @Injectable()
 export class CreateAnnouncementService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   // Create a new announcement
   @HandleError('Error creating announcement')
   async createAnnouncement(
     data: CreateAnnouncementDto,
-    url: string | null,
+    urls: string[],
     userId: string,
   ) {
-    console.log(data.description);
     const announcement = await this.prisma.announcement.create({
       data: {
         title: data.title,
@@ -27,13 +26,15 @@ export class CreateAnnouncementService {
         publishedNow: data.publishedNow,
         publishedAt: data.publishedAt,
         isForAllUsers: data.isForAllUsers,
-        ...(url && { attachments: { create: { file: url } } }),
+        attachments: {
+          createMany: { data: urls.map((url) => ({ file: url })) },
+        },
         ...(data.teams && {
           teamAnnouncements: {
             createMany: {
-              data: data.teams
-            }
-          }
+              data: data.teams.map((teamId) => ({ teamId })),
+            },
+          },
         }),
       },
     });
