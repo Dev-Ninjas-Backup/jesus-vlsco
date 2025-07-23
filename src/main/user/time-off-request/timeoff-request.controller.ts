@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { OffDayRequestService } from './services/off-day-request.service';
-import { CreateTimeOffRequestDto } from './dto/off-day-request.dto';
+import { CreateTimeOffRequestDto, UpdateTimeOffRequestDto } from './dto/off-day-request.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 
@@ -24,4 +24,24 @@ export class TimeoffRequestController {
     async getOffDayRequests(@GetUser('userId') userId: string) {
         return this.offDayRequestService.getOffDayRequests(userId);
     }
+
+    @Patch('my-requests/:id')
+    @ApiOperation({ summary: 'Update an existing off day request' })
+    async updateOffDayRequest(
+        @Body() updateTimeOffRequestDto: UpdateTimeOffRequestDto,
+        @GetUser('userId') userId: string,
+        @Param('id') requestId: string,
+    ) {
+        return this.offDayRequestService.updateOffDayRequest(requestId, updateTimeOffRequestDto, userId);
+    }
+
+    @Delete('my-requests/:id')
+    @ApiOperation({ summary: 'Delete an off day request' })
+    async deleteOffDayRequest(
+        @GetUser('userId') userId: string,
+        @Param('id') requestId: string,
+    ) {
+        return this.offDayRequestService.deleteOffDayRequest(userId, requestId);
+    }
+
 }
