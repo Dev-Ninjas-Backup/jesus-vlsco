@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { OffDayRequestService } from './services/off-day-request.service';
 import { CreateTimeOffRequestDto } from './dto/off-day-request.dto';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -19,4 +19,9 @@ export class TimeoffRequestController {
     }
         
     
+    @Get('my-requests')
+    @ApiOperation({ summary: 'Get all off day requests for the authenticated user' })
+    async getOffDayRequests(@GetUser('userId') userId: string) {
+        return this.offDayRequestService.getOffDayRequests(userId);
+    }
 }

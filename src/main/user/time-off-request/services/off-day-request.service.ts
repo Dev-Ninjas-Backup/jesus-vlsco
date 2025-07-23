@@ -21,6 +21,16 @@ export class OffDayRequestService {
             }
         })
         return successResponse(result, 'Time off request created successfully');
-
     }
+
+    async getOffDayRequests(userId: string) {
+        const requests = await this.prisma.timeOffRequest.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return successResponse(requests, 'Off day requests retrieved successfully');
+    }
+
+
 }
