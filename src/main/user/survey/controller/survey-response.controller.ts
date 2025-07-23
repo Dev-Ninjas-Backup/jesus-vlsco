@@ -1,5 +1,6 @@
-import { Body, Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { SubmitSurveyResponseDto } from '../dto/survey-response.dto';
 import { SurveyResponseService } from '../services/survey-response.service';
@@ -9,7 +10,7 @@ import { SurveyResponseService } from '../services/survey-response.service';
 @ValidateEmployee()
 @ApiBearerAuth()
 export class SurveyResponseController {
-  constructor(private surveyResponseService: SurveyResponseService) {}
+  constructor(private surveyResponseService: SurveyResponseService) { }
 
   @Post('submit/:surveyId')
   async submitResponse(
@@ -22,5 +23,13 @@ export class SurveyResponseController {
       surveyId,
       dto,
     );
+  }
+
+  @Get('all')
+  async getAllResponsesByAEmployee(
+    @GetUser('userId') userId: string,
+    @Query() query: PaginationDto,
+  ) {
+    return this.surveyResponseService.getAllResponsesByAEmployee(userId, query);
   }
 }

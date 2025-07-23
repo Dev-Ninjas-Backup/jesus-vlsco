@@ -27,19 +27,21 @@ export const successResponse = <T>(
 
 export const successPaginatedResponse = <T>(
   data: T[],
-  page: number,
-  limit: number,
-  total: number,
+  metaData: {
+    page: number,
+    limit: number,
+    total: number,
+  },
   message = 'Request Success',
 ): TPaginatedResponse<T> => ({
   success: true,
   message,
   data,
   metadata: {
-    page,
-    limit,
-    total,
-    totalPage: Math.ceil(total / limit),
+    page: metaData.page,
+    limit: metaData.limit,
+    total: metaData.total,
+    totalPage: Math.ceil(metaData.total / metaData.limit),
   },
 });
 

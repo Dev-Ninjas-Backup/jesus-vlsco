@@ -50,9 +50,11 @@ export class SurveyQuestionService {
 
     return successPaginatedResponse(
       questions,
-      totalCount,
-      page,
-      limit,
+      {
+        page,
+        limit,
+        total: totalCount,
+      },
       `All Questions of the ${targetType === 'survey' ? 'Survey' : 'Survey Template'}`,
     );
   }

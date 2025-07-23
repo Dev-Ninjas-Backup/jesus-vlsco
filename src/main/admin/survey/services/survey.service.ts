@@ -155,7 +155,7 @@ export class SurveyService {
       }),
     ]);
 
-    return successPaginatedResponse(surveys, totalCount, page, limit);
+    return successPaginatedResponse(surveys, { page, limit, total: totalCount }, 'Surveys retrieved successfully');
   }
 
 
