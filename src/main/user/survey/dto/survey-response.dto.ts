@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-  ValidateNested
+  ValidateNested,
 } from 'class-validator';
 
 export class AnswerOptionDto {

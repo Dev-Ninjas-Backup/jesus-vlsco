@@ -18,7 +18,7 @@ export class SurveyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   @HandleError('Failed to create survey')
   async createSurvey(
@@ -110,10 +110,10 @@ export class SurveyService {
             surveyId: survey.id,
             options: q.options?.length
               ? {
-                create: q.options.map((o) => ({
-                  text: o.text,
-                })),
-              }
+                  create: q.options.map((o) => ({
+                    text: o.text,
+                  })),
+                }
               : undefined,
           },
         });
@@ -155,9 +155,12 @@ export class SurveyService {
       }),
     ]);
 
-    return successPaginatedResponse(surveys, { page, limit, total: totalCount }, 'Surveys retrieved successfully');
+    return successPaginatedResponse(
+      surveys,
+      { page, limit, total: totalCount },
+      'Surveys retrieved successfully',
+    );
   }
-
 
   @HandleError('Failed to get survey')
   async getSurvey(id: string): Promise<TResponse<any>> {

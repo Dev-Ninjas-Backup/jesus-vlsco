@@ -28,9 +28,9 @@ export const successResponse = <T>(
 export const successPaginatedResponse = <T>(
   data: T[],
   metaData: {
-    page: number,
-    limit: number,
-    total: number,
+    page: number;
+    limit: number;
+    total: number;
   },
   message = 'Request Success',
 ): TPaginatedResponse<T> => ({

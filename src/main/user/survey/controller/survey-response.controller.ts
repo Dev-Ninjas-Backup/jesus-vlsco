@@ -10,7 +10,7 @@ import { SurveyResponseService } from '../services/survey-response.service';
 @ValidateEmployee()
 @ApiBearerAuth()
 export class SurveyResponseController {
-  constructor(private surveyResponseService: SurveyResponseService) { }
+  constructor(private surveyResponseService: SurveyResponseService) {}
 
   @Post('submit/:surveyId')
   async submitResponse(
@@ -31,5 +31,13 @@ export class SurveyResponseController {
     @Query() query: PaginationDto,
   ) {
     return this.surveyResponseService.getAllResponsesByAEmployee(userId, query);
+  }
+
+  @Get(':id')
+  async getSingleResponse(
+    @GetUser('userId') userId: string,
+    @Param('id') id: string,
+  ) {
+    return this.surveyResponseService.getSingleResponse(userId, id);
   }
 }

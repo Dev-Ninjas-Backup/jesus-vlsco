@@ -16,7 +16,7 @@ import {
 
 @Injectable()
 export class SurveyTemplateService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to create survey template')
   async createSurveyTemplate(
@@ -66,21 +66,21 @@ export class SurveyTemplateService {
 
     const where = searchTerm
       ? {
-        OR: [
-          {
-            title: {
-              contains: searchTerm,
-              mode: this.prisma.utils.QueryMode.insensitive,
+          OR: [
+            {
+              title: {
+                contains: searchTerm,
+                mode: this.prisma.utils.QueryMode.insensitive,
+              },
             },
-          },
-          {
-            description: {
-              contains: searchTerm,
-              mode: this.prisma.utils.QueryMode.insensitive,
+            {
+              description: {
+                contains: searchTerm,
+                mode: this.prisma.utils.QueryMode.insensitive,
+              },
             },
-          },
-        ],
-      }
+          ],
+        }
       : {};
 
     const [surveyTemplates, totalCount] = await this.prisma.$transaction([

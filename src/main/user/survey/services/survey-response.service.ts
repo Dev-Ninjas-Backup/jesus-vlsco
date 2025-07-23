@@ -13,7 +13,7 @@ import { SubmitSurveyResponseDto } from '../dto/survey-response.dto';
 
 @Injectable()
 export class SurveyResponseService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to submit survey response')
   async submitSurveyResponse(
@@ -92,7 +92,11 @@ export class SurveyResponseService {
     });
   }
 
-  async getAllResponsesByAEmployee(userId: string, query: PaginationDto): Promise<TPaginatedResponse<any>> {
+  @HandleError('Failed to get responses')
+  async getAllResponsesByAEmployee(
+    userId: string,
+    query: PaginationDto,
+  ): Promise<TPaginatedResponse<any>> {
     const page = Math.max(Number(query.page) || 1, 1);
     const limit = Math.min(Number(query.limit) || 10, 100);
 
@@ -107,7 +111,6 @@ export class SurveyResponseService {
                   options: true,
                 },
               },
-              responses: true,
             },
           },
         },
@@ -115,8 +118,30 @@ export class SurveyResponseService {
         take: limit,
       }),
       this.prisma.surveyResponse.count({ where: { userId } }),
-    ])
+    ]);
 
-    return successPaginatedResponse(responses, { page, limit, total: totalCount }, 'Responses retrieved successfully');
+    return successPaginatedResponse(
+      responses,
+      { page, limit, total: totalCount },
+      'Responses retrieved successfully',
+    );
+  }
+
+  @HandleError('Failed to get single response')
+  async getSingleResponse(userId: string, id: string): Promise<TResponse<any>> {
+    const response = await this.prisma.surveyResponse.findUnique({
+      where: { id, userId },
+      include: { survey: true },
+    });
+
+    // * check if the response is by the user
+    if (!response) {
+      throw new AppError(
+        404,
+        'Response not found or it does not belong to you',
+      );
+    }
+
+    return successResponse(response, 'Response retrieved successfully');
   }
 }

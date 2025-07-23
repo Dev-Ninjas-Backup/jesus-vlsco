@@ -9,18 +9,25 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { SurveyResponseService } from '@project/main/user/survey/services/survey-response.service';
 import { CreateSurveyFromTemplateDto } from '../dto/create-survey-from-template.dto';
-import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
-import { SurveyService } from '../services/survey.service';
 import { GetAllSurveysDto } from '../dto/get-survey.dto';
+import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
+import { GetSurveyResponseService } from '../services/get-survey-response.service';
+import { SurveyService } from '../services/survey.service';
 
 @ApiTags('Admin -- Survey')
 @Controller('admin/survey')
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyController {
-  constructor(private readonly surveyService: SurveyService) {}
+  constructor(
+    private readonly surveyService: SurveyService,
+    private readonly surveyResponseService: SurveyResponseService,
+    private readonly getSurveyResponseService: GetSurveyResponseService,
+  ) {}
 
   @Post()
   async createSurvey(
@@ -57,5 +64,23 @@ export class SurveyController {
   @Delete(':id/delete')
   async deleteSurvey(@Param('id') id: string) {
     return this.surveyService.deleteSurvey(id);
+  }
+
+  @Get('response/all')
+  async getAllResponses(@Query() query: PaginationDto) {
+    return this.getSurveyResponseService.getAllResponses(query);
+  }
+
+  @Get('response/:userId/all')
+  async getAllResponsesByAEmployee(
+    @Param('userId') userId: string,
+    @Query() query: PaginationDto,
+  ) {
+    return this.surveyResponseService.getAllResponsesByAEmployee(userId, query);
+  }
+
+  @Get('response/:id')
+  async getSingleResponse(@Param('id') id: string) {
+    return this.getSurveyResponseService.getSingleResponse(id);
   }
 }
