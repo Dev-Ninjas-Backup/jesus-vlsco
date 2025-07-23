@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { SubmitQuestionAnswerDto } from '../dto/survey-answer.dto';
 import { SurveyAnswerService } from '../services/survey-answer.service';
 
-@ApiTags('Admin -- Survey Answer')
-@Controller('admin/survey-answer')
-@ValidateAdmin()
+@ApiTags('Employee -- Survey Answer')
+@Controller('employee/survey-answer')
+@ValidateEmployee()
 @ApiBearerAuth()
 export class SurveyAnswerController {
   constructor(private readonly surveyAnswerService: SurveyAnswerService) {}

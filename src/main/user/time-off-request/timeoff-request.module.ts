@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TimeoffRequestController } from './timeoff-request.controller';
-import { OffDayRequestService } from './services/off-day-request.service';
-import { AdminRequestOffDayController } from './admin-request-off-day.controller';
+import { AdminRequestOffDayController } from './controller/admin-request-off-day.controller';
+import { TimeoffRequestController } from './controller/timeoff-request.controller';
 import { AdminRequestOffDayService } from './services/admin-request-off-day.service';
+import { OffDayRequestService } from './services/off-day-request.service';
 
 @Module({
   controllers: [TimeoffRequestController, AdminRequestOffDayController],

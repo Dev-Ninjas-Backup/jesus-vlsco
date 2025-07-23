@@ -9,7 +9,7 @@ on:
 
 jobs:
   ci:
-    name: 🧪 CI - Lint, Build, Format, Prisma 
+    name: 🧪 CI - Lint, Build, Format, Prisma
     runs-on: ubuntu-latest
 
     steps:
@@ -30,15 +30,8 @@ jobs:
       - name: ✅ Format Check
         run: npm run format
 
-      # - name: 🏗 Build Project
-      #   run: npm run build
+      - name: 🏗 Build Project
+        run: npm run build
 
-      # - name: 🔍 Prisma Schema Validation
-      #   run: npm prisma:validate
-      #   env:
-      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      # - name: 🔄 Generate Prisma Client
-      #   run: pnpm prisma:generate
-      #   env:
-      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: 🔄 Generate Prisma Client
+        run: pnpm prisma:generate

@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { AdminRequestOffDayStatusDto } from './dto/admin-off-day-request.dto';
-import { AdminRequestOffDayService } from './services/admin-request-off-day.service';
+import { AdminRequestOffDayStatusDto } from '../dto/admin-off-day-request.dto';
+import { AdminRequestOffDayService } from '../services/admin-request-off-day.service';
 
 @ApiTags('Admin -- Off Day Request')
 @Controller('admin/time-off-request')
