@@ -15,7 +15,7 @@ import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { CreateAnnouncementDto } from './dto/createAnnouncement.dto';
 import { createAnnouncementSwagger } from './dto/createAnnouncement.swagger';
-import { UpdateAnnouncementCategoryDto } from './dto/updateAnnounementCategory.dto';
+import { UpdateAnnouncementCategoryDto } from './dto/updateAnnouncementCategory.dto';
 import { CreateAnnouncementCategoryService } from './services/create-announcement-category.service';
 import { CreateAnnouncementService } from './services/create-announcement.service';
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
@@ -28,12 +28,12 @@ import { UpdateAnnouncementCategoryService } from './services/update-announcemen
 @Controller('admin/announcement')
 export class AnnouncementController {
   constructor(
-    private readonly createAnnouncemetnCategoryService: CreateAnnouncementCategoryService,
+    private readonly createAnnouncementCategoryService: CreateAnnouncementCategoryService,
     private readonly getAnnouncementCategoryService: GetAnnouncementCategoryService,
     private readonly updateAnnouncementCategoryService: UpdateAnnouncementCategoryService,
     private readonly deleteAnnouncementCategoryService: DeleteAnnouncementCategoryService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly createAnnouncemetnService: CreateAnnouncementService,
+    private readonly createAnnouncementService: CreateAnnouncementService,
   ) {}
 
   // Create a new announcement category
@@ -59,19 +59,17 @@ export class AnnouncementController {
     @UploadedFile() file: Express.Multer.File,
     @GetUser('userId') userId: string,
   ) {
-    if (!file) {
-      throw new Error('File is required for category creation.');
+    let uploadedUrl = null;
+
+    if (file) {
+      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
+        file.buffer,
+        file.originalname,
+      );
     }
-    // You can handle the file upload here if needed, e.g., save it to a cloud service
-    const uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-      file.buffer,
-      file.originalname,
-    );
-    // Assuming your DTO has a field for the file URL
-    const url = uploadedUrl.secure_url;
-    return await this.createAnnouncemetnService.createAnnouncement(
+    return await this.createAnnouncementService.createAnnouncement(
       dto,
-      url,
+      uploadedUrl?.url || null,
       userId,
     );
   }

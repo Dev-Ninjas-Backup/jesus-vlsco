@@ -55,9 +55,9 @@ enum SurveyStatus {
 }
 
 model SurveyUser {
-  id       String @id @default(uuid())
-  userId   String
-  surveyId String
+  id          String  @id @default(uuid())
+  userId      String
+  surveyId    String
   isResponded Boolean @default(false)
 
   createdAt DateTime @default(now())

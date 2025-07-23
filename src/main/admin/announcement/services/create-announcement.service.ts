@@ -12,18 +12,21 @@ export class CreateAnnouncementService {
   @HandleError('Error creating announcement')
   async createAnnouncement(
     data: CreateAnnouncementDto,
-    url: string,
+    url: string | null,
     userId: string,
   ) {
     const announcement = await this.prisma.announcement.create({
       data: {
-        createdBy: userId,
         title: data.title,
         description: data.description,
         audience: data.audience,
+        createdBy: userId,
         sendEmailNotification: data.sendEmailNotification,
         enabledReadReceipt: data.enabledReadReceipt,
         categoryId: data.categoryId,
+        publishedNow: data.publishedNow,
+        publishedAt: data.publishedAt,
+        ...(url && { attachments: { create: { file: url } } }),
       },
     });
 

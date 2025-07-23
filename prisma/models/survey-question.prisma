@@ -6,8 +6,8 @@ model SurveyQuestions {
   order           Int
   question        String
   description     String?
-  isRequired      Boolean @default(false)
-  captureLocation Boolean @default(false)
+  isRequired      Boolean            @default(false)
+  captureLocation Boolean            @default(false)
   type            SurveyQuestionType
   multiSelect     Boolean            @default(false)
   rangeStart      Int?

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { UpdateAnnouncementCategoryDto } from '../dto/updateAnnounementCategory.dto';
+import { UpdateAnnouncementCategoryDto } from '../dto/updateAnnouncementCategory.dto';
 
 @Injectable()
 export class UpdateAnnouncementCategoryService {

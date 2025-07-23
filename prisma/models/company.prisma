@@ -1,5 +1,5 @@
 model Companies {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   name      String
   location  String
   logo      String?

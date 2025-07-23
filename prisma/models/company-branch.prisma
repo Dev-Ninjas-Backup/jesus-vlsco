@@ -1,5 +1,5 @@
 model CompaniesBranch {
-  id        String   @id @default(cuid())
+  id        String   @id @default(uuid())
   companyId String
   name      String
   location  String
