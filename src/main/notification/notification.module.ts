@@ -1,10 +1,8 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { NotificationController } from './controller/notification.controller';
 import { CompanyAnnouncementEvents } from './events/company-announcement.events';
 import { NotificationGateway } from './notification.gateway';
-import { NotificationService } from './services/notification.service';
 import { CompanyAnnouncementWorker } from './worker/company-announcement.worker';
 
 @Module({
@@ -13,9 +11,8 @@ import { CompanyAnnouncementWorker } from './worker/company-announcement.worker'
     JwtService,
     CompanyAnnouncementEvents,
     CompanyAnnouncementWorker,
-    NotificationService,
   ],
-  controllers: [NotificationController],
+  controllers: [],
   exports: [NotificationGateway],
   imports: [
     BullModule.registerQueue({

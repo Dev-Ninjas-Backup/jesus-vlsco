@@ -1,5 +1,3 @@
-
-
 export interface AnnouncementEvent {
   title: string;
   message: string;
@@ -7,13 +5,11 @@ export interface AnnouncementEvent {
 }
 
 export const EVENT_TYPES = {
-  COMPANY_ANNOUNCEMENT_CREATE: 'ANNOUNCEMENT_CREATE',
-  COMPANY_ANNOUNCEMENT_BROADCAST: 'ANNOUNCEMENT_BROADCAST',
+  COMPANY_ANNOUNCEMENT_CREATE: 'company-announcement:create',
+  COMPANY_ANNOUNCEMENT_BROADCAST: 'company-announcement:broadcast',
 } as const;
 
-export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES];
-
-export interface EventPayloadMap {
-  [EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE]: AnnouncementEvent | any;
+export type EventPayloadMap = {
+  [EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE]: AnnouncementEvent;
   [EVENT_TYPES.COMPANY_ANNOUNCEMENT_BROADCAST]: AnnouncementEvent;
-}
+};
