@@ -56,7 +56,6 @@ export class SurveyService {
     dto: CreateSurveyFromTemplateDto,
   ): Promise<TResponse<any>> {
     return this.prisma.$transaction(async (tx) => {
-      console.log('templateId', templateId);
       //  Get template with questions and options
       const template = await tx.surveyTemplate.findUnique({
         where: { id: templateId },

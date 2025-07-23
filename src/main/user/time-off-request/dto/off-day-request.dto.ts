@@ -1,8 +1,14 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { IsUUID, IsDateString, IsString, IsBoolean, IsInt, Min, MaxLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsDateString,
+  IsInt,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CreateTimeOffRequestDto {
-
   @ApiProperty({ description: 'Off Day Start' })
   @IsDateString()
   startDate: string;
@@ -25,4 +31,6 @@ export class CreateTimeOffRequestDto {
   totalDaysOff: number;
 }
 
-export class UpdateTimeOffRequestDto extends PartialType(CreateTimeOffRequestDto) {}
+export class UpdateTimeOffRequestDto extends PartialType(
+  CreateTimeOffRequestDto,
+) {}

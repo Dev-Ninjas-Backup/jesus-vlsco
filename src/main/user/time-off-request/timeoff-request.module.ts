@@ -6,6 +6,6 @@ import { AdminRequestOffDayService } from './services/admin-request-off-day.serv
 
 @Module({
   controllers: [TimeoffRequestController, AdminRequestOffDayController],
-  providers: [OffDayRequestService, AdminRequestOffDayService]
+  providers: [OffDayRequestService, AdminRequestOffDayService],
 })
 export class TimeoffRequestModule {}

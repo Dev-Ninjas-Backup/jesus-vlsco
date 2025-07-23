@@ -5,33 +5,41 @@ import { AdminRequestOffDayStatusDto } from '../dto/admin-off-day-request.dto';
 
 @Injectable()
 export class AdminRequestOffDayService {
+  constructor(private readonly prisma: PrismaService) {}
 
-    constructor(private readonly prisma: PrismaService) {}
+  async getAllOffDayRequests() {
+    const requests = await this.prisma.timeOffRequest.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
 
-    async getAllOffDayRequests() {
-        const requests = await this.prisma.timeOffRequest.findMany({
-            orderBy: { createdAt: 'desc' },
-        });
+    return successResponse(
+      requests,
+      'All off day requests retrieved successfully',
+    );
+  }
 
-        return successResponse(requests, 'All off day requests retrieved successfully');
+  async updateOffDayRequest(
+    requestId: string,
+    dto: AdminRequestOffDayStatusDto,
+  ) {
+    const { status } = dto;
+
+    const existingRequest = await this.prisma.timeOffRequest.findUnique({
+      where: { id: requestId },
+    });
+
+    if (!existingRequest) {
+      throw new Error('Request not found');
     }
 
-    async updateOffDayRequest(requestId: string, dto: AdminRequestOffDayStatusDto, ) {
-        const { status } = dto;
+    const updatedRequest = await this.prisma.timeOffRequest.update({
+      where: { id: requestId },
+      data: { status },
+    });
 
-        const existingRequest = await this.prisma.timeOffRequest.findUnique({
-            where: { id: requestId },
-        });
-
-        if (!existingRequest) {
-            throw new Error('Request not found');
-        }
-
-        const updatedRequest = await this.prisma.timeOffRequest.update({
-            where: { id: requestId },
-            data: { status },
-        });
-
-        return successResponse(updatedRequest, 'Off day request updated successfully');
-    }
+    return successResponse(
+      updatedRequest,
+      'Off day request updated successfully',
+    );
+  }
 }
