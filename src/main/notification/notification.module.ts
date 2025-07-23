@@ -20,4 +20,4 @@ import { CompanyAnnouncementWorker } from './worker/company-announcement.worker'
     }),
   ],
 })
-export class NotificationModule { }
+export class NotificationModule {}

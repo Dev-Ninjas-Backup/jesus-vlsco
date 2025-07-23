@@ -4,14 +4,13 @@ import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
-import { EVENT_TYPES, EventPayloadMap } from '@project/main/notification/interface/events';
 
 @Injectable()
 export class CreateAnnouncementService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly events: EventEmitter2,
-  ) { }
+  ) {}
 
   // Create a new announcement
   @HandleError('Error creating announcement')
@@ -43,12 +42,6 @@ export class CreateAnnouncementService {
         }),
       },
     });
-
-    // this.events.emit(
-    //   EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
-    //   announcement as EventPayloadMap[typeof EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE],
-    // );
-
 
     return successResponse(announcement, 'Announcement created successfully');
   }

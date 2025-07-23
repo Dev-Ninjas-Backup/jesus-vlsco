@@ -10,7 +10,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
   constructor(
     private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
-  ) { }
+  ) {}
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(
@@ -29,4 +29,3 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
     );
   }
 }
-
