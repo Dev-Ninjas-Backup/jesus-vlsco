@@ -35,6 +35,13 @@ export class NotificationGateway
 
   afterInit(server: any) {
     this.logger.log('Initialized');
+
+    this.server.on('connection', (ws: WebSocket) => {
+      ws.on('close', () => {
+        this.logger.log('Client disconnected');
+      });
+    });
+    console.info(server.clients);
   }
 
   handleConnection(client: WebSocket, ...args: any[]): void {
@@ -65,7 +72,7 @@ export class NotificationGateway
         this.handleDisconnect(client);
       });
     } catch (err) {
-      this.logger.warn('JWT verification failed');
+      this.logger.warn(err.message || 'JWT verification failed');
       client.close();
     }
   }

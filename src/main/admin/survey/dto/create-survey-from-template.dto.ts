@@ -1,6 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { SurveyStatus, SurveyType } from '@prisma/client';
-import { Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
