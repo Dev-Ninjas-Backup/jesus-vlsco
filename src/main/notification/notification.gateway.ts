@@ -98,4 +98,8 @@ export class NotificationGateway
       this.logger.debug(`Removed empty client set for user ${userId}`);
     }
   }
+
+  public getClientsForUser(userId: string): Set<WebSocket> {
+    return this.clients.get(userId) || new Set();
+  }
 }
