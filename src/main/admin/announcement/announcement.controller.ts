@@ -15,6 +15,7 @@ import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { CreateAnnouncementDto } from './dto/createAnnouncement.dto';
 import { createAnnouncementSwagger } from './dto/createAnnouncement.swagger';
+import { CreateAnnouncementCategoryDto } from './dto/createAnnouncementCategory.dto';
 import { UpdateAnnouncementCategoryDto } from './dto/updateAnnouncementCategory.dto';
 import { CreateAnnouncementCategoryService } from './services/create-announcement-category.service';
 import { CreateAnnouncementService } from './services/create-announcement.service';
@@ -34,10 +35,10 @@ export class AnnouncementController {
     private readonly deleteAnnouncementCategoryService: DeleteAnnouncementCategoryService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly createAnnouncementService: CreateAnnouncementService,
-  ) {}
+  ) { }
 
   // Create a new announcement category
-  @Post('create-category')
+  @Post('create-announcement')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -67,11 +68,18 @@ export class AnnouncementController {
         file.originalname,
       );
     }
+
     return await this.createAnnouncementService.createAnnouncement(
       dto,
       uploadedUrl?.url || null,
       userId,
     );
+  }
+
+  // Create a new announcement category
+  @Post('create-category')
+  async createCategory(@Body() dto: CreateAnnouncementCategoryDto) {
+    return await this.createAnnouncementCategoryService.createCategory(dto);
   }
 
   // Get all announcement categories

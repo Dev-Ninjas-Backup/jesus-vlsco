@@ -1,47 +1,3 @@
-// model Announcement{
-//     id          String   @id @default(cuid())
-//     title       String
-//     description Json
-//     audience    String
-//     createdBy   String
-//     likeCount   Int      @default(0)
-//     viewCount   Int      @default(0)
-//     publishedNow Boolean @default(false)
-//     publishedAt DateTime?
-//     sendEmailNotification Boolean @default(false)
-//     enabledReadReceipt Boolean @default(false)
-//     categoryId  String
-//     Attachments Attachments[]
-//     createdAt   DateTime @default(now())
-//     updatedAt   DateTime @updatedAt
-//     likedUser  AnnoucementReactedUser[]
-
-//     author      User      @relation(fields: [createdBy], references: [id])
-//     category    AnnouncementCategory @relation(fields: [categoryId], references: [id])
-// }
-
-// model AnnoucementReactedUser {
-//     id          String   @id @default(cuid())
-//     userId      String
-//     announcementId String
-//     createdAt   DateTime @default(now())
-//     updatedAt   DateTime @updatedAt
-
-//     user        User     @relation(fields: [userId], references: [id])
-//     announcement Announcement @relation(fields: [announcementId], references: [id])
-
-// }
-
-// model Attachments {
-//     id          String   @id @default(cuid())
-//     file         String
-//     announcementId String
-//     createdAt   DateTime @default(now())
-//     updatedAt   DateTime @updatedAt
-
-//     announcement Announcement @relation(fields: [announcementId], references: [id])
-// }
-
 export const createAnnouncementSwagger = {
   type: 'object',
   properties: {
@@ -52,7 +8,7 @@ export const createAnnouncementSwagger = {
     },
     description: {
       type: 'object',
-      example: { content: '<p>We’ll be performing maintenance...</p>' },
+      example: '<p>We’ll be performing maintenance...</p>',
       description: 'Rich text description stored as JSON',
     },
     audience: {

@@ -15,6 +15,7 @@ export class CreateAnnouncementService {
     url: string | null,
     userId: string,
   ) {
+    console.log(data.description);
     const announcement = await this.prisma.announcement.create({
       data: {
         title: data.title,

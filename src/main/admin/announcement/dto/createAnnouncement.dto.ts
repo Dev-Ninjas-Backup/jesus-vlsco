@@ -1,15 +1,16 @@
-import {
-  IsString,
-  IsBoolean,
-  IsOptional,
-  IsDateString,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested
+} from 'class-validator';
 
-class AttachmentInput {
+export class AttachmentInput {
   @ApiProperty({
     example: 'https://example.com/uploads/file.pdf',
     description: 'Publicly accessible URL of the attachment',
@@ -24,9 +25,10 @@ export class CreateAnnouncementDto {
   title: string;
 
   @ApiProperty({
-    example: { content: '<p>We’ll be performing maintenance...</p>' },
+    example: '<p>We’ll be performing maintenance...</p>',
     description: 'Rich text description stored as JSON',
   })
+  @IsString()
   description: any; // stored as JSON
 
   @ApiProperty({ example: 'ALL_EMPLOYEES' })
@@ -37,13 +39,14 @@ export class CreateAnnouncementDto {
     example: 'cat_abc123',
     description: 'ID of the selected category',
   })
-  @IsString()
+  @IsUUID()
   categoryId: string;
 
   @ApiProperty({
     example: true,
     description: 'Whether to publish immediately or schedule it',
   })
+  @Type(() => Boolean)
   @IsBoolean()
   publishedNow: boolean;
 
@@ -61,6 +64,7 @@ export class CreateAnnouncementDto {
     description: 'Should recipients get an email',
     required: false,
   })
+  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   sendEmailNotification?: boolean;
@@ -70,6 +74,7 @@ export class CreateAnnouncementDto {
     description: 'Should read receipt tracking be enabled',
     required: false,
   })
+  @Type(() => Boolean)
   @IsOptional()
   @IsBoolean()
   enabledReadReceipt?: boolean;
