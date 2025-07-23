@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateSurveyFromTemplateDto } from '../dto/create-survey-from-template.dto';
+import { GetAllSurveysDto } from '../dto/get-survey.dto';
 import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
 
 @Injectable()
@@ -15,7 +18,7 @@ export class SurveyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) {}
+  ) { }
 
   @HandleError('Failed to create survey')
   async createSurvey(
@@ -107,10 +110,10 @@ export class SurveyService {
             surveyId: survey.id,
             options: q.options?.length
               ? {
-                  create: q.options.map((o) => ({
-                    text: o.text,
-                  })),
-                }
+                create: q.options.map((o) => ({
+                  text: o.text,
+                })),
+              }
               : undefined,
           },
         });
@@ -121,7 +124,40 @@ export class SurveyService {
   }
 
   @HandleError('Failed to get all surveys')
-  async getAllSurveys() {}
+  async getAllSurveys(dto: GetAllSurveysDto): Promise<TPaginatedResponse<any>> {
+    const page = dto.page || 1;
+    const limit = dto.limit || 10;
+    const status = dto.status;
+    const orderBy = dto.orderBy || 'desc';
+
+    const [surveys, totalCount] = await this.prisma.$transaction([
+      this.prisma.survey.findMany({
+        where: {
+          ...(status ? { status } : {}),
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: {
+          createdAt: orderBy,
+        },
+        include: {
+          questions: {
+            include: {
+              options: true,
+            },
+          },
+        },
+      }),
+      this.prisma.survey.count({
+        where: {
+          ...(status ? { status } : {}),
+        },
+      }),
+    ]);
+
+    return successPaginatedResponse(surveys, totalCount, page, limit);
+  }
+
 
   @HandleError('Failed to get survey')
   async getSurvey(id: string): Promise<TResponse<any>> {
