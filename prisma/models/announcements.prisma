@@ -2,23 +2,26 @@ model Announcement {
   id                    String    @id @default(uuid())
   title                 String
   description           Json
-  audience              String
-  createdBy             String
-  likeCount             Int       @default(0)
-  viewCount             Int       @default(0)
   publishedNow          Boolean   @default(false)
   publishedAt           DateTime?
   sendEmailNotification Boolean   @default(false)
   enabledReadReceipt    Boolean   @default(false)
+  likeCount             Int       @default(0)
+  viewCount             Int       @default(0)
+  isForAllUsers         Boolean   @default(false) 
+
+  createdBy             String
   categoryId            String
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  likedUser   AnnouncementReactedUser[]
-  attachments Attachments[]
+  likedUser             AnnouncementReactedUser[]
+  attachments           Attachments[]
 
-  author   User                 @relation(fields: [createdBy], references: [id])
-  category AnnouncementCategory @relation(fields: [categoryId], references: [id])
+  author                User                 @relation(fields: [createdBy], references: [id])
+  category              AnnouncementCategory @relation(fields: [categoryId], references: [id])
+  
+  teamAnnouncements      TeamAnnouncement[]             
 }
 
 model AnnouncementReactedUser {

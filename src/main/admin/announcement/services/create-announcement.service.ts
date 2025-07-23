@@ -6,7 +6,7 @@ import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
 
 @Injectable()
 export class CreateAnnouncementService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   // Create a new announcement
   @HandleError('Error creating announcement')
@@ -20,14 +20,21 @@ export class CreateAnnouncementService {
       data: {
         title: data.title,
         description: data.description,
-        audience: data.audience,
         createdBy: userId,
         sendEmailNotification: data.sendEmailNotification,
         enabledReadReceipt: data.enabledReadReceipt,
         categoryId: data.categoryId,
         publishedNow: data.publishedNow,
         publishedAt: data.publishedAt,
+        isForAllUsers: data.isForAllUsers,
         ...(url && { attachments: { create: { file: url } } }),
+        ...(data.teams && {
+          teamAnnouncements: {
+            createMany: {
+              data: data.teams
+            }
+          }
+        }),
       },
     });
 

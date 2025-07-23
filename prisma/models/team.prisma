@@ -9,6 +9,7 @@ model Team {
   members     TeamMembers[]
   projects    Project[]
   teamSurveys TeamSurvey[]
+  teamAnnouncements TeamAnnouncement[]
 }
 
 model TeamMembers {
@@ -34,6 +35,19 @@ model TeamSurvey {
 
   survey   Survey @relation(fields: [surveyId], references: [id])
   surveyId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TeamAnnouncement {
+  id String @id @default(uuid())
+
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId String
+
+  announcement   Announcement @relation(fields: [announcementId], references: [id])
+  announcementId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
