@@ -33,7 +33,11 @@ export class NotificationGateway
   server: Server;
 
   afterInit(server: Server) {
-    this.logger.log('WebSocket server initialized', server);
+    this.logger.log('WebSocket server initialized');
+
+    server.on('error', (err: any) => {
+      this.logger.error(`WebSocket server error: ${err.message}`);
+    });
   }
 
   handleConnection(client: WebSocket, ...args: any[]) {
