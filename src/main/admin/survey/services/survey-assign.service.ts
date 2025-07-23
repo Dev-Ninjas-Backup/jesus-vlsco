@@ -11,7 +11,7 @@ export class SurveyAssignService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly utilsService: UtilsService,
-  ) {}
+  ) { }
 
   async assignUsersToASurvey(
     userIds: string[],
@@ -50,10 +50,28 @@ export class SurveyAssignService {
     teamIds: string[],
     surveyId: string,
   ): Promise<TResponse<any>> {
+    await this.utilsService.ensureTeamsExists(teamIds);
     const uniqueIds = this.utilsService.removeDuplicateIds(teamIds);
 
     const surveyTeams = await this.prismaService.teamSurvey.createMany({
       data: uniqueIds.map((teamId) => ({ teamId, surveyId })),
+    });
+
+    // * now assign users from teams to survey
+    const teams = await this.prismaService.team.findMany({
+      where: { id: { in: uniqueIds } },
+      include: {
+        members: {
+          include: { user: true },
+        },
+      },
+    });
+
+    await this.prismaService.surveyUser.createMany({
+      data: teams.flatMap((team) => team.members.map((member) => ({
+        userId: member.user.id,
+        surveyId,
+      }))),
     });
 
     return successResponse(surveyTeams, 'Teams assigned successfully');
@@ -72,6 +90,14 @@ export class SurveyAssignService {
       },
     });
 
+    // * remove users from survey
+    await this.prismaService.surveyUser.deleteMany({
+      where: {
+        surveyId,
+        userId: { in: uniqueIds },
+      },
+    });
+
     return successResponse(surveyTeams, 'Teams removed successfully');
   }
 
@@ -84,38 +110,6 @@ export class SurveyAssignService {
       include: { user: true },
     });
 
-    // Users assigned via team assignments
-    const usersInAssignedTeams = await this.prismaService.teamSurvey.findMany({
-      where: { surveyId },
-      include: {
-        team: {
-          include: {
-            members: {
-              include: { user: true },
-            },
-          },
-        },
-      },
-    });
-
-    const usersFromUserTableBasedOnTeamsAndSurvey =
-      usersInAssignedTeams.flatMap((teamSurvey) =>
-        teamSurvey.team.members.map((member) => member.user),
-      );
-
-    // Merge both sources and deduplicate by user ID
-    const allUsersMap = new Map<string, any>();
-
-    for (const su of surveyUsers) {
-      allUsersMap.set(su.user.id, su.user);
-    }
-
-    for (const user of usersFromUserTableBasedOnTeamsAndSurvey) {
-      allUsersMap.set(user.id, user);
-    }
-
-    const allUsers = Array.from(allUsersMap.values());
-
-    return successResponse(allUsers, 'Users found successfully');
+    return successResponse(surveyUsers, 'Users found successfully');
   }
 }

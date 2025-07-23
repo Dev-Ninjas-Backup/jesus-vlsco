@@ -16,7 +16,7 @@ export class UtilsService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   sanitizedResponse(sto: any, data: any) {
     return plainToInstance(sto, data, { excludeExtraneousValues: true });
@@ -115,5 +115,14 @@ export class UtilsService {
     });
     if (!survey) throw new AppError(404, 'Survey not found');
     return survey;
+  }
+
+  async ensureTeamsExists(teamIds: string[]) {
+    const teams = await this.prisma.team.findMany({
+      where: { id: { in: teamIds } },
+    });
+    if (teams.length !== teamIds.length)
+      throw new AppError(404, 'Team not found');
+    return teams;
   }
 }

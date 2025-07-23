@@ -58,10 +58,13 @@ model SurveyUser {
   id       String @id @default(uuid())
   userId   String
   surveyId String
+  isResponded Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   survey Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, surveyId])
 }

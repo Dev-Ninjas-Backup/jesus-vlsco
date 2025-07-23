@@ -7,10 +7,14 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { AddUserDto } from '../dto/add-user.dto';
+import { UtilsService } from '@project/lib/utils/utils.service';
 
 @Injectable()
 export class AddUserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utils: UtilsService,
+  ) {}
 
   @HandleError('Error creating user')
   async createUserWithProfile(
@@ -50,7 +54,7 @@ export class AddUserService {
         employeeID: dto.employeeID,
         email: dto.email,
         role: dto.role,
-        password: dto.password,
+        password: await this.utils.hash(dto.password ?? ''),
         pinCode: dto.pinCode,
         profile: {
           create: {

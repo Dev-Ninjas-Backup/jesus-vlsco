@@ -14,7 +14,7 @@ export class SurveyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) {}
+  ) { }
 
   async createSurvey(
     userId: string,
@@ -30,6 +30,7 @@ export class SurveyService {
             description: q.description,
             type: q.type,
             order: q.order,
+            status: 'ACTIVE',
             isRequired: q.isRequired,
             captureLocation: q.captureLocation,
             multiSelect: q.multiSelect,
@@ -78,7 +79,7 @@ export class SurveyService {
           title: dto.title || template.title,
           description: dto.description || template.description,
           surveyType: dto.surveyType || 'EmployeeSatisfaction',
-          status: dto.status || 'DRAFT',
+          status: dto.status || 'ACTIVE',
           publishTime: dto.publishTime ? new Date(dto.publishTime) : null,
           reminderTime: dto.reminderTime ? new Date(dto.reminderTime) : null,
           showOnFeed: dto.showOnFeed ?? false,
@@ -103,10 +104,10 @@ export class SurveyService {
             surveyId: survey.id,
             options: q.options?.length
               ? {
-                  create: q.options.map((o) => ({
-                    text: o.text,
-                  })),
-                }
+                create: q.options.map((o) => ({
+                  text: o.text,
+                })),
+              }
               : undefined,
           },
         });
@@ -116,7 +117,7 @@ export class SurveyService {
     });
   }
 
-  async getAllSurveys() {}
+  async getAllSurveys() { }
 
   async getSurvey(id: string): Promise<TResponse<any>> {
     const survey = await this.prisma.survey.findUnique({
