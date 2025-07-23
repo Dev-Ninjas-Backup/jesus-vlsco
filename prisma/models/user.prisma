@@ -29,6 +29,7 @@ model User {
   Announcement    Announcement[]
   survey          Survey[]
   surveyUser      SurveyUser[]
+  timeOffRequest  TimeOffRequest[]
 }
 
 enum UserEnum {
