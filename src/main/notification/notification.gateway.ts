@@ -98,19 +98,4 @@ export class NotificationGateway
       this.logger.debug(`Removed empty client set for user ${userId}`);
     }
   }
-
-  // * Send a notification payload to all sockets for a given userId.
-  public async notifyUser(
-    userId: string,
-    message: Record<string, any>,
-  ): Promise<void> {
-    const set = this.clients.get(userId);
-    if (!set) return;
-
-    for (const client of set) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(message));
-      }
-    }
-  }
 }

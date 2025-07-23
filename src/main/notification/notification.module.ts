@@ -5,12 +5,14 @@ import { NotificationController } from './controller/notification.controller';
 import { CompanyAnnouncementEvents } from './events/company-announcement.events';
 import { NotificationGateway } from './notification.gateway';
 import { NotificationService } from './services/notification.service';
+import { CompanyAnnouncementWorker } from './worker/company-announcement.worker';
 
 @Module({
   providers: [
     NotificationGateway,
     JwtService,
     CompanyAnnouncementEvents,
+    CompanyAnnouncementWorker,
     NotificationService,
   ],
   controllers: [NotificationController],
@@ -21,4 +23,4 @@ import { NotificationService } from './services/notification.service';
     }),
   ],
 })
-export class NotificationModule {}
+export class NotificationModule { }
