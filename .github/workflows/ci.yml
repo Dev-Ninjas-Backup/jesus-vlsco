@@ -34,4 +34,4 @@ jobs:
         run: npm run build
 
       - name: 🔄 Generate Prisma Client
-        run: pnpm prisma:generate
+        run: npm prisma:generate
