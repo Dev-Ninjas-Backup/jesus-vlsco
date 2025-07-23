@@ -1,11 +1,18 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { NotificationController } from './notification.controller';
-import { NotificationGateway } from './notification.gateway';
 import { JwtService } from '@nestjs/jwt';
+import { NotificationController } from './controller/notification.controller';
+import { CompanyAnnouncementEvents } from './events/company-announcement.events';
+import { NotificationGateway } from './notification.gateway';
+import { NotificationService } from './services/notification.service';
 
 @Module({
-  providers: [NotificationGateway, JwtService],
+  providers: [
+    NotificationGateway,
+    JwtService,
+    CompanyAnnouncementEvents,
+    NotificationService,
+  ],
   controllers: [NotificationController],
   exports: [NotificationGateway],
   imports: [

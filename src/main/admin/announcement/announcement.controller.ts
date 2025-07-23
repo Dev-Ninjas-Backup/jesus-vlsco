@@ -35,11 +35,11 @@ export class AnnouncementController {
     private readonly deleteAnnouncementCategoryService: DeleteAnnouncementCategoryService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly createAnnouncementService: CreateAnnouncementService,
-  ) { }
+  ) {}
 
   // Create a new announcement category
   @Post('create-announcement')
-  @UseInterceptors(FilesInterceptor('files')) 
+  @UseInterceptors(FilesInterceptor('files'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Announcement creation with file uploads',
@@ -48,7 +48,7 @@ export class AnnouncementController {
       properties: {
         ...createAnnouncementSwagger.properties,
         files: {
-          type: 'array', 
+          type: 'array',
           items: {
             type: 'string',
             format: 'binary',

@@ -59,7 +59,6 @@ export class NotificationGateway
       // Attach decoded user to the socket
       (client as any).user = payload;
 
-      // Use `userId` from your payload, not `profileId`
       this.subscribeClient(payload.userId, client);
       this.logger.log(`Client connected: ${payload.userId}`);
 
@@ -100,9 +99,7 @@ export class NotificationGateway
     }
   }
 
-  /**
-   * Send a notification payload to all sockets for a given userId.
-   */
+  // * Send a notification payload to all sockets for a given userId.
   public async notifyUser(
     userId: string,
     message: Record<string, any>,
