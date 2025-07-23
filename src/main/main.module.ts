@@ -9,6 +9,7 @@ import { TaskModule } from './admin/task/task.module';
 import { TeamModule } from './admin/team/team.module';
 import { UserModule } from './admin/user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { TimeoffRequestModule } from './user/time-off-request/timeoff-request.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthModule } from './auth/auth.module';
     SurveyModule,
     AnnouncementModule,
     SettingsModule,
+    TimeoffRequestModule,
   ],
   controllers: [],
   providers: [],
