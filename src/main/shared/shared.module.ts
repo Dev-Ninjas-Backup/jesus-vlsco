@@ -2,6 +2,6 @@ import { Module } from '@nestjs/common';
 import { NotificationSettingModule } from './notification-setting/notification-setting.module';
 
 @Module({
-  imports: [NotificationSettingModule]
+  imports: [NotificationSettingModule],
 })
 export class SharedModule {}

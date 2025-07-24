@@ -6,7 +6,13 @@ import { UserModule } from './user/user.module';
 import { SharedModule } from './shared/shared.module';
 
 @Module({
-  imports: [AuthModule, AdminModule, UserModule, NotificationModule, SharedModule],
+  imports: [
+    AuthModule,
+    AdminModule,
+    UserModule,
+    NotificationModule,
+    SharedModule,
+  ],
   controllers: [],
   providers: [],
 })
