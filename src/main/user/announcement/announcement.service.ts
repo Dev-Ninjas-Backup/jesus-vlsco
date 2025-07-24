@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import { TResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 
@@ -6,6 +8,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 export class AnnouncementService {
   constructor(private readonly prisma: PrismaService) { }
 
+  @HandleError("Failed to fetch announcements")
   async getAssignedAnnouncements(userId: string): Promise<TResponse<any>> {
     // Get all team IDs the user belongs to
     const teamMemberships = await this.prisma.teamMembers.findMany({
@@ -50,6 +53,53 @@ export class AnnouncementService {
       success: true,
       message: 'Announcements fetched successfully',
       data: announcements,
+    };
+  }
+
+  @HandleError("Failed to like announcement")
+  async likeAnnouncement(userId: string, announcementId: string): Promise<TResponse<any>> {
+    const announcement = await this.prisma.announcement.findUnique({
+      where: { id: announcementId },
+    });
+
+    if (!announcement) {
+      throw new AppError(404, 'Announcement not found');
+    }
+
+    const existingLike = await this.prisma.announcementReactedUser.findFirst({
+      where: {
+        announcementId,
+        userId,
+      },
+    });
+
+    if (existingLike) {
+      throw new AppError(400, 'You have already liked this announcement');
+    }
+
+    const like = await this.prisma.announcementReactedUser.create({
+      data: {
+        announcementId,
+        userId,
+      },
+    });
+    // * increase like count
+    await this.prisma.announcement.update({
+      where: { id: announcementId },
+      data: {
+        likeCount: {
+          increment: 1,
+        },
+        viewCount: {
+          increment: 1,
+        }
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Announcement liked successfully',
+      data: like,
     };
   }
 }

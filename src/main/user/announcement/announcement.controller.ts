@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { AnnouncementService } from './announcement.service';
@@ -13,5 +13,10 @@ export class AnnouncementController {
   @Get('assigned')
   getAssignedAnnouncements(@GetUser('userId') userId: string) {
     return this.announcementService.getAssignedAnnouncements(userId);
+  }
+
+  @Post('like/:announcementId')
+  likeAnnouncement(@GetUser('userId') userId: string, @Param('announcementId') announcementId: string) {
+    return this.announcementService.likeAnnouncement(userId, announcementId);
   }
 }
