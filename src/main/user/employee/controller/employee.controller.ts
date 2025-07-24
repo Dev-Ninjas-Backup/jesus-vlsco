@@ -32,7 +32,7 @@ export class EmployeeController {
     private readonly employeeService: EmployeeService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly getUserService: GetUserService,
-  ) { }
+  ) {}
 
   @Patch()
   @ApiOperation({

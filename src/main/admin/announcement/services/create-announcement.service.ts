@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
 import {
   AnnouncementEvent,
   EVENT_TYPES,
@@ -14,6 +15,7 @@ import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
 export class CreateAnnouncementService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly utils: UtilsService,
     @InjectQueue('notification')
     private readonly notificationQueue: Queue<AnnouncementEvent>,
   ) {}
@@ -50,7 +52,7 @@ export class CreateAnnouncementService {
       },
     });
 
-    const recipients = await this.resolveRecipients(
+    const recipients = await this.utils.resolveRecipients(
       data.isForAllUsers || false,
       data.teams,
     );
@@ -77,23 +79,5 @@ export class CreateAnnouncementService {
     );
 
     return successResponse(announcement, 'Announcement created successfully');
-  }
-
-  private async resolveRecipients(
-    isForAllUsers: boolean,
-    teamIds?: string[],
-  ): Promise<string[]> {
-    if (isForAllUsers) {
-      const users = await this.prisma.user.findMany({ select: { id: true } });
-      return users.map((u) => u.id);
-    }
-    if (teamIds && teamIds.length) {
-      const members = await this.prisma.teamMembers.findMany({
-        where: { teamId: { in: teamIds } },
-        select: { userId: true },
-      });
-      return Array.from(new Set(members.map((m) => m.userId)));
-    }
-    return [];
   }
 }

@@ -12,7 +12,7 @@ import { NotificationSettingService } from './notification-setting.service';
 export class NotificationSettingController {
   constructor(
     private readonly notificationSettingService: NotificationSettingService,
-  ) { }
+  ) {}
 
   @Get()
   async getNotificationSetting(

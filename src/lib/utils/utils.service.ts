@@ -125,4 +125,22 @@ export class UtilsService {
       throw new AppError(404, 'Team not found');
     return teams;
   }
+
+  async resolveRecipients(
+    isForAllUsers: boolean,
+    teamIds?: string[],
+  ): Promise<string[]> {
+    if (isForAllUsers) {
+      const users = await this.prisma.user.findMany({ select: { id: true } });
+      return users.map((u) => u.id);
+    }
+    if (teamIds && teamIds.length) {
+      const members = await this.prisma.teamMembers.findMany({
+        where: { teamId: { in: teamIds } },
+        select: { userId: true },
+      });
+      return Array.from(new Set(members.map((m) => m.userId)));
+    }
+    return [];
+  }
 }

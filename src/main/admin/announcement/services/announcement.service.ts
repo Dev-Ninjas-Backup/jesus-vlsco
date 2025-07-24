@@ -1,16 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successPaginatedResponse, successResponse, TPaginatedResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successPaginatedResponse,
+  successResponse,
+  TPaginatedResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
 import { GetAnnouncementDto } from '../dto/get-announcement.dto';
 
 @Injectable()
 export class AnnouncementService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utils: UtilsService,
+  ) { }
 
-  @HandleError("Failed to get announcements")
-  async getAnnouncements(query: GetAnnouncementDto): Promise<TPaginatedResponse<any>> {
+  @HandleError('Failed to get announcements')
+  async getAnnouncements(
+    query: GetAnnouncementDto,
+  ): Promise<TPaginatedResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
@@ -35,7 +46,9 @@ export class AnnouncementService {
         title: { contains: title, mode: 'insensitive' },
       }),
       ...(typeof publishedNow === 'boolean' && { publishedNow }),
-      ...(typeof sendEmailNotification === 'boolean' && { sendEmailNotification }),
+      ...(typeof sendEmailNotification === 'boolean' && {
+        sendEmailNotification,
+      }),
       ...(typeof enabledReadReceipt === 'boolean' && { enabledReadReceipt }),
       ...(typeof isForAllUsers === 'boolean' && { isForAllUsers }),
       ...(publishedFrom || publishedTo
@@ -86,7 +99,9 @@ export class AnnouncementService {
 
   @HandleError('Failed to create announcement', 'announcement')
   async getAnnouncement(id: string): Promise<TResponse<any>> {
-    const announcement = await this.prisma.announcement.findUnique({ where: { id } });
+    const announcement = await this.prisma.announcement.findUnique({
+      where: { id },
+    });
 
     if (!announcement) {
       throw new AppError(404, 'Announcement not found');
@@ -100,5 +115,23 @@ export class AnnouncementService {
     await this.prisma.announcement.delete({ where: { id } });
 
     return successResponse(null, 'Announcement deleted successfully');
+  }
+
+  @HandleError('Failed to get recipients of announcement')
+  async getAllRecipientsOfAnnouncement(
+    announcementId: string,
+  ): Promise<TResponse<any>> {
+    const announcement = await this.prisma.announcement.findUnique({
+      where: { id: announcementId },
+      include: { teamAnnouncements: true },
+    });
+    if (!announcement) {
+      throw new AppError(404, 'Announcement not found');
+    }
+    const recipients = await this.utils.resolveRecipients(
+      announcement.isForAllUsers,
+      announcement.teamAnnouncements.map((t) => t.teamId),
+    );
+    return successResponse(recipients, 'Recipients retrieved successfully');
   }
 }

@@ -18,7 +18,7 @@ export class GetUserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   private async findUserBy(
     key: 'id' | 'email' | 'phone' | 'employeeID',
@@ -93,7 +93,10 @@ export class GetUserService {
 
     const sanitizedUsers = users.map((user) => {
       const { profile, educations, experience, payroll, ...mainUser } = user;
-      const sanitizedUser = this.utils.sanitizedResponse(UserResponseDto, mainUser);
+      const sanitizedUser = this.utils.sanitizedResponse(
+        UserResponseDto,
+        mainUser,
+      );
 
       return {
         ...sanitizedUser,
@@ -101,7 +104,7 @@ export class GetUserService {
         educations,
         experience,
         payroll,
-      }
+      };
     });
 
     return successPaginatedResponse(

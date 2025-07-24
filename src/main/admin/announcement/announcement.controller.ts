@@ -17,6 +17,7 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { CreateAnnouncementDto } from './dto/createAnnouncement.dto';
 import { createAnnouncementSwagger } from './dto/createAnnouncement.swagger';
 import { CreateAnnouncementCategoryDto } from './dto/createAnnouncementCategory.dto';
+import { GetAnnouncementDto } from './dto/get-announcement.dto';
 import { UpdateAnnouncementCategoryDto } from './dto/updateAnnouncementCategory.dto';
 import { AnnouncementService } from './services/announcement.service';
 import { CreateAnnouncementCategoryService } from './services/create-announcement-category.service';
@@ -24,7 +25,6 @@ import { CreateAnnouncementService } from './services/create-announcement.servic
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
 import { GetAnnouncementCategoryService } from './services/get-announcement-category.service';
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
-import { GetAnnouncementDto } from './dto/get-announcement.dto';
 
 @ApiTags('Admin -- Announcement')
 @ValidateAdmin()
@@ -130,5 +130,11 @@ export class AnnouncementController {
   @Delete('delete-announcement/:id')
   async deleteAnnouncement(@Param('id') id: string) {
     return await this.announcementService.deleteAnnouncement(id);
+  }
+
+  // Get all recipients of an announcement
+  @Get('get-recipients/:surveyId')
+  async getAllRecipientsOfAnnouncement(@Param('surveyId') id: string) {
+    return await this.announcementService.getAllRecipientsOfAnnouncement(id);
   }
 }
