@@ -27,6 +27,7 @@ export class CreateAnnouncementService {
     urls: string[],
     userId: string,
   ) {
+    console.log(data, "data.teams");
     const announcement = await this.prisma.announcement.create({
       data: {
         title: data.title,

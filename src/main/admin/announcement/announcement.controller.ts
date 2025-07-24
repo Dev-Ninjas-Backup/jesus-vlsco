@@ -133,8 +133,8 @@ export class AnnouncementController {
   }
 
   // Get all recipients of an announcement
-  @Get('get-recipients/:surveyId')
-  async getAllRecipientsOfAnnouncement(@Param('surveyId') id: string) {
+  @Get('get-recipients/:announcementId')
+  async getAllRecipientsOfAnnouncement(@Param('announcementId') id: string) {
     return await this.announcementService.getAllRecipientsOfAnnouncement(id);
   }
 }

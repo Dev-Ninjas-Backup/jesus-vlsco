@@ -39,7 +39,7 @@ export class CreateAnnouncementDto {
   categoryId: string;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description: 'Whether to publish immediately or schedule it',
   })
   @Type(() => Boolean)
@@ -56,7 +56,7 @@ export class CreateAnnouncementDto {
   publishedAt?: Date;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description: 'Should recipients get an email',
     required: false,
   })
@@ -66,7 +66,7 @@ export class CreateAnnouncementDto {
   sendEmailNotification?: boolean;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description: 'Should the announcement be sent to all users',
     required: false,
   })
@@ -104,14 +104,20 @@ export class CreateAnnouncementDto {
     ],
   })
   @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
     if (typeof value === 'string') {
       try {
-        return JSON.parse(value);
-      } catch (err) {
-        console.info(err);
-        return [];
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Try CSV fallback
+        return value.split(',').map((v) => v.trim());
       }
     }
+
     return [];
   })
   @IsArray()
