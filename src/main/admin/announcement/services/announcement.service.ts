@@ -16,7 +16,7 @@ export class AnnouncementService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   @HandleError('Failed to get announcements')
   async getAnnouncements(
@@ -53,11 +53,11 @@ export class AnnouncementService {
       ...(typeof isForAllUsers === 'boolean' && { isForAllUsers }),
       ...(publishedFrom || publishedTo
         ? {
-          publishedAt: {
-            ...(publishedFrom && { gte: new Date(publishedFrom) }),
-            ...(publishedTo && { lte: new Date(publishedTo) }),
-          },
-        }
+            publishedAt: {
+              ...(publishedFrom && { gte: new Date(publishedFrom) }),
+              ...(publishedTo && { lte: new Date(publishedTo) }),
+            },
+          }
         : {}),
       ...(teamId && {
         teamAnnouncements: {

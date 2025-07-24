@@ -6,9 +6,9 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class AnnouncementService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError("Failed to fetch announcements")
+  @HandleError('Failed to fetch announcements')
   async getAssignedAnnouncements(userId: string): Promise<TResponse<any>> {
     // Get all team IDs the user belongs to
     const teamMemberships = await this.prisma.teamMembers.findMany({
@@ -56,8 +56,11 @@ export class AnnouncementService {
     };
   }
 
-  @HandleError("Failed to like announcement")
-  async likeAnnouncement(userId: string, announcementId: string): Promise<TResponse<any>> {
+  @HandleError('Failed to like announcement')
+  async likeAnnouncement(
+    userId: string,
+    announcementId: string,
+  ): Promise<TResponse<any>> {
     const announcement = await this.prisma.announcement.findUnique({
       where: { id: announcementId },
     });
@@ -92,7 +95,7 @@ export class AnnouncementService {
         },
         viewCount: {
           increment: 1,
-        }
+        },
       },
     });
 

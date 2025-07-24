@@ -8,7 +8,7 @@ import { AnnouncementService } from './announcement.service';
 @ValidateEmployee()
 @ApiBearerAuth()
 export class AnnouncementController {
-  constructor(private readonly announcementService: AnnouncementService) { }
+  constructor(private readonly announcementService: AnnouncementService) {}
 
   @Get('assigned')
   getAssignedAnnouncements(@GetUser('userId') userId: string) {
@@ -16,7 +16,10 @@ export class AnnouncementController {
   }
 
   @Post('like/:announcementId')
-  likeAnnouncement(@GetUser('userId') userId: string, @Param('announcementId') announcementId: string) {
+  likeAnnouncement(
+    @GetUser('userId') userId: string,
+    @Param('announcementId') announcementId: string,
+  ) {
     return this.announcementService.likeAnnouncement(userId, announcementId);
   }
 }

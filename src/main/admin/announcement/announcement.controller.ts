@@ -39,7 +39,7 @@ export class AnnouncementController {
     private readonly cloudinaryService: CloudinaryService,
     private readonly createAnnouncementService: CreateAnnouncementService,
     private readonly announcementService: AnnouncementService,
-  ) { }
+  ) {}
 
   // Create a new announcement category
   @Post('create-announcement')

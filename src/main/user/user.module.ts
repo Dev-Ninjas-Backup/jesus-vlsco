@@ -5,6 +5,11 @@ import { EmployeeModule } from './employee/employee.module';
 import { AnnouncementModule } from './announcement/announcement.module';
 
 @Module({
-  imports: [TimeoffRequestModule, SurveyModule, EmployeeModule, AnnouncementModule],
+  imports: [
+    TimeoffRequestModule,
+    SurveyModule,
+    EmployeeModule,
+    AnnouncementModule,
+  ],
 })
 export class UserModule {}

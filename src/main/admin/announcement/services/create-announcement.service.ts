@@ -6,7 +6,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import {
   AnnouncementEvent,
-  EVENT_TYPES
+  EVENT_TYPES,
 } from '@project/main/notification/interface/events';
 import { Queue } from 'bullmq';
 import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
@@ -18,7 +18,7 @@ export class CreateAnnouncementService {
     private readonly utils: UtilsService,
     @InjectQueue('notification')
     private readonly notificationQueue: Queue<AnnouncementEvent>,
-  ) { }
+  ) {}
 
   // Create a new announcement
   @HandleError('Error creating announcement')
@@ -41,7 +41,7 @@ export class CreateAnnouncementService {
         attachments: {
           createMany: { data: urls.map((url) => ({ file: url })) },
         },
-      }
+      },
     });
 
     const members = await this.prisma.teamMembers.findMany({
@@ -59,7 +59,9 @@ export class CreateAnnouncementService {
       announcementId: announcement.id,
       title: announcement.title,
       message: announcement.description as any,
-      publishedAt: announcement.publishedNow ? new Date() : announcement.publishedAt!,
+      publishedAt: announcement.publishedNow
+        ? new Date()
+        : announcement.publishedAt!,
       recipients,
       sendEmail: announcement.sendEmailNotification,
       sendWs: true,
