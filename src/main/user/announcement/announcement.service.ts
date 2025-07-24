@@ -13,48 +13,38 @@ export class AnnouncementService {
       select: { teamId: true },
     });
 
-    const teamIds = teamMemberships.map(tm => tm.teamId);
+    const teamIds = teamMemberships.map((tm) => tm.teamId);
 
-    if (teamIds.length === 0) {
-      return {
-        success: true,
-        message: 'No assigned teams found for this user.',
-        data: [],
-      };
-    }
-
-    // Get announcements assigned to those teams
+    // Fetch both assigned team announcements AND public announcements
     const announcements = await this.prisma.announcement.findMany({
       where: {
-        teamAnnouncements: {
-          some: {
-            teamId: { in: teamIds },
+        OR: [
+          {
+            isForAllUsers: true,
           },
-        },
+          {
+            teamAnnouncements: {
+              some: {
+                teamId: {
+                  in: teamIds.length > 0 ? teamIds : [''], // * empty fallback to prevent invalid SQL
+                },
+              },
+            },
+          },
+        ],
       },
       include: {
         attachments: true,
         likedUser: true,
         category: true,
         author: {
-          select: { id: true, email: true },
+          select: {
+            id: true,
+            email: true,
+          },
         },
       },
     });
-    // // * get announcements with isForAllUsers set to true
-    // const announcements = await this.prisma.announcement.findMany({
-    //   where: {
-    //     isForAllUsers: true,
-    //   },
-    //   include: {
-    //     attachments: true,
-    //     likedUser: true,
-    //     category: true,
-    //     author: {
-    //       select: { id: true, email: true },
-    //     },
-    //   },
-    // })
 
     return {
       success: true,
@@ -62,6 +52,4 @@ export class AnnouncementService {
       data: announcements,
     };
   }
-
 }
-
