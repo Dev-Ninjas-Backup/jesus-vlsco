@@ -19,6 +19,13 @@ export class AttachmentInput {
   url: string;
 }
 
+const ToBoolean = () =>
+  Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value === 'true';
+    return Boolean(value);
+  });
+
 export class CreateAnnouncementDto {
   @ApiProperty({ example: 'System Maintenance Notice' })
   @IsString()
@@ -42,7 +49,7 @@ export class CreateAnnouncementDto {
     example: false,
     description: 'Whether to publish immediately or schedule it',
   })
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   publishedNow: boolean;
 
@@ -60,7 +67,7 @@ export class CreateAnnouncementDto {
     description: 'Should recipients get an email',
     required: false,
   })
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsOptional()
   @IsBoolean()
   sendEmailNotification?: boolean;
@@ -70,7 +77,7 @@ export class CreateAnnouncementDto {
     description: 'Should the announcement be sent to all users',
     required: false,
   })
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsOptional()
   @IsBoolean()
   isForAllUsers?: boolean;

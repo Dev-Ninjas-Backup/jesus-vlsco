@@ -6,7 +6,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import {
   AnnouncementEvent,
-  EVENT_TYPES,
+  EVENT_TYPES
 } from '@project/main/notification/interface/events';
 import { Queue } from 'bullmq';
 import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
@@ -18,7 +18,7 @@ export class CreateAnnouncementService {
     private readonly utils: UtilsService,
     @InjectQueue('notification')
     private readonly notificationQueue: Queue<AnnouncementEvent>,
-  ) {}
+  ) { }
 
   // Create a new announcement
   @HandleError('Error creating announcement')
@@ -27,7 +27,6 @@ export class CreateAnnouncementService {
     urls: string[],
     userId: string,
   ) {
-    console.log(data, "data.teams");
     const announcement = await this.prisma.announcement.create({
       data: {
         title: data.title,
@@ -42,29 +41,27 @@ export class CreateAnnouncementService {
         attachments: {
           createMany: { data: urls.map((url) => ({ file: url })) },
         },
-        ...(data.teams &&
-          data.teams.length > 0 && {
-            teamAnnouncements: {
-              createMany: {
-                data: data.teams.map((teamId) => ({ teamId })),
-              },
-            },
-          }),
+      }
+    });
+
+    const members = await this.prisma.teamMembers.findMany({
+      where: {
+        teamId: { in: data.teams },
       },
     });
 
     const recipients = await this.utils.resolveRecipients(
       data.isForAllUsers || false,
-      data.teams,
+      members.map((m) => m.teamId),
     );
 
     const payload: AnnouncementEvent = {
       announcementId: announcement.id,
-      title: data.title,
-      message: data.description,
-      publishedAt: data.publishedNow ? new Date() : data.publishedAt!,
+      title: announcement.title,
+      message: announcement.description as any,
+      publishedAt: announcement.publishedNow ? new Date() : announcement.publishedAt!,
       recipients,
-      sendEmail: data.sendEmailNotification || false,
+      sendEmail: announcement.sendEmailNotification,
       sendWs: true,
     };
 
