@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { EmployeeService } from './services/employee.service';
+import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { EmployeeController } from './controller/employee.controller';
+import { EmployeeService } from './services/employee.service';
 
 @Module({
   controllers: [EmployeeController],
-  providers: [EmployeeService],
+  providers: [EmployeeService, CloudinaryService],
 })
 export class EmployeeModule {}
