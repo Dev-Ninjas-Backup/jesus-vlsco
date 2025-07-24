@@ -18,7 +18,7 @@ export const createAnnouncementSwagger = {
     },
     publishedNow: {
       type: 'boolean',
-      example: true,
+      example: false,
       description: 'Whether to publish immediately or schedule it',
     },
     publishedAt: {
@@ -29,7 +29,7 @@ export const createAnnouncementSwagger = {
     },
     sendEmailNotification: {
       type: 'boolean',
-      example: true,
+      example: false,
       description: 'Should recipients get an email notification?',
     },
     enabledReadReceipt: {
