@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,11 +18,13 @@ import { CreateAnnouncementDto } from './dto/createAnnouncement.dto';
 import { createAnnouncementSwagger } from './dto/createAnnouncement.swagger';
 import { CreateAnnouncementCategoryDto } from './dto/createAnnouncementCategory.dto';
 import { UpdateAnnouncementCategoryDto } from './dto/updateAnnouncementCategory.dto';
+import { AnnouncementService } from './services/announcement.service';
 import { CreateAnnouncementCategoryService } from './services/create-announcement-category.service';
 import { CreateAnnouncementService } from './services/create-announcement.service';
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
 import { GetAnnouncementCategoryService } from './services/get-announcement-category.service';
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
+import { GetAnnouncementDto } from './dto/get-announcement.dto';
 
 @ApiTags('Admin -- Announcement')
 @ValidateAdmin()
@@ -35,7 +38,8 @@ export class AnnouncementController {
     private readonly deleteAnnouncementCategoryService: DeleteAnnouncementCategoryService,
     private readonly cloudinaryService: CloudinaryService,
     private readonly createAnnouncementService: CreateAnnouncementService,
-  ) {}
+    private readonly announcementService: AnnouncementService,
+  ) { }
 
   // Create a new announcement category
   @Post('create-announcement')
@@ -108,5 +112,23 @@ export class AnnouncementController {
   @Delete('delete-category/:id')
   async deleteCategory(@Param('id') id: string) {
     return await this.deleteAnnouncementCategoryService.deleteCategory(id);
+  }
+
+  // Get all announcements
+  @Get('get-announcements')
+  async getAnnouncements(@Query() query: GetAnnouncementDto) {
+    return await this.announcementService.getAnnouncements(query);
+  }
+
+  // Get a specific announcement
+  @Get('get-announcement/:id')
+  async getAnnouncement(@Param('id') id: string) {
+    return await this.announcementService.getAnnouncement(id);
+  }
+
+  // Delete an announcement
+  @Delete('delete-announcement/:id')
+  async deleteAnnouncement(@Param('id') id: string) {
+    return await this.announcementService.deleteAnnouncement(id);
   }
 }

@@ -7,6 +7,7 @@ import { CreateAnnouncementService } from './services/create-announcement.servic
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
 import { GetAnnouncementCategoryService } from './services/get-announcement-category.service';
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
+import { AnnouncementService } from './services/announcement.service';
 
 @Module({
   controllers: [AnnouncementController],
@@ -17,6 +18,7 @@ import { UpdateAnnouncementCategoryService } from './services/update-announcemen
     DeleteAnnouncementCategoryService,
     CreateAnnouncementService,
     CloudinaryService,
+    AnnouncementService,
   ],
   imports: [
     BullModule.registerQueue({
