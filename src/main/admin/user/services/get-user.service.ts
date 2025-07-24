@@ -3,7 +3,9 @@ import { UserResponseDto } from '@project/common/dto/user-response.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
@@ -16,7 +18,7 @@ export class GetUserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) {}
+  ) { }
 
   private async findUserBy(
     key: 'id' | 'email' | 'phone' | 'employeeID',
@@ -61,7 +63,7 @@ export class GetUserService {
 
   // Get All users (employee)
   @HandleError('Failed to fetch users')
-  async getAllUsers(dto: GetUsersDto) {
+  async getAllUsers(dto: GetUsersDto): Promise<TPaginatedResponse<any>> {
     const builder = new PrismaUserQueryBuilder(dto)
       .search([
         'email',
@@ -89,7 +91,15 @@ export class GetUserService {
       builder.countTotal(this.prisma.user),
     ]);
 
-    return { data: users, meta };
+    return successPaginatedResponse(
+      users,
+      {
+        page: meta.page,
+        limit: meta.limit,
+        total: meta.total,
+      },
+      'Users fetched successfully',
+    );
   }
 
   // Single User get by Id (employee)
