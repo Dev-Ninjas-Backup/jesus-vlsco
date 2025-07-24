@@ -91,8 +91,21 @@ export class GetUserService {
       builder.countTotal(this.prisma.user),
     ]);
 
+    const sanitizedUsers = users.map((user) => {
+      const { profile, educations, experience, payroll, ...mainUser } = user;
+      const sanitizedUser = this.utils.sanitizedResponse(UserResponseDto, mainUser);
+
+      return {
+        ...sanitizedUser,
+        profile,
+        educations,
+        experience,
+        payroll,
+      }
+    });
+
     return successPaginatedResponse(
-      users,
+      sanitizedUsers,
       {
         page: meta.page,
         limit: meta.limit,
