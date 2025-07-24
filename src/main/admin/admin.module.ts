@@ -8,6 +8,7 @@ import { SurveyModule } from './survey/survey.module';
 import { TaskModule } from './task/task.module';
 import { TeamModule } from './team/team.module';
 import { UserModule } from './user/user.module';
+import { TeamChatModule } from './team-chat/team-chat.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from './user/user.module';
     SurveyModule,
     AnnouncementModule,
     SettingsModule,
+    TeamChatModule,
   ],
 })
 export class AdminModule {}

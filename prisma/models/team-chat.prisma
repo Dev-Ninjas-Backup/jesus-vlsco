@@ -1,0 +1,11 @@
+model TeamChat {
+    id          String  @id @default(uuid())
+    teamName    String  @unique
+    teamProfile String
+    createBy    String
+    creator     User  @relation(name: "Creator",fields: [createBy],references: [id])
+    department  String
+    members     User[]
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
