@@ -1,0 +1,56 @@
+import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
+import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { NotificationToggleDto } from './dto/notification-toggle.dto';
+
+@Injectable()
+export class NotificationSettingService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  @HandleError('Failed to get notification setting')
+  async getNotificationSetting(userId: string): Promise<TResponse<any>> {
+    const result = await this.prisma.notificationToggle.findUnique({
+      where: {
+        userId: userId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    // * if does not exist, create it
+    if (!result) {
+      const notificationToggle = await this.prisma.notificationToggle.create({
+        data: {
+          userId: userId,
+        },
+      });
+      return successResponse(
+        notificationToggle,
+        'Notification setting created successfully',
+      );
+    }
+
+    return successResponse(result, 'Notification setting found successfully');
+  }
+
+  @HandleError('Failed to update notification setting')
+  async updateNotificationSetting(
+    userId: string,
+    dto: NotificationToggleDto,
+  ): Promise<TResponse<any>> {
+    const result = await this.prisma.notificationToggle.update({
+      where: {
+        userId: userId,
+      },
+      data: {
+        ...dto,
+      },
+    });
+    return successResponse(result, 'Notification setting updated successfully');
+  }
+}
