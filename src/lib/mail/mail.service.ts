@@ -36,7 +36,7 @@ export class MailService {
     return this.transporter.sendMail(mailOptions);
   }
 
-  async sendAnnouncementEmail(
+  async sendEmail(
     email: string,
     subject: string,
     message: string,

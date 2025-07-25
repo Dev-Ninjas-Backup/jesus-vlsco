@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { AnnouncementEvent, EVENT_TYPES } from '@project/common/interface/events';
+import { AnnouncementEvent } from '@project/common/interface/events';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Worker } from 'bullmq';
@@ -29,7 +29,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
           );
           for (const email of recipients) {
             try {
-              await this.mailService.sendAnnouncementEmail(
+              await this.mailService.sendEmail(
                 email,
                 title,
                 `<h3>${title}</h3><p>${message}</p>`,
