@@ -14,19 +14,18 @@ export class TimeOffWorker implements OnModuleInit {
     private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
-  ) { }
+  ) {}
 
   onModuleInit() {
     new Worker<TimeOffEvent>(
       'timeoff',
       async (job) => {
-        const { action, requestId, userId, meta } = job.data;
+        // const { action, requestId, userId, meta } = job.data;
+        console.log(job.data, 'job.data');
 
         // Broadcast via email
 
-
         // Broadcast via WebSocket
-
       },
       {
         connection: {

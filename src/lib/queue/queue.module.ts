@@ -15,4 +15,4 @@ import { ShiftWorker } from './worker/shift.worker';
   providers: [CompanyAnnouncementWorker, ShiftWorker],
   exports: [BullModule],
 })
-export class QueueModule { }
+export class QueueModule {}

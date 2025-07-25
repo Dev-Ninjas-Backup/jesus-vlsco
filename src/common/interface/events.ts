@@ -28,10 +28,9 @@ export interface TimeOffEvent {
     status?: 'APPROVED' | 'REJECTED' | 'PENDING'; // only for status change
     reason?: string; // optional reason for rejection
     startDate?: string; // ISO format
-    endDate?: string;   // ISO format
+    endDate?: string; // ISO format
   };
 }
-
 
 export const EVENT_TYPES = {
   COMPANY_ANNOUNCEMENT_CREATE: 'company-announcement.create',
