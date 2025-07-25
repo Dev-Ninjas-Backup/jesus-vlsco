@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
@@ -25,6 +26,8 @@ export class OffDayRequestService {
         userId,
       },
     });
+
+    // * todo: send notification to the admin
     return successResponse(result, 'Time off request created successfully');
   }
 
@@ -51,10 +54,13 @@ export class OffDayRequestService {
     });
 
     if (!existingRequest || existingRequest.userId !== userId) {
-      throw new Error(
+      throw new AppError(
+        403,
         'Request not found or you do not have permission to update it',
       );
     }
+
+    // * todo: send notification to the admin
 
     const updatedRequest = await this.prisma.timeOffRequest.update({
       where: { id: requestId },
@@ -80,7 +86,8 @@ export class OffDayRequestService {
     });
 
     if (!existingRequest || existingRequest.userId !== userId) {
-      throw new Error(
+      throw new AppError(
+        403,
         'Request not found or you do not have permission to delete it',
       );
     }

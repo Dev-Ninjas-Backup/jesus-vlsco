@@ -14,7 +14,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
     private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
-  ) { }
+  ) {}
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(

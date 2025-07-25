@@ -8,9 +8,8 @@ import { ShiftWorker } from './worker/shift.worker';
   imports: [
     BullModule.registerQueue(
       { name: 'announcement' },
-      { name: 'notification' },
+      { name: 'timeoff' },
       { name: 'shift' },
-      { name: 'email' },
     ),
   ],
   providers: [CompanyAnnouncementWorker, ShiftWorker],

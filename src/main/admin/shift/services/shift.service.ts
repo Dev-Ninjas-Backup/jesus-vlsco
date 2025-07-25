@@ -18,7 +18,7 @@ export class ShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) { }
+  ) {}
 
   @HandleError('Error assigning shift to employee')
   async assignShiftToEmployee(

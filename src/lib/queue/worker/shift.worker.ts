@@ -16,7 +16,7 @@ export class ShiftWorker implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly mailService: MailService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   onModuleInit() {
     new Worker<ShiftEvent>(
@@ -38,12 +38,20 @@ export class ShiftWorker implements OnModuleInit {
 
           // Send WebSocket Notification
           this.gateway.getClientsForUser(userId).forEach((client) => {
-            client.send(JSON.stringify({ type: 'SHIFT_EVENT', data: { shiftId, action, title, message } }));
+            client.send(
+              JSON.stringify({
+                type: 'SHIFT_EVENT',
+                data: { shiftId, action, title, message },
+              }),
+            );
           });
 
           this.logger.log(`Shift ${action} notification sent to ${userEmail}`);
         } catch (err) {
-          this.logger.error(`Failed to process shift event ${action}: ${err.message}`, err.stack);
+          this.logger.error(
+            `Failed to process shift event ${action}: ${err.message}`,
+            err.stack,
+          );
         }
       },
       {
@@ -68,7 +76,11 @@ export class ShiftWorker implements OnModuleInit {
     }
   }
 
-  private generateMessage(action: ShiftEvent['action'], shift: any, meta: any): string {
+  private generateMessage(
+    action: ShiftEvent['action'],
+    shift: any,
+    meta: any,
+  ): string {
     switch (action) {
       case 'ASSIGN':
         return `
