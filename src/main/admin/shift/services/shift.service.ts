@@ -1,17 +1,24 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
+import { AnnouncementEvent } from '@project/common/interface/events';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { Queue } from 'bullmq';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
 import { RequestShiftDto } from '../dto/request-shift.dto';
 import { UpdateShiftStatusDto } from '../dto/update-shift-status.dto';
-import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class ShiftService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('shift')
+    private readonly shiftQueue: Queue<AnnouncementEvent>,
+  ) {}
 
   @HandleError('Error assigning shift to employee')
   async assignShiftToEmployee(

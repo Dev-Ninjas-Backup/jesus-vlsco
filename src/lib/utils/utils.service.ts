@@ -16,7 +16,7 @@ export class UtilsService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   sanitizedResponse(sto: any, data: any) {
     return plainToInstance(sto, data, { excludeExtraneousValues: true });
@@ -131,12 +131,14 @@ export class UtilsService {
     teamIds?: string[],
   ): Promise<{ id: string; email: string }[]> {
     if (isForAllUsers) {
-      const users = await this.prisma.user.findMany({ select: { id: true, email: true } });
+      const users = await this.prisma.user.findMany({
+        select: { id: true, email: true },
+      });
       return users.map((u) => {
         return {
           id: u.id,
-          email: u.email
-        }
+          email: u.email,
+        };
       });
     }
     if (teamIds && teamIds.length) {
@@ -147,13 +149,13 @@ export class UtilsService {
       const uniqueIds = this.removeDuplicateIds(members.map((m) => m.userId));
       const membersWithEmail = await this.prisma.user.findMany({
         where: { id: { in: uniqueIds } },
-        select: { id: true, email: true }
-      })
+        select: { id: true, email: true },
+      });
       return membersWithEmail.map((u) => {
         return {
           id: u.id,
-          email: u.email
-        }
+          email: u.email,
+        };
       });
     }
     return [];

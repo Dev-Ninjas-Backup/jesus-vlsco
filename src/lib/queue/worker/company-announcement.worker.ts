@@ -1,10 +1,10 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
+import { AnnouncementEvent } from '@project/common/interface/events';
 import { MailService } from '@project/lib/mail/mail.service';
+import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Worker } from 'bullmq';
-import { AnnouncementEvent } from '../interface/events';
-import { NotificationGateway } from '../notification.gateway';
 
 @Injectable()
 export class CompanyAnnouncementWorker implements OnModuleInit {
@@ -13,24 +13,26 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
   constructor(
     private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
-    private readonly mailService: MailService
-  ) { }
+    private readonly mailService: MailService,
+  ) {}
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(
-      'notification',
+      'announcement',
       async (job) => {
         const { title, message, recipients, sendEmail, sendWs } = job.data;
 
         // Broadcast via email
         if (sendEmail && recipients.length) {
-          this.logger.log(`Sending email to ${recipients.length} recipients...`);
+          this.logger.log(
+            `Sending email to ${recipients.length} recipients...`,
+          );
           for (const email of recipients) {
             try {
               await this.mailService.sendAnnouncementEmail(
                 email,
                 title,
-                `<h3>${title}</h3><p>${message}</p>`
+                `<h3>${title}</h3><p>${message}</p>`,
               );
               this.logger.log(`Email sent to ${email}`);
             } catch (err) {
