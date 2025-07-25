@@ -1,5 +1,6 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
+import { CompanyAnnouncementWorker } from './worker/company-announcement.worker';
 
 @Global()
 @Module({
@@ -11,6 +12,7 @@ import { Global, Module } from '@nestjs/common';
       { name: 'email' },
     ),
   ],
+  providers: [CompanyAnnouncementWorker],
   exports: [BullModule],
 })
 export class QueueModule {}
