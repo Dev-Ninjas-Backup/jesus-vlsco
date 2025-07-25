@@ -53,14 +53,18 @@ export class CreateAnnouncementDto {
   @IsBoolean()
   publishedNow: boolean;
 
-  @ApiProperty({
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? undefined : date.toISOString();
+  })
+  @IsDateString()
+  @IsOptional()
+  @ApiPropertyOptional({
     example: '2025-07-21T10:00:00.000Z',
     description: 'Optional future publish time if not publishing now',
-    required: false,
   })
-  @IsOptional()
-  @IsDateString()
-  publishedAt?: Date;
+  publishedAt?: string;
 
   @ApiProperty({
     example: false,

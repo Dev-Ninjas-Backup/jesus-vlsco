@@ -6,6 +6,7 @@ import { MulterModule } from './multer/multer.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { SeedModule } from './seed/seed.module';
 import { UtilsModule } from './utils/utils.module';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UtilsModule } from './utils/utils.module';
     CloudinaryModule,
     MulterModule,
     FirebaseModule,
+    QueueModule,
   ],
   exports: [],
   providers: [],

@@ -1,17 +1,24 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
+import { EVENT_TYPES, ShiftEvent } from '@project/common/interface/events';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { Queue } from 'bullmq';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
 import { RequestShiftDto } from '../dto/request-shift.dto';
 import { UpdateShiftStatusDto } from '../dto/update-shift-status.dto';
-import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class ShiftService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('shift')
+    private readonly shiftQueue: Queue<ShiftEvent>,
+  ) {}
 
   @HandleError('Error assigning shift to employee')
   async assignShiftToEmployee(
@@ -27,7 +34,19 @@ export class ShiftService {
         status: 'APPROVED', // * IMPORTANT: This is always approved
       },
     });
-    // * TODO: send notification to the user
+
+    // * Enqueue job
+    const payload: ShiftEvent = {
+      shiftId: result.id,
+      userId,
+      action: 'ASSIGN',
+      meta: {
+        performedBy: userId, // assuming user assigns to self
+        date: new Date().toISOString(),
+      },
+    };
+
+    await this.shiftQueue.add(EVENT_TYPES.SHIFT_ASSIGN, payload);
 
     return successResponse(result, 'Shift assigned successfully');
   }
@@ -49,7 +68,19 @@ export class ShiftService {
       },
     });
 
-    // * TODO: send notification to the user
+    // * Enqueue job
+    const payload: ShiftEvent = {
+      shiftId: result.id,
+      userId: result.userId,
+      action: 'STATUS_UPDATE',
+      meta: {
+        performedBy: result.userId,
+        date: new Date().toISOString(),
+        status: dto.status,
+      },
+    };
+
+    await this.shiftQueue.add(EVENT_TYPES.SHIFT_STATUS_UPDATE, payload);
 
     const message = dto.status === 'APPROVED' ? 'Approved' : 'Rejected';
     return successResponse(result, `Shift ${message} successfully`);
@@ -72,7 +103,18 @@ export class ShiftService {
       },
     });
 
-    // * TODO: send notification to the user
+    // * Enqueue job
+    const payload: ShiftEvent = {
+      shiftId: result.id,
+      userId: result.userId,
+      action: 'STATUS_UPDATE',
+      meta: {
+        performedBy: result.userId,
+        date: new Date().toISOString(),
+      },
+    };
+
+    await this.shiftQueue.add(EVENT_TYPES.SHIFT_STATUS_UPDATE, payload);
 
     return successResponse(result, 'Shift updated successfully');
   }
