@@ -16,7 +16,7 @@ export class UtilsService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   sanitizedResponse(sto: any, data: any) {
     return plainToInstance(sto, data, { excludeExtraneousValues: true });
@@ -129,17 +129,32 @@ export class UtilsService {
   async resolveRecipients(
     isForAllUsers: boolean,
     teamIds?: string[],
-  ): Promise<string[]> {
+  ): Promise<{ id: string; email: string }[]> {
     if (isForAllUsers) {
-      const users = await this.prisma.user.findMany({ select: { id: true } });
-      return users.map((u) => u.id);
+      const users = await this.prisma.user.findMany({ select: { id: true, email: true } });
+      return users.map((u) => {
+        return {
+          id: u.id,
+          email: u.email
+        }
+      });
     }
     if (teamIds && teamIds.length) {
       const members = await this.prisma.teamMembers.findMany({
         where: { teamId: { in: teamIds } },
         select: { userId: true },
       });
-      return Array.from(new Set(members.map((m) => m.userId)));
+      const uniqueIds = this.removeDuplicateIds(members.map((m) => m.userId));
+      const membersWithEmail = await this.prisma.user.findMany({
+        where: { id: { in: uniqueIds } },
+        select: { id: true, email: true }
+      })
+      return membersWithEmail.map((u) => {
+        return {
+          id: u.id,
+          email: u.email
+        }
+      });
     }
     return [];
   }

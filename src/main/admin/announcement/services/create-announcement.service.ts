@@ -18,7 +18,7 @@ export class CreateAnnouncementService {
     private readonly utils: UtilsService,
     @InjectQueue('notification')
     private readonly notificationQueue: Queue<AnnouncementEvent>,
-  ) {}
+  ) { }
 
   // Create a new announcement
   @HandleError('Error creating announcement')
@@ -62,7 +62,7 @@ export class CreateAnnouncementService {
       publishedAt: announcement.publishedNow
         ? new Date()
         : announcement.publishedAt!,
-      recipients,
+      recipients: recipients.map((recipient) => recipient.email),
       sendEmail: announcement.sendEmailNotification,
       sendWs: true,
     };
