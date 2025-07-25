@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
@@ -29,16 +30,19 @@ export class AdminRequestOffDayService {
 
     const existingRequest = await this.prisma.timeOffRequest.findUnique({
       where: { id: requestId },
+      include: { user: true },
     });
 
     if (!existingRequest) {
-      throw new Error('Request not found');
+      throw new AppError(404, 'Request not found');
     }
 
     const updatedRequest = await this.prisma.timeOffRequest.update({
       where: { id: requestId },
       data: { status },
     });
+
+    // * todo: send notification to the user (who created the request)
 
     return successResponse(
       updatedRequest,

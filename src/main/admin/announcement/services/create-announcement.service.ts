@@ -1,13 +1,13 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse } from '@project/common/utils/response.util';
-import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { UtilsService } from '@project/lib/utils/utils.service';
 import {
   AnnouncementEvent,
   EVENT_TYPES,
-} from '@project/main/notification/interface/events';
+} from '@project/common/interface/events';
+import { successResponse } from '@project/common/utils/response.util';
+import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
 import { Queue } from 'bullmq';
 import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
 
@@ -16,8 +16,8 @@ export class CreateAnnouncementService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-    @InjectQueue('notification')
-    private readonly notificationQueue: Queue<AnnouncementEvent>,
+    @InjectQueue('announcement')
+    private readonly announcementQueue: Queue<AnnouncementEvent>,
   ) {}
 
   // Create a new announcement
@@ -62,7 +62,7 @@ export class CreateAnnouncementService {
       publishedAt: announcement.publishedNow
         ? new Date()
         : announcement.publishedAt!,
-      recipients,
+      recipients: recipients.map((recipient) => recipient.email),
       sendEmail: announcement.sendEmailNotification,
       sendWs: true,
     };
@@ -72,7 +72,7 @@ export class CreateAnnouncementService {
       ? 0
       : Math.max(0, payload.publishedAt.getTime() - Date.now());
 
-    await this.notificationQueue.add(
+    await this.announcementQueue.add(
       EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
       payload,
       { delay },

@@ -1,7 +1,11 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
+import { EVENT_TYPES, TimeOffEvent } from '@project/common/interface/events';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { Queue } from 'bullmq';
 import {
   CreateTimeOffRequestDto,
   UpdateTimeOffRequestDto,
@@ -9,7 +13,11 @@ import {
 
 @Injectable()
 export class OffDayRequestService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @InjectQueue('timeoff')
+    private readonly timeOffRequestQueue: Queue<TimeOffEvent>,
+  ) {}
 
   @HandleError('Unable to create time off request')
   async createOffDayRequset(dto: CreateTimeOffRequestDto, userId: string) {
@@ -25,6 +33,22 @@ export class OffDayRequestService {
         userId,
       },
     });
+
+    const payload: TimeOffEvent = {
+      action: 'CREATE',
+      requestId: result.id,
+      userId: userId,
+      meta: {
+        startDate: new Date(result.startDate).toISOString(),
+        endDate: new Date(result.endDate).toISOString(),
+        reason: result.reason,
+        status: result.status,
+        performedBy: result.userId,
+      },
+    };
+
+    await this.timeOffRequestQueue.add(EVENT_TYPES.TIME_OFF_CREATE, payload);
+
     return successResponse(result, 'Time off request created successfully');
   }
 
@@ -51,7 +75,8 @@ export class OffDayRequestService {
     });
 
     if (!existingRequest || existingRequest.userId !== userId) {
-      throw new Error(
+      throw new AppError(
+        403,
         'Request not found or you do not have permission to update it',
       );
     }
@@ -80,7 +105,8 @@ export class OffDayRequestService {
     });
 
     if (!existingRequest || existingRequest.userId !== userId) {
-      throw new Error(
+      throw new AppError(
+        403,
         'Request not found or you do not have permission to delete it',
       );
     }
