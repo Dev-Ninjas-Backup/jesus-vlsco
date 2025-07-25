@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { AnnouncementEvent } from '@project/common/interface/events';
+import { AnnouncementEvent, EVENT_TYPES } from '@project/common/interface/events';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Worker } from 'bullmq';
@@ -14,7 +14,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
     private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
-  ) {}
+  ) { }
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(

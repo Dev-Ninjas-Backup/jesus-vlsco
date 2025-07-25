@@ -18,7 +18,7 @@ export class CreateAnnouncementService {
     private readonly utils: UtilsService,
     @InjectQueue('announcement')
     private readonly announcementQueue: Queue<AnnouncementEvent>,
-  ) {}
+  ) { }
 
   // Create a new announcement
   @HandleError('Error creating announcement')
