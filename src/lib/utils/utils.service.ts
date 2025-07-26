@@ -17,7 +17,7 @@ export class UtilsService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) { }
 
   sanitizedResponse(sto: any, data: any) {
     return plainToInstance(sto, data, { excludeExtraneousValues: true });
@@ -172,5 +172,31 @@ export class UtilsService {
     const shift = await this.prisma.shift.findUnique({ where: { id } });
     if (!shift) throw new AppError(404, 'Shift not found');
     return shift;
+  }
+
+  // * validate user is assign to the task
+  async ensureTaskAssignToUser(taskId: string, userId: string) {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: { tasksUsers: true },
+    });
+    if (!task) throw new AppError(404, 'Task not found');
+
+    const taskUser = task.tasksUsers.find((tu) => tu.userId === userId);
+    if (!taskUser) throw new AppError(404, 'You are not assign to this task');
+    return task;
+  }
+
+  // * validate user is in the project in which the task belongs
+  async ensureUserInProject(projectId: string, userId: string) {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+      include: { projectUsers: true },
+    });
+    if (!project) throw new AppError(404, 'Project not found');
+
+    const projectUser = project.projectUsers.find((pu) => pu.userId === userId);
+    if (!projectUser) throw new AppError(404, 'You are not in this project');
+    return project;
   }
 }

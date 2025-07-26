@@ -4,10 +4,14 @@ import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successPaginatedResponse, successResponse, TPaginatedResponse, TResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utils: UtilsService
+  ) { }
 
   @HandleError('Failed to get all project with its tasks')
   async getAllProjectWithItsTasks(dto: PaginationDto): Promise<TPaginatedResponse<any>> {
@@ -36,7 +40,10 @@ export class ProjectService {
     return successPaginatedResponse(project, { page: 1, limit: 10, total: 1 });
   }
 
-  async getATask(taskId: string): Promise<TResponse<any>> {
+  @HandleError('Failed to get a task')
+  async getATask(taskId: string, userId: string): Promise<TResponse<any>> {
+    await this.utils.ensureUserInProject(taskId, userId);
+
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -56,11 +63,15 @@ export class ProjectService {
     return successResponse(task, 'Task retrieved successfully')
   }
 
-  async startATask(taskId: string): Promise<TResponse<any>> {
+  @HandleError('Failed to start a task')
+  async startATask(taskId: string, userId: string): Promise<TResponse<any>> {
+    await this.utils.ensureUserInProject(taskId, userId);
+
     await this.prisma.task.update({
       where: { id: taskId },
       data: { status: 'OPEN' }
     })
+
     return successResponse(null, 'Task started successfully')
   }
 }
