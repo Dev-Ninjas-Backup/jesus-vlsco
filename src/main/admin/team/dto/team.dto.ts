@@ -9,15 +9,53 @@ import {
 } from 'class-validator';
 
 export class CreateTeamDto {
-  @ApiProperty({ example: 'Amdadul HQ' })
+  @ApiProperty({ example: 'Engineering Team' })
   @IsString()
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({ example: 'Amdadul HQ Description' })
+  @ApiProperty({
+    example: 'Handles all product engineering and devops tasks.',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
+
+  @ApiProperty({ example: 'Engineering' })
+  @IsString()
+  @IsNotEmpty()
+  department: string;
+
+  // @ApiProperty({
+  //   type: 'string',
+  //   format: 'binary',
+  //   description: 'Optional team image or logo',
+  //   required: false,
+  // })
+  // @IsOptional()
+  // image?: any; // Will be handled with @UploadedFile() in controller
+
+  @ApiProperty({
+    example: 'aee23bfb-1fbd-4f39-bde7-1f5e3857d650',
+    description: 'ID of the user creating the team',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  creatorId: string;
+
+  @ApiProperty({
+    example: [
+      'fa24c6d2-09c6-498f-9f84-878cf3871225',
+      'a1e5c6c9-bc77-4ef0-8aa2-5ff1ea82d27d',
+    ],
+    description: 'Optional array of user IDs to add as team members',
+    required: false,
+  })
+  @IsArray()
+  @IsUUID('4', { each: true })
+  @IsOptional()
+  members?: string[];
 }
 
 export class UpdateTeamDto extends PartialType(CreateTeamDto) {}

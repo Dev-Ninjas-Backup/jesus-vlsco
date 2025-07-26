@@ -7,13 +7,25 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTeamsDto } from '../dto/get-teams.dto';
-import { AddMembersToTeamDto, CreateTeamDto } from '../dto/team.dto';
 import { GetAllTeamsService } from '../services/get-all-team.service';
 import { TeamService } from '../services/team.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { createTeamSwaggerSchema } from '../dto/createTeam.swagger';
+import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { AddMembersToTeamDto, CreateTeamDto } from '../dto/team.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 
 @ApiTags('Admin -- Team')
 @Controller('admin/team')
@@ -23,6 +35,7 @@ export class TeamController {
   constructor(
     private readonly teamService: TeamService,
     private readonly getAllTeamsService: GetAllTeamsService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @ApiOperation({ summary: 'Get all teams' })
@@ -31,10 +44,32 @@ export class TeamController {
     return this.getAllTeamsService.getAllTeamsService(query);
   }
 
-  @ApiOperation({ summary: 'Create a team' })
   @Post()
-  async createATeam(@Body() dto: CreateTeamDto) {
-    return this.teamService.createATeam(dto);
+  @ApiOperation({ summary: 'Create a team' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: createTeamSwaggerSchema.properties,
+    },
+  })
+  @UseInterceptors(FileInterceptor('image'))
+  async createATeam(
+    @GetUser('userId') userId: string,
+    @Body() dto: CreateTeamDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    let uploadedUrl: string | null = null;
+    if (!file) {
+      throw new AppError(500, 'File is Required');
+    }
+    uploadedUrl = (
+      await this.cloudinaryService.uploadImageFromBuffer(
+        file.buffer,
+        file.originalname,
+      )
+    ).url;
+    return this.teamService.createATeam(dto, userId, uploadedUrl);
   }
 
   @ApiOperation({ summary: 'Update a team' })
