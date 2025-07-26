@@ -27,7 +27,9 @@ export class FileService {
       });
       return file;
     } catch (error) {
-      throw new InternalServerErrorException('Failed to create file record');
+      throw new InternalServerErrorException(
+        `Failed to create file record ${error?.message}`,
+      );
     }
   }
 
