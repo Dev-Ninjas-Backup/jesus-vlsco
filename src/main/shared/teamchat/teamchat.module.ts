@@ -4,6 +4,6 @@ import { TeamchatService } from './teamchat.service';
 import { FileService } from '@project/lib/utils/file.service';
 @Module({
   controllers: [TeamController],
-  providers: [TeamchatService,FileService],
+  providers: [TeamchatService, FileService],
 })
 export class TeamchatModule {}
