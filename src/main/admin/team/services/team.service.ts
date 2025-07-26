@@ -17,75 +17,75 @@ export class TeamService {
 
   // ================ Team CRUD ================
   @HandleError('Failed to create team')
-async createATeam(
-  dto: CreateTeamDto,
-  creatorId: string,
-  uploadedUrl: string,
-): Promise<TResponse<any>> {
-  const team = await this.prisma.team.create({
-    data: {
-      title: dto.title,
-      description: dto.description,
-      department: dto.department,
-      image: uploadedUrl,
-      creatorId,
-      members: {
-        create: dto.members?.map((userId) => ({
-          user: {
-            connect: { id: userId },
-          },
-        })) || [],
-      },
-    },
-    include: {
-      members: {
-        include: { user: true },
-      },
-    },
-  });
-
-  return successResponse(team, 'Team added successfully');
-}
-
- @HandleError('Failed to update team')
-async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
-  await this.utils.ensureTeamExists(id);
-
-  // Start transaction
-  const result = await this.prisma.$transaction(async (tx) => {
-    // 1. Update the basic team fields
-    const team = await tx.team.update({
-      where: { id },
+  async createATeam(
+    dto: CreateTeamDto,
+    creatorId: string,
+    uploadedUrl: string,
+  ): Promise<TResponse<any>> {
+    const team = await this.prisma.team.create({
       data: {
         title: dto.title,
         description: dto.description,
         department: dto.department,
+        image: uploadedUrl,
+        creatorId,
+        members: {
+          create:
+            dto.members?.map((userId) => ({
+              user: {
+                connect: { id: userId },
+              },
+            })) || [],
+        },
+      },
+      include: {
+        members: {
+          include: { user: true },
+        },
       },
     });
 
-    // 2. If members provided, reset and reassign them
-    if (dto.members && dto.members.length > 0) {
-      // Remove existing members
-      await tx.teamMembers.deleteMany({
-        where: { teamId: id },
+    return successResponse(team, 'Team added successfully');
+  }
+
+  @HandleError('Failed to update team')
+  async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
+    await this.utils.ensureTeamExists(id);
+
+    // Start transaction
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Update the basic team fields
+      const team = await tx.team.update({
+        where: { id },
+        data: {
+          title: dto.title,
+          description: dto.description,
+          department: dto.department,
+        },
       });
 
-      // Add new members
-      await tx.teamMembers.createMany({
-        data: dto.members.map((userId) => ({
-          teamId: id,
-          userId,
-        })),
-        skipDuplicates: true,
-      });
-    }
+      // 2. If members provided, reset and reassign them
+      if (dto.members && dto.members.length > 0) {
+        // Remove existing members
+        await tx.teamMembers.deleteMany({
+          where: { teamId: id },
+        });
 
-    return team;
-  });
+        // Add new members
+        await tx.teamMembers.createMany({
+          data: dto.members.map((userId) => ({
+            teamId: id,
+            userId,
+          })),
+          skipDuplicates: true,
+        });
+      }
 
-  return successResponse(result, 'Team updated successfully');
-}
+      return team;
+    });
 
+    return successResponse(result, 'Team updated successfully');
+  }
 
   @HandleError('Failed to delete team')
   async deleteATeam(id: string): Promise<TResponse<any>> {

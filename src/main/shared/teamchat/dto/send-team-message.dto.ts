@@ -1,10 +1,6 @@
 // send-team-message.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SendTeamMessageDto {
   @ApiProperty({ example: 'Hey team!', type: 'string' })

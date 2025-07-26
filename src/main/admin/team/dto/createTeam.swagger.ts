@@ -28,5 +28,5 @@ export const createTeamSwaggerSchema = {
       description: 'Array of user IDs to add as members to the team',
     },
   },
-  required: ['title', 'department', 'creatorId','members'],
+  required: ['title', 'department', 'creatorId', 'members'],
 };

@@ -10,7 +10,13 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTeamsDto } from '../dto/get-teams.dto';
 import { GetAllTeamsService } from '../services/get-all-team.service';
@@ -41,17 +47,21 @@ export class TeamController {
   @Post()
   @ApiOperation({ summary: 'Create a team' })
   @ApiConsumes('multipart/form-data')
-    @ApiBody({
-      schema: {
-        type: 'object',
-        properties: createTeamSwaggerSchema.properties,
-      },
-    })
-    @UseInterceptors(FileInterceptor('image'))
-  async createATeam(@GetUser('userId') userId: string,@Body() dto: CreateTeamDto,@UploadedFile() file: Express.Multer.File,) {
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: createTeamSwaggerSchema.properties,
+    },
+  })
+  @UseInterceptors(FileInterceptor('image'))
+  async createATeam(
+    @GetUser('userId') userId: string,
+    @Body() dto: CreateTeamDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     let uploadedUrl: string | null = null;
     if (!file) {
-      throw new AppError(500,'File is Required')
+      throw new AppError(500, 'File is Required');
     }
     uploadedUrl = (
       await this.cloudinaryService.uploadImageFromBuffer(
@@ -59,12 +69,12 @@ export class TeamController {
         file.originalname,
       )
     ).url;
-    return this.teamService.createATeam(dto,userId,uploadedUrl);
+    return this.teamService.createATeam(dto, userId, uploadedUrl);
   }
 
   @ApiOperation({ summary: 'Update a team' })
   @Patch(':teamId')
-  async updateATeam(                                                                                                                               
+  async updateATeam(
     @Body() dto: CreateTeamDto,
     @Param('teamId') teamId: string,
   ) {

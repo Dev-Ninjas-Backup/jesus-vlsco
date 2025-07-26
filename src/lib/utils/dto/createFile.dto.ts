@@ -14,7 +14,7 @@ export class CreateFileDto {
   @IsString()
   url: string;
 
-  @IsEnum([FileType.docs,FileType.image,FileType.link])
+  @IsEnum([FileType.docs, FileType.image, FileType.link])
   fileType: FileType;
 
   @IsString()
@@ -22,5 +22,4 @@ export class CreateFileDto {
 
   @IsNumber()
   size: number;
-
 }

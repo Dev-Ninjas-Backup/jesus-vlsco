@@ -11,12 +11,13 @@ import mime from 'mime-types';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateFileDto } from './dto/createFile.dto';
+import { FileType } from '@prisma/client';
 
 @Injectable()
 export class FileService {
   constructor(
     private readonly dbService: PrismaService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async create(createFileDto: CreateFileDto) {
@@ -56,7 +57,7 @@ export class FileService {
 
   async remove(id: string): Promise<void> {
     const file = await this.findOne(id);
-    
+
     if (!file) {
       throw new NotFoundException(`File with ID ${id} not found`);
     }
@@ -75,15 +76,22 @@ export class FileService {
     });
   }
 
-  async processUploadedFile(file: Express.Multer.File,caption?:string) {
+  async processUploadedFile(file: Express.Multer.File) {
     try {
       const fileId = uuidv4();
       const fileExt = path.extname(file.originalname);
       const filename = `${fileId}${fileExt}`;
-      
+
       const mimeType =
-        file.mimetype || mime.lookup(file.originalname) || 'application/octet-stream';
-      const fileType = mimeType.split('/')[0] || 'unknown';
+        file.mimetype ||
+        mime.lookup(file.originalname) ||
+        'application/octet-stream';
+      // Import FileType enum/type at the top if not already imported
+      // import { FileType } from './dto/createFile.dto';
+
+      const fileTypeString = mimeType.split('/')[0] || 'unknown';
+      // Map string to FileType enum/type
+      const fileType = fileTypeString as FileType;
 
       const uploadDir = path.join(process.cwd(), 'uploads');
       if (!fs.existsSync(uploadDir)) {
@@ -93,7 +101,7 @@ export class FileService {
       const filePath = path.join(uploadDir, filename);
 
       // ✅ ServeStatic change: file will be accessible via `/files/<filename>`
-      const fileUrl = `${this.configService.getOrThrow("BASE_URL")}/files/${filename}`;
+      const fileUrl = `${this.configService.getOrThrow('BASE_URL')}/files/${filename}`;
 
       if (file.path && file.path !== filePath) {
         fs.copyFileSync(file.path, filePath);
@@ -108,7 +116,6 @@ export class FileService {
         fileType,
         mimeType,
         size: file.size,
-        caption
       };
 
       return this.create(createFileDto);

@@ -6,6 +6,6 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [TeamController],
-  providers: [TeamService, GetAllTeamsService,CloudinaryService],
+  providers: [TeamService, GetAllTeamsService, CloudinaryService],
 })
 export class TeamModule {}

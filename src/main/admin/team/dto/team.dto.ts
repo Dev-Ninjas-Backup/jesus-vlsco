@@ -1,7 +1,12 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-
+import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateTeamDto {
   @ApiProperty({ example: 'Engineering Team' })
@@ -52,7 +57,6 @@ export class CreateTeamDto {
   @IsOptional()
   members?: string[];
 }
-
 
 export class UpdateTeamDto extends PartialType(CreateTeamDto) {}
 

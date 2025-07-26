@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Req,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -23,8 +22,8 @@ export class TeamController {
     @Param('teamId') teamId: string,
     @Body() dto: SendTeamMessageDto,
     @UploadedFile() file: Express.Multer.File,
-   @GetUser('userId') userId: string,
+    @GetUser('userId') userId: string,
   ) {
-    return this.teamService.sendTeamMessage(teamId, dto, file, userId);
+    return await this.teamService.sendTeamMessage(teamId, dto, file, userId);
   }
 }
