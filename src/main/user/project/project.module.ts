@@ -8,4 +8,4 @@ import { SubmitTaskService } from './services/submit-task.service';
   controllers: [ProjectController],
   providers: [ProjectService, SubmitTaskService, CloudinaryService],
 })
-export class ProjectModule { }
+export class ProjectModule {}

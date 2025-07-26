@@ -13,7 +13,7 @@ export class SubmitTaskService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   @HandleError('Failed to submit task')
   async submitTask(

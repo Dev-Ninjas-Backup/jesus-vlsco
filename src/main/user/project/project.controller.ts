@@ -1,6 +1,20 @@
-import { Controller, Get, Param, Patch, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
@@ -15,8 +29,8 @@ export class ProjectController {
   constructor(
     private readonly projectService: ProjectService,
     private readonly submitTaskService: SubmitTaskService,
-    private readonly cloudinaryService: CloudinaryService
-  ) { }
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Get('all')
   getAllProject(@Query() dto: PaginationDto) {

@@ -16,7 +16,7 @@ export class ProjectService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   @HandleError('Failed to get all project with its tasks')
   async getAllProjectWithItsTasks(
