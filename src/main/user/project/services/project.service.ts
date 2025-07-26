@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successPaginatedResponse, TPaginatedResponse } from '@project/common/utils/response.util';
+import { successPaginatedResponse, successResponse, TPaginatedResponse, TResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
@@ -29,9 +30,37 @@ export class ProjectService {
         skip: (page - 1) * limit,
         take: limit
       })
-      console.log(project);
+    console.log(project);
 
 
     return successPaginatedResponse(project, { page: 1, limit: 10, total: 1 });
+  }
+
+  async getATask(taskId: string): Promise<TResponse<any>> {
+    const task = await this.prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        tasksUsers: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+
+    if (!task) {
+      throw new AppError(404, 'Task not found');
+    }
+
+    return successResponse(task, 'Task retrieved successfully')
+  }
+
+  async startATask(taskId: string): Promise<TResponse<any>> {
+    await this.prisma.task.update({
+      where: { id: taskId },
+      data: { status: 'OPEN' }
+    })
+    return successResponse(null, 'Task started successfully')
   }
 }
