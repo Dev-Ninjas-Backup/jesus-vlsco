@@ -2,6 +2,10 @@ model Team {
   id          String  @id @default(uuid())
   title       String
   description String?
+  department  String
+  image       String
+  creatorId   String
+  creator     User    @relation(fields: [creatorId],references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -10,6 +14,7 @@ model Team {
   projects          Project[]
   teamSurveys       TeamSurvey[]
   teamAnnouncements TeamAnnouncement[]
+  teamMessages TeamMessage[]
 }
 
 model TeamMembers {
@@ -51,4 +56,41 @@ model TeamAnnouncement {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+
+model TeamMessage {
+  id        String   @id @default(uuid())
+  content   String
+  fileId    String? 
+  teamId    String
+  senderId  String
+
+
+  file      FileInstance? @relation(fields: [fileId],references: [id])
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  statuses  TeamMessageStatus[]
+  createdAt DateTime @default(now())
+}
+
+
+model TeamMessageStatus {
+  id         String   @id @default(uuid())
+  messageId  String
+  userId     String
+  status     MessageDeliveryStatus
+  updatedAt  DateTime @updatedAt
+
+  message    TeamMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+}
+
+enum MessageDeliveryStatus {
+  SENT
+  DELIVERED
+  READ
 }
