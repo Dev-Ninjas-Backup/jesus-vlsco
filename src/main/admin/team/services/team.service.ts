@@ -17,9 +17,32 @@ export class TeamService {
 
   // ================ Team CRUD ================
   @HandleError('Failed to create team')
-  async createATeam(dto: CreateTeamDto): Promise<TResponse<any>> {
+  async createATeam(
+    dto: CreateTeamDto,
+    creatorId: string,
+    uploadedUrl: string,
+  ): Promise<TResponse<any>> {
     const team = await this.prisma.team.create({
-      data: { ...(dto as any) },
+      data: {
+        title: dto.title,
+        description: dto.description,
+        department: dto.department,
+        image: uploadedUrl,
+        creatorId,
+        members: {
+          create:
+            dto.members?.map((userId) => ({
+              user: {
+                connect: { id: userId },
+              },
+            })) || [],
+        },
+      },
+      include: {
+        members: {
+          include: { user: true },
+        },
+      },
     });
 
     return successResponse(team, 'Team added successfully');
@@ -29,12 +52,39 @@ export class TeamService {
   async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
     await this.utils.ensureTeamExists(id);
 
-    const team = await this.prisma.team.update({
-      where: { id },
-      data: { ...dto },
+    // Start transaction
+    const result = await this.prisma.$transaction(async (tx) => {
+      // 1. Update the basic team fields
+      const team = await tx.team.update({
+        where: { id },
+        data: {
+          title: dto.title,
+          description: dto.description,
+          department: dto.department,
+        },
+      });
+
+      // 2. If members provided, reset and reassign them
+      if (dto.members && dto.members.length > 0) {
+        // Remove existing members
+        await tx.teamMembers.deleteMany({
+          where: { teamId: id },
+        });
+
+        // Add new members
+        await tx.teamMembers.createMany({
+          data: dto.members.map((userId) => ({
+            teamId: id,
+            userId,
+          })),
+          skipDuplicates: true,
+        });
+      }
+
+      return team;
     });
 
-    return successResponse(team, 'Team updated successfully');
+    return successResponse(result, 'Team updated successfully');
   }
 
   @HandleError('Failed to delete team')
