@@ -6,9 +6,9 @@ model Team {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  members     TeamMembers[]
-  projects    Project[]
-  teamSurveys TeamSurvey[]
+  members           TeamMembers[]
+  projects          Project[]
+  teamSurveys       TeamSurvey[]
   teamAnnouncements TeamAnnouncement[]
 }
 

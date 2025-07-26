@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Global, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import path from 'path';
 import { Readable } from 'stream';
 
+@Global()
 @Injectable()
 export class CloudinaryService {
   constructor(private readonly configService: ConfigService) {

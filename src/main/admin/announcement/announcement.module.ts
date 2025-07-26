@@ -1,7 +1,7 @@
-import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { AnnouncementController } from './announcement.controller';
+import { AnnouncementService } from './services/announcement.service';
 import { CreateAnnouncementCategoryService } from './services/create-announcement-category.service';
 import { CreateAnnouncementService } from './services/create-announcement.service';
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
@@ -17,11 +17,7 @@ import { UpdateAnnouncementCategoryService } from './services/update-announcemen
     DeleteAnnouncementCategoryService,
     CreateAnnouncementService,
     CloudinaryService,
-  ],
-  imports: [
-    BullModule.registerQueue({
-      name: 'notification', // * MUST match the @InjectQueue('notification')
-    }),
+    AnnouncementService,
   ],
 })
 export class AnnouncementModule {}

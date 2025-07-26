@@ -19,6 +19,13 @@ export class AttachmentInput {
   url: string;
 }
 
+const ToBoolean = () =>
+  Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value === 'true';
+    return Boolean(value);
+  });
+
 export class CreateAnnouncementDto {
   @ApiProperty({ example: 'System Maintenance Notice' })
   @IsString()
@@ -39,38 +46,42 @@ export class CreateAnnouncementDto {
   categoryId: string;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description: 'Whether to publish immediately or schedule it',
   })
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsBoolean()
   publishedNow: boolean;
 
-  @ApiProperty({
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? undefined : date.toISOString();
+  })
+  @IsDateString()
+  @IsOptional()
+  @ApiPropertyOptional({
     example: '2025-07-21T10:00:00.000Z',
     description: 'Optional future publish time if not publishing now',
-    required: false,
   })
-  @IsOptional()
-  @IsDateString()
-  publishedAt?: Date;
+  publishedAt?: string;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description: 'Should recipients get an email',
     required: false,
   })
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsOptional()
   @IsBoolean()
   sendEmailNotification?: boolean;
 
   @ApiProperty({
-    example: true,
+    example: false,
     description: 'Should the announcement be sent to all users',
     required: false,
   })
-  @Type(() => Boolean)
+  @ToBoolean()
   @IsOptional()
   @IsBoolean()
   isForAllUsers?: boolean;
@@ -104,14 +115,20 @@ export class CreateAnnouncementDto {
     ],
   })
   @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
     if (typeof value === 'string') {
       try {
-        return JSON.parse(value);
-      } catch (err) {
-        console.info(err);
-        return [];
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Try CSV fallback
+        return value.split(',').map((v) => v.trim());
       }
     }
+
     return [];
   })
   @IsArray()

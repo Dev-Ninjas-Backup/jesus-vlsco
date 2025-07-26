@@ -33,6 +33,7 @@ model User {
   teamChat         TeamChat[]
 
   chatGroup        TeamChat[] @relation(name: "Creator")
+  notificationToggle NotificationToggle?
 }
 
 enum UserEnum {

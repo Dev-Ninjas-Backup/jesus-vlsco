@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Shift } from '@prisma/client';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { AppError } from '@project/common/error/handle-error.app';
 import { JWTPayload } from '@project/common/jwt/jwt.interface';
@@ -124,5 +125,52 @@ export class UtilsService {
     if (teams.length !== teamIds.length)
       throw new AppError(404, 'Team not found');
     return teams;
+  }
+
+  async resolveRecipients(
+    isForAllUsers: boolean,
+    teamIds?: string[],
+  ): Promise<{ id: string; email: string }[]> {
+    if (isForAllUsers) {
+      const users = await this.prisma.user.findMany({
+        select: { id: true, email: true },
+      });
+      return users.map((u) => {
+        return {
+          id: u.id,
+          email: u.email,
+        };
+      });
+    }
+    if (teamIds && teamIds.length) {
+      const members = await this.prisma.teamMembers.findMany({
+        where: { teamId: { in: teamIds } },
+        select: { userId: true },
+      });
+      const uniqueIds = this.removeDuplicateIds(members.map((m) => m.userId));
+      const membersWithEmail = await this.prisma.user.findMany({
+        where: { id: { in: uniqueIds } },
+        select: { id: true, email: true },
+      });
+      return membersWithEmail.map((u) => {
+        return {
+          id: u.id,
+          email: u.email,
+        };
+      });
+    }
+    return [];
+  }
+
+  async getEmailById(id: string): Promise<string> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new AppError(404, 'User not found');
+    return user.email;
+  }
+
+  async getShiftById(id: string): Promise<Shift> {
+    const shift = await this.prisma.shift.findUnique({ where: { id } });
+    if (!shift) throw new AppError(404, 'Shift not found');
+    return shift;
   }
 }

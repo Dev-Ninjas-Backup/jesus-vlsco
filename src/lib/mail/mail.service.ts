@@ -35,4 +35,19 @@ export class MailService {
 
     return this.transporter.sendMail(mailOptions);
   }
+
+  async sendEmail(
+    email: string,
+    subject: string,
+    message: string,
+  ): Promise<nodemailer.SentMessageInfo> {
+    const mailOptions = {
+      from: `"No Reply" <${this.configService.get<string>(ENVEnum.MAIL_USER)}>`,
+      to: email,
+      subject,
+      html: message,
+    };
+
+    return this.transporter.sendMail(mailOptions);
+  }
 }

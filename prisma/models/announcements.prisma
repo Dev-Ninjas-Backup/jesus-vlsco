@@ -8,20 +8,20 @@ model Announcement {
   enabledReadReceipt    Boolean   @default(false)
   likeCount             Int       @default(0)
   viewCount             Int       @default(0)
-  isForAllUsers         Boolean   @default(false) 
+  isForAllUsers         Boolean   @default(false)
 
-  createdBy             String
-  categoryId            String
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdBy  String
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  likedUser             AnnouncementReactedUser[]
-  attachments           Attachments[]
+  likedUser   AnnouncementReactedUser[]
+  attachments Attachments[]
 
-  author                User                 @relation(fields: [createdBy], references: [id])
-  category              AnnouncementCategory @relation(fields: [categoryId], references: [id])
-  
-  teamAnnouncements      TeamAnnouncement[]             
+  author   User                 @relation(fields: [createdBy], references: [id])
+  category AnnouncementCategory @relation(fields: [categoryId], references: [id])
+
+  teamAnnouncements TeamAnnouncement[]
 }
 
 model AnnouncementReactedUser {
