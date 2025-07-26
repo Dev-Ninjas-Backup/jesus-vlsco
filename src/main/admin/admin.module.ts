@@ -19,7 +19,7 @@ import { UserModule } from './user/user.module';
     TaskModule,
     SurveyModule,
     AnnouncementModule,
-    SettingsModule
+    SettingsModule,
   ],
 })
 export class AdminModule {}
