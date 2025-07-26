@@ -14,23 +14,30 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  profile            Profile?
-  payroll            Payroll?
+  profile          Profile?
+  payroll          Payroll?
+  projects         Project[]
+  educations       Education[]
+  recognitions     RecognitionUser[]
+  experience       Experience[]
+  shifts           Shift[]
+  taskUsers        TaskUser[]
+  teamMembers      TeamMembers[]
+  projectUsers     ProjectUser[]
+  companiesBranch  CompaniesBranch[]
+  likeAnnouncement AnnouncementReactedUser[]
+  Announcement     Announcement[]
+  survey           Survey[]
+  surveyUser       SurveyUser[]
+  timeOffRequest   TimeOffRequest[]
+  team             Team[]
   notificationToggle NotificationToggle?
-  projects           Project[]
-  educations         Education[]
-  recognitions       RecognitionUser[]
-  experience         Experience[]
-  shifts             Shift[]
-  taskUsers          TaskUser[]
-  teamMembers        TeamMembers[]
-  projectUsers       ProjectUser[]
-  companiesBranch    CompaniesBranch[]
-  likeAnnouncement   AnnouncementReactedUser[]
-  Announcement       Announcement[]
-  survey             Survey[]
-  surveyUser         SurveyUser[]
-  timeOffRequest     TimeOffRequest[]
+  teamMessages TeamMessage[]
+  teamMessageStatus TeamMessageStatus[]
+  privateConversation1 PrivateConversation[] @relation("User1Conversations")
+  privateConversation2 PrivateConversation[] @relation("User2Conversations")
+  privateMessage PrivateMessage[]
+  privateMessageStatus PrivateMessageStatus[]
 }
 
 enum UserEnum {

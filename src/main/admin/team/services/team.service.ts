@@ -19,7 +19,7 @@ export class TeamService {
   @HandleError('Failed to create team')
   async createATeam(dto: CreateTeamDto): Promise<TResponse<any>> {
     const team = await this.prisma.team.create({
-      data: { ...dto },
+      data: { ...(dto as any) },
     });
 
     return successResponse(team, 'Team added successfully');
