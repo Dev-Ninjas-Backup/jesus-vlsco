@@ -30,10 +30,14 @@ model User {
   survey           Survey[]
   surveyUser       SurveyUser[]
   timeOffRequest   TimeOffRequest[]
-  teamChat         TeamChat[]
-
-  chatGroup        TeamChat[] @relation(name: "Creator")
+  team             Team[]
   notificationToggle NotificationToggle?
+  teamMessages TeamMessage[]
+  teamMessageStatus TeamMessageStatus[]
+  privateConversation1 PrivateConversation[] @relation("User1Conversations")
+  privateConversation2 PrivateConversation[] @relation("User2Conversations")
+  privateMessage PrivateMessage[]
+  privateMessageStatus PrivateMessageStatus[]
 }
 
 enum UserEnum {

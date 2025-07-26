@@ -1,0 +1,20 @@
+model FileInstance {
+  id                 String          @id @default(uuid())
+  createdAt          DateTime        @default(now())
+  filename           String
+  originalFilename   String
+  caption            String?
+  path               String
+  url                String
+  fileType           FileType
+  mimeType           String
+  size               Int
+  teamMessage        TeamMessage[]
+  privateMessage     PrivateMessage[]
+}
+
+enum FileType {
+    image
+    docs
+    link
+}
