@@ -20,7 +20,7 @@ export class DefaultShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) { }
+  ) {}
 
   @HandleError('Error getting default shift of a user')
   async getDefaultShiftsByProjectId(
@@ -68,11 +68,15 @@ export class DefaultShiftService {
       }),
     ]);
 
-    return successPaginatedResponse(data, {
-      page,
-      limit,
-      total,
-    }, 'Shift found successfully');
+    return successPaginatedResponse(
+      data,
+      {
+        page,
+        limit,
+        total,
+      },
+      'Shift found successfully',
+    );
   }
 
   @HandleError('Error updating default shift')
@@ -86,7 +90,7 @@ export class DefaultShiftService {
         userId_projectId: {
           userId,
           projectId,
-        }
+        },
       },
       data: {
         ...dto,
@@ -110,5 +114,16 @@ export class DefaultShiftService {
     await this.shiftQueue.add(EVENT_TYPES.SHIFT_STATUS_UPDATE, payload);
 
     return successResponse(result, 'Shift updated successfully');
+  }
+
+  @HandleError('Error deleting default shift')
+  async deleteDefaultShift(id: string): Promise<TResponse<any>> {
+    const result = await this.prisma.defaultShift.delete({
+      where: {
+        id,
+      },
+    });
+
+    return successResponse(result, 'Shift deleted successfully');
   }
 }

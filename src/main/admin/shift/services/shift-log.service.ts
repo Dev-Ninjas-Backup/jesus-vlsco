@@ -21,7 +21,7 @@ export class ShiftLogService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) { }
+  ) {}
 
   @HandleError('Error assigning shift to employee')
   async assignShiftToEmployee(
@@ -92,7 +92,11 @@ export class ShiftLogService {
   }
 
   @HandleError('Error getting all shifts logs')
-  async getAllShiftsLogs(projectId: string, userId: string, query: GetShiftsLogDto): Promise<TPaginatedResponse<any>> {
+  async getAllShiftsLogs(
+    projectId: string,
+    userId: string,
+    query: GetShiftsLogDto,
+  ): Promise<TPaginatedResponse<any>> {
     const { startTime, endTime, shiftType, status } = query;
     const take = query.limit || 10;
     const page = query.page || 1;
@@ -137,10 +141,38 @@ export class ShiftLogService {
       }),
     ]);
 
-    return successPaginatedResponse(data, {
-      page,
-      limit,
-      total,
-    }, 'Shift found successfully');
+    return successPaginatedResponse(
+      data,
+      {
+        page,
+        limit,
+        total,
+      },
+      'Shift found successfully',
+    );
+  }
+
+  @HandleError('Error getting shift log by id')
+  async getSingleShiftLog(id: string): Promise<TResponse<any>> {
+    const result = await this.prisma.defaultShift.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        user: true,
+        project: true,
+      },
+    });
+    return successResponse(result, 'Shift found successfully');
+  }
+
+  @HandleError('Error deleting shift log')
+  async deleteShiftLog(id: string): Promise<TResponse<any>> {
+    const result = await this.prisma.defaultShift.delete({
+      where: {
+        id,
+      },
+    });
+    return successResponse(result, 'Shift deleted successfully');
   }
 }
