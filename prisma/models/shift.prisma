@@ -1,18 +1,14 @@
-model Shift {
-  id            String      @id @default(uuid())
-  date          DateTime
-  shiftType     ShiftType   @default(MORNING)
-  shiftDuration Int         @default(8)
-  status        ShiftStatus @default(PENDING)
+// Default shift settings for each user (one-to-one)
+model DefaultShift {
+  id            String    @id @default(uuid())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String    @unique
+  shiftType     ShiftType @default(MORNING)
+  shiftDuration Int       @default(8)
   startTime     DateTime
   endTime       DateTime
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, date, status])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 enum ShiftType {
@@ -25,4 +21,22 @@ enum ShiftStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// Daily log of shifts (one-to-many)
+model ShiftLog {
+  id            String      @id @default(uuid())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  date          DateTime
+  shiftType     ShiftType
+  shiftDuration Int
+  status        ShiftStatus @default(PENDING)
+  startTime     DateTime
+  endTime       DateTime
+  isDefault     Boolean     @default(true) // true = based on DefaultShift, false = overridden or requested
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([userId, date])
 }
