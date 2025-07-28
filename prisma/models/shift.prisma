@@ -1,14 +1,44 @@
-// Default shift settings for each user (one-to-one)
+// Default shift settings for each user for a project
 model DefaultShift {
-  id            String    @id @default(uuid())
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String    @unique
+  id String @id @default(uuid())
+
   shiftType     ShiftType @default(MORNING)
   shiftDuration Int       @default(8)
   startTime     DateTime
   endTime       DateTime
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+// Daily log of shifts for each user
+model ShiftLog {
+  id String @id @default(uuid())
+
+  date          DateTime
+  shiftType     ShiftType
+  shiftDuration Int
+  status        ShiftStatus @default(PENDING)
+  startTime     DateTime
+  endTime       DateTime
+  isDefault     Boolean     @default(true) // true = based on DefaultShift, false = overridden or requested
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date, projectId])
 }
 
 enum ShiftType {
@@ -21,22 +51,4 @@ enum ShiftStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-// Daily log of shifts (one-to-many)
-model ShiftLog {
-  id            String      @id @default(uuid())
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  date          DateTime
-  shiftType     ShiftType
-  shiftDuration Int
-  status        ShiftStatus @default(PENDING)
-  startTime     DateTime
-  endTime       DateTime
-  isDefault     Boolean     @default(true) // true = based on DefaultShift, false = overridden or requested
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-
-  @@unique([userId, date])
 }

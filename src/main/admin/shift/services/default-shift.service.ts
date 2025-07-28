@@ -1,14 +1,18 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES, ShiftEvent } from '@project/common/interface/events';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { Queue } from 'bullmq';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
+import { GetDefaultShiftsDto } from '../dto/get-default-shifts.dto';
 
 @Injectable()
 export class DefaultShiftService {
@@ -16,29 +20,73 @@ export class DefaultShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) {}
+  ) { }
 
   @HandleError('Error getting default shift of a user')
-  async getDefaultShiftById(userId: string): Promise<TResponse<any>> {
-    const result = await this.prisma.defaultShift.findUnique({
-      where: {
-        userId,
-      },
-      include: {
-        user: true,
-      },
-    });
-    return successResponse(result, 'Shift found successfully');
+  async getDefaultShiftsByProjectId(
+    projectId: string,
+    query: GetDefaultShiftsDto,
+  ): Promise<TPaginatedResponse<any>> {
+    const { startTime, endTime, shiftType } = query;
+    const take = query.limit || 10;
+    const page = query.page || 1;
+    const skip = page >= 1 ? (page - 1) * take : 0;
+    const limit = take > 100 ? 100 : take;
+
+    const filters: Prisma.DefaultShiftWhereInput = {
+      projectId,
+      ...(startTime && {
+        startTime: {
+          gte: startTime,
+        },
+      }),
+      ...(endTime && {
+        endTime: {
+          lte: endTime,
+        },
+      }),
+      ...(shiftType && {
+        shiftType,
+      }),
+    };
+
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.defaultShift.count({
+        where: filters,
+      }),
+      this.prisma.defaultShift.findMany({
+        where: filters,
+        include: {
+          user: true,
+          project: true,
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          startTime: 'asc',
+        },
+      }),
+    ]);
+
+    return successPaginatedResponse(data, {
+      page,
+      limit,
+      total,
+    }, 'Shift found successfully');
   }
 
   @HandleError('Error updating default shift')
   async changeDefaultShift(
+    projectId: string,
     userId: string,
     dto: ChangeShiftDto,
   ): Promise<TResponse<any>> {
     const result = await this.prisma.defaultShift.update({
       where: {
-        userId,
+        userId_projectId: {
+          userId,
+          projectId,
+        }
       },
       data: {
         ...dto,

@@ -17,16 +17,18 @@ export class ShiftLogService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) {}
+  ) { }
 
   @HandleError('Error assigning shift to employee')
   async assignShiftToEmployee(
+    projectId: string,
     userId: string,
     dto: RequestShiftDto,
   ): Promise<TResponse<any>> {
     const result = await this.prisma.shiftLog.create({
       data: {
         ...dto,
+        projectId,
         userId,
         startTime: new Date(dto.startTime),
         endTime: new Date(dto.endTime),
@@ -52,12 +54,12 @@ export class ShiftLogService {
 
   @HandleError('Error approving or rejecting shift change request')
   async updateRequestedShiftStatus(
-    shiftId: string,
+    shiftLogId: string,
     dto: UpdateShiftStatusDto,
   ): Promise<TResponse<any>> {
     const result = await this.prisma.shiftLog.update({
       where: {
-        id: shiftId,
+        id: shiftLogId,
       },
       data: {
         status: dto.status,

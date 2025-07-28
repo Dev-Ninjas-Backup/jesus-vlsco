@@ -20,7 +20,7 @@ model User {
   educations           Education[]
   recognitions         RecognitionUser[]
   experience           Experience[]
-  defaultShift         DefaultShift?
+  defaultShifts        DefaultShift[]
   shiftLogs            ShiftLog[]
   taskUsers            TaskUser[]
   teamMembers          TeamMembers[]
