@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class TeamService {
@@ -17,36 +18,48 @@ export class TeamService {
 
   // ================ Team CRUD ================
   @HandleError('Failed to create team')
-  async createATeam(
-    dto: CreateTeamDto,
-    creatorId: string,
-    uploadedUrl: string,
-  ): Promise<TResponse<any>> {
-    const team = await this.prisma.team.create({
-      data: {
-        title: dto.title,
-        description: dto.description,
-        department: dto.department,
-        image: uploadedUrl,
-        creatorId,
-        members: {
-          create:
-            dto.members?.map((userId) => ({
-              user: {
-                connect: { id: userId },
-              },
-            })) || [],
-        },
-      },
-      include: {
-        members: {
-          include: { user: true },
-        },
-      },
+async createATeam(
+  dto: CreateTeamDto,
+  creatorId: string,
+  uploadedUrl: string,
+): Promise<TResponse<any>> {
+  const { title, description, department, members } = dto;
+
+  
+  // 1. Create the team
+  const team = await this.prisma.team.create({
+    data: {
+      title,
+      description,
+      department,
+      image: uploadedUrl,
+      creator: { connect: { id: creatorId } },
+    },
+  });
+  console.log(team)
+
+  // 2. Add members to the TeamMembers table
+  const uniqueMembers = [...new Set(members ?? [])];
+  console.log(uniqueMembers)
+
+
+  const teamMembers = await this.prisma.teamMembers.createMany({
+      data: uniqueMembers.map((userId) => ({  teamId: team.id, userId  })),
     });
 
-    return successResponse(team, 'Team added successfully');
-  }
+
+  // // 3. Fetch the team with related data
+  const fullTeam = await this.prisma.team.findUnique({
+    where: { id: team.id },
+    include: {
+      members: { include: { user: true } },
+      creator: true,
+    },
+  });
+
+  return successResponse(fullTeam, 'Team added successfully');
+}
+
 
   @HandleError('Failed to update team')
   async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
