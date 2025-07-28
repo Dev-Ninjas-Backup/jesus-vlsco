@@ -6,17 +6,32 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
+  Req,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SendTeamMessageDto } from './dto/send-team-message.dto';
 import { TeamchatService } from './teamchat.service';
-import { GetUser } from '@project/common/jwt/jwt.decorator';
-
+import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
+import { sendTeamMessageSwaggerSchema } from './dto/send-team-message.swagger';
+import { TeamGateway } from './teamGateway/teamgeteway';
 @Controller('teams')
+@ValidateEmployee()
+@ApiBearerAuth()
 export class TeamController {
-  constructor(private readonly teamService: TeamchatService) {}
+  constructor(private readonly teamService: TeamchatService,private readonly teamGateway: TeamGateway) {}
 
   @Post(':teamId/messages')
+  @ApiOperation({ summary: 'Create a team' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: sendTeamMessageSwaggerSchema.properties,
+    },
+  })
   @UseInterceptors(FileInterceptor('file'))
   async sendTeamMessage(
     @Param('teamId') teamId: string,
@@ -24,6 +39,11 @@ export class TeamController {
     @UploadedFile() file: Express.Multer.File,
     @GetUser('userId') userId: string,
   ) {
-    return await this.teamService.sendTeamMessage(teamId, dto, file, userId);
+    const response = await this.teamService.sendTeamMessage(teamId, dto, file, userId);
+
+  // Emit new message to team via WebSocket
+  this.teamGateway.emitNewMessage(teamId, response.data);
+
+  return response;
   }
 }
