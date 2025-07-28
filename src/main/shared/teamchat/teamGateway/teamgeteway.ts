@@ -32,7 +32,7 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     // const { teamId, token } = client.handshake.query;
-    console.log(client.handshake.headers.authorization,'token',client.handshake.query.teamId,'query')
+    // console.log(client.handshake.headers.authorization,'token',client.handshake.query.teamId,'query')
     const token = (client.handshake.headers.authorization)?.split(' ')[1]
     const teamId = client.handshake.query.teamId
     if (!token || !teamId) {
