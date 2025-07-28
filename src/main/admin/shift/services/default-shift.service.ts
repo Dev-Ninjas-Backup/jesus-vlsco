@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
 import { GetDefaultShiftsDto } from '../dto/get-default-shifts.dto';
+import { CreateDefaultShiftDto } from '../dto/create-default-shift.dto';
 dayjs.extend(weekOfYear);
 
 @Injectable()
@@ -23,7 +24,7 @@ export class DefaultShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) {}
+  ) { }
 
   @HandleError('Error getting default shift of a user')
   async getDefaultShiftsByProjectId(
@@ -113,6 +114,22 @@ export class DefaultShiftService {
       },
       'Shift found successfully',
     );
+  }
+
+  async setDefaultShiftForAUserUnderAProject(
+    projectId: string,
+    userId: string,
+    dto: CreateDefaultShiftDto,
+  ): Promise<TResponse<any>> {
+    const result = await this.prisma.defaultShift.create({
+      data: {
+        ...dto,
+        projectId,
+        userId,
+      },
+    });
+
+    return successResponse(result, 'Shift created successfully');
   }
 
   @HandleError('Error updating default shift')

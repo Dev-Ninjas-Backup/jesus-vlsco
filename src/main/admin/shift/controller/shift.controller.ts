@@ -61,6 +61,20 @@ export class ShiftController {
     );
   }
 
+  @ApiOperation({ summary: 'Set default shift of a user' })
+  @Post('/:projectId/set/:userId')
+  async setDefaultShiftForAUserUnderAProject(
+    @Body() dto: ChangeShiftDto,
+    @Param('projectId') projectId: string,
+    @Param('userId') userId: string,
+  ) {
+    return await this.defaultShiftService.setDefaultShiftForAUserUnderAProject(
+      projectId,
+      userId,
+      dto,
+    );
+  }
+
   @ApiOperation({ summary: 'Delete default shift of a user' })
   @Delete('/:id')
   async deleteDefaultShift(@Param('id') id: string) {
