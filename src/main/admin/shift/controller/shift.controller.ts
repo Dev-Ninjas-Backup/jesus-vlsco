@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
-import { GetDefaultShiftsDto } from '../dto/get-default-shifts.dto';
+import { GetDefaultShiftsDto, GetShiftsLogDto } from '../dto/get-default-shifts.dto';
 import { RequestShiftDto } from '../dto/request-shift.dto';
 import { UpdateShiftStatusDto } from '../dto/update-shift-status.dto';
 import { DefaultShiftService } from '../services/default-shift.service';
@@ -60,5 +60,15 @@ export class ShiftController {
     @Param('shiftLogId') shiftLogId: string,
   ) {
     return await this.shiftLogService.updateRequestedShiftStatus(shiftLogId, dto);
+  }
+
+  @ApiOperation({ summary: 'Get all shift logs of a project of a user' })
+  @Get('/:projectId/all-shift-logs/:userId')
+  async getAllShiftsLogs(
+    @Param('projectId') projectId: string,
+    @Param('userId') userId: string,
+    @Query() query: GetShiftsLogDto,
+  ) {
+    return await this.shiftLogService.getAllShiftsLogs(projectId, userId, query);
   }
 }

@@ -1,13 +1,17 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES, ShiftEvent } from '@project/common/interface/events';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { Queue } from 'bullmq';
+import { GetShiftsLogDto } from '../dto/get-default-shifts.dto';
 import { RequestShiftDto } from '../dto/request-shift.dto';
 import { UpdateShiftStatusDto } from '../dto/update-shift-status.dto';
 
@@ -85,5 +89,58 @@ export class ShiftLogService {
 
     const message = dto.status === 'APPROVED' ? 'Approved' : 'Rejected';
     return successResponse(result, `Shift ${message} successfully`);
+  }
+
+  @HandleError('Error getting all shifts logs')
+  async getAllShiftsLogs(projectId: string, userId: string, query: GetShiftsLogDto): Promise<TPaginatedResponse<any>> {
+    const { startTime, endTime, shiftType, status } = query;
+    const take = query.limit || 10;
+    const page = query.page || 1;
+    const skip = page >= 1 ? (page - 1) * take : 0;
+    const limit = take > 100 ? 100 : take;
+
+    const filters: Prisma.DefaultShiftWhereInput = {
+      projectId,
+      ...(startTime && {
+        startTime: {
+          gte: startTime,
+        },
+      }),
+      ...(endTime && {
+        endTime: {
+          lte: endTime,
+        },
+      }),
+      ...(shiftType && {
+        shiftType,
+      }),
+      ...(status && {
+        status,
+      }),
+    };
+
+    const [total, data] = await this.prisma.$transaction([
+      this.prisma.defaultShift.count({
+        where: filters,
+      }),
+      this.prisma.defaultShift.findMany({
+        where: filters,
+        include: {
+          user: true,
+          project: true,
+        },
+        skip,
+        take: limit,
+        orderBy: {
+          startTime: 'asc',
+        },
+      }),
+    ]);
+
+    return successPaginatedResponse(data, {
+      page,
+      limit,
+      total,
+    }, 'Shift found successfully');
   }
 }

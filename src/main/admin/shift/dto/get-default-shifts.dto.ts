@@ -1,6 +1,6 @@
-import { ShiftType } from "@prisma/client";
-import { PaginationDto } from "@project/common/dto/pagination.dto";
 import { ApiPropertyOptional } from "@nestjs/swagger";
+import { ShiftStatus, ShiftType } from "@prisma/client";
+import { PaginationDto } from "@project/common/dto/pagination.dto";
 import { IsEnum, IsOptional, Matches } from "class-validator";
 
 export class GetDefaultShiftsDto extends PaginationDto {
@@ -32,4 +32,25 @@ export class GetDefaultShiftsDto extends PaginationDto {
   @IsEnum(ShiftType)
   @IsOptional()
   shiftType?: ShiftType;
+}
+
+export class GetShiftsLogDto extends GetDefaultShiftsDto {
+  @ApiPropertyOptional({
+    enum: ShiftStatus,
+    description: "Filter by status of shift",
+    example: ShiftStatus.PENDING,
+  })
+  @IsEnum(ShiftStatus)
+  @IsOptional()
+  status: ShiftStatus
+
+  @ApiPropertyOptional({
+    description: "Filter by date (YYYY-MM-DD)",
+    example: "2025-07-20",
+  })
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: "date must be in YYYY-MM-DD format",
+  })
+  date?: string
 }
