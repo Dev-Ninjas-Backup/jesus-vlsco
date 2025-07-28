@@ -33,8 +33,8 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     // const { teamId, token } = client.handshake.query;
     // console.log(client.handshake.headers.authorization,'token',client.handshake.query.teamId,'query')
-    const token = (client.handshake.headers.authorization)?.split(' ')[1]
-    const teamId = client.handshake.query.teamId
+    const token = client.handshake.headers.authorization?.split(' ')[1];
+    const teamId = client.handshake.query.teamId;
     if (!token || !teamId) {
       client.disconnect();
       console.log(`Missing token or teamId`);
@@ -53,7 +53,10 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const userId = payload.sub;
 
       // Check membership
-      const isMember = await this.teamService.checkUserInTeam(teamId as string, userId);
+      const isMember = await this.teamService.checkUserInTeam(
+        teamId as string,
+        userId,
+      );
       if (!isMember) {
         client.disconnect();
         console.log(`Access denied: User ${userId} not in team ${teamId}`);
@@ -63,7 +66,9 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.data.userId = userId;
       client.join(teamId as string);
 
-      console.log(`Client ${userId} connected: ${client.id} joined team ${teamId}`);
+      console.log(
+        `Client ${userId} connected: ${client.id} joined team ${teamId}`,
+      );
     } catch (err) {
       client.disconnect();
       console.log(`Authentication failed: ${err.message}`);
@@ -89,18 +94,27 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Make sure the userId in payload matches the one from the socket
     if (client.data.userId !== userId) {
-      console.log(`User ID mismatch: client ${client.data.userId} vs payload ${userId}`);
+      console.log(
+        `User ID mismatch: client ${client.data.userId} vs payload ${userId}`,
+      );
       return;
     }
 
     // Verify again for added safety
     const isMember = await this.teamService.checkUserInTeam(teamId, userId);
     if (!isMember) {
-      console.log(`Unauthorized message attempt by user ${userId} in team ${teamId}`);
+      console.log(
+        `Unauthorized message attempt by user ${userId} in team ${teamId}`,
+      );
       return;
     }
 
-    const message = await this.teamService.sendTeamMessage(teamId, dto, file, userId);
+    const message = await this.teamService.sendTeamMessage(
+      teamId,
+      dto,
+      file,
+      userId,
+    );
 
     this.server.to(teamId).emit('team:new_message', message.data);
   }

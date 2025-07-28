@@ -54,22 +54,22 @@ export class CreateTeamDto {
     required: false,
   })
   @Transform(({ value }) => {
-      if (Array.isArray(value)) {
-        return value;
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Try CSV fallback
+        return value.split(',').map((v) => v.trim());
       }
-  
-      if (typeof value === 'string') {
-        try {
-          const parsed = JSON.parse(value);
-          if (Array.isArray(parsed)) return parsed;
-        } catch {
-          // Try CSV fallback
-          return value.split(',').map((v) => v.trim());
-        }
-      }
-  
-      return [];
-    })
+    }
+
+    return [];
+  })
   @IsArray()
   @IsUUID('4', { each: true })
   @IsOptional()
