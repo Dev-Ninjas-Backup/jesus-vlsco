@@ -23,7 +23,7 @@ export class DefaultShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) { }
+  ) {}
 
   @HandleError('Error getting default shift of a user')
   async getDefaultShiftsByProjectId(
@@ -95,7 +95,7 @@ export class DefaultShiftService {
         grouped.get(key)?.push(item);
       }
 
-      transformedData = Array.from(grouped.entries()).flatMap(([key, items]) => {
+      transformedData = Array.from(grouped.entries()).flatMap(([, items]) => {
         return items.map((item) => ({
           ...item,
           project: item.project,
@@ -114,7 +114,6 @@ export class DefaultShiftService {
       'Shift found successfully',
     );
   }
-
 
   @HandleError('Error updating default shift')
   async changeDefaultShift(
