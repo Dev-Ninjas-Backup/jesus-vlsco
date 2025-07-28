@@ -11,8 +11,11 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { Queue } from 'bullmq';
+import dayjs from 'dayjs';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
 import { GetDefaultShiftsDto } from '../dto/get-default-shifts.dto';
+dayjs.extend(weekOfYear);
 
 @Injectable()
 export class DefaultShiftService {
@@ -20,14 +23,14 @@ export class DefaultShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) {}
+  ) { }
 
   @HandleError('Error getting default shift of a user')
   async getDefaultShiftsByProjectId(
     projectId: string,
     query: GetDefaultShiftsDto,
   ): Promise<TPaginatedResponse<any>> {
-    const { startTime, endTime, shiftType } = query;
+    const { startTime, endTime, shiftType, dataType } = query;
     const take = query.limit || 10;
     const page = query.page || 1;
     const skip = page >= 1 ? (page - 1) * take : 0;
@@ -68,8 +71,41 @@ export class DefaultShiftService {
       }),
     ]);
 
+    let transformedData = data;
+
+    if (dataType) {
+      const groupBy = (item: any) => {
+        const date = dayjs(item.createdAt); // or item.date, shiftDate, etc.
+        switch (dataType) {
+          case 'daily':
+            return date.format('YYYY-MM-DD');
+          case 'weekly':
+            return `W${date.week()}-${date.year()}`;
+          case 'monthly':
+            return date.format('YYYY-MM');
+        }
+      };
+
+      const grouped = new Map<string, any[]>();
+      for (const item of data) {
+        const key = groupBy(item);
+        if (!grouped.has(key)) {
+          grouped.set(key, []);
+        }
+        grouped.get(key)?.push(item);
+      }
+
+      transformedData = Array.from(grouped.entries()).flatMap(([key, items]) => {
+        return items.map((item) => ({
+          ...item,
+          project: item.project,
+          user: item.user,
+        }));
+      });
+    }
+
     return successPaginatedResponse(
-      data,
+      transformedData,
       {
         page,
         limit,
@@ -78,6 +114,7 @@ export class DefaultShiftService {
       'Shift found successfully',
     );
   }
+
 
   @HandleError('Error updating default shift')
   async changeDefaultShift(
