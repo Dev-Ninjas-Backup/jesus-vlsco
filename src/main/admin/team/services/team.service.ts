@@ -22,30 +22,38 @@ export class TeamService {
     creatorId: string,
     uploadedUrl: string,
   ): Promise<TResponse<any>> {
+    const { title, description, department, members } = dto;
+
+    // 1. Create the team
     const team = await this.prisma.team.create({
       data: {
-        title: dto.title,
-        description: dto.description,
-        department: dto.department,
+        title,
+        description,
+        department,
         image: uploadedUrl,
-        creatorId,
-        members: {
-          create:
-            dto.members?.map((userId) => ({
-              user: {
-                connect: { id: userId },
-              },
-            })) || [],
-        },
+        creator: { connect: { id: creatorId } },
       },
+    });
+    console.log(team);
+
+    // 2. Add members to the TeamMembers table
+    const uniqueMembers = [...new Set(members ?? [])];
+    console.log(uniqueMembers);
+
+    await this.prisma.teamMembers.createMany({
+      data: uniqueMembers.map((userId) => ({ teamId: team.id, userId })),
+    });
+
+    // // 3. Fetch the team with related data
+    const fullTeam = await this.prisma.team.findUnique({
+      where: { id: team.id },
       include: {
-        members: {
-          include: { user: true },
-        },
+        members: { include: { user: true } },
+        creator: true,
       },
     });
 
-    return successResponse(team, 'Team added successfully');
+    return successResponse(fullTeam, 'Team added successfully');
   }
 
   @HandleError('Failed to update team')

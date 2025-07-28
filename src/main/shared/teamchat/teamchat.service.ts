@@ -67,4 +67,20 @@ export class TeamchatService {
 
     return successResponse(message, 'Message sent successfully');
   }
+
+  @HandleError('Checking Failed')
+  async checkUserInTeam(teamId: string, userId: string): Promise<boolean> {
+    const team = await this.prisma.team.findFirst({
+      where: {
+        id: teamId,
+        members: {
+          some: {
+            userId: userId,
+          },
+        },
+      },
+    });
+
+    return !!team;
+  }
 }

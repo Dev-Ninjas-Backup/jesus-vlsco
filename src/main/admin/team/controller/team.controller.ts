@@ -63,12 +63,17 @@ export class TeamController {
     if (!file) {
       throw new AppError(500, 'File is Required');
     }
+
     uploadedUrl = (
       await this.cloudinaryService.uploadImageFromBuffer(
         file.buffer,
         file.originalname,
       )
     ).url;
+
+    // if (!Array.isArray(dto.members)) {
+    //   dto.members = dto.members ? [dto.members] : [];
+    // }
     return this.teamService.createATeam(dto, userId, uploadedUrl);
   }
 

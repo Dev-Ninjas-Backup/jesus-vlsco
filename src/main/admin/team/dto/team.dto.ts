@@ -1,5 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
@@ -36,13 +37,13 @@ export class CreateTeamDto {
   // @IsOptional()
   // image?: any; // Will be handled with @UploadedFile() in controller
 
-  @ApiProperty({
-    example: 'aee23bfb-1fbd-4f39-bde7-1f5e3857d650',
-    description: 'ID of the user creating the team',
-  })
-  @IsUUID()
-  @IsNotEmpty()
-  creatorId: string;
+  // @ApiProperty({
+  //   example: 'aee23bfb-1fbd-4f39-bde7-1f5e3857d650',
+  //   description: 'ID of the user creating the team',
+  // })
+  // @IsUUID()
+  // @IsNotEmpty()
+  // creatorId: string;
 
   @ApiProperty({
     example: [
@@ -51,6 +52,23 @@ export class CreateTeamDto {
     ],
     description: 'Optional array of user IDs to add as team members',
     required: false,
+  })
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {
+        // Try CSV fallback
+        return value.split(',').map((v) => v.trim());
+      }
+    }
+
+    return [];
   })
   @IsArray()
   @IsUUID('4', { each: true })

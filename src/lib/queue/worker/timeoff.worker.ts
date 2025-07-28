@@ -21,7 +21,7 @@ export class TimeOffWorker implements OnModuleInit {
       'timeoff',
       async (job) => {
         // const { action, requestId, userId, meta } = job.data;
-        console.log(job.data, 'job.data');
+        console.info(job.data, 'job.data');
 
         // Broadcast via email
 

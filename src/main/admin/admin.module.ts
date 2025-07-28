@@ -12,14 +12,14 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     UserModule,
+    SettingsModule,
     RecognitionModule,
-    ShiftModule,
     TeamModule,
     ProjectModule,
+    ShiftModule,
     TaskModule,
     SurveyModule,
     AnnouncementModule,
-    SettingsModule,
   ],
 })
 export class AdminModule {}

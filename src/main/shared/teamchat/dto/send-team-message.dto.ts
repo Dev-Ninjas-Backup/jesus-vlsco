@@ -15,5 +15,5 @@ export class SendTeamMessageDto {
     description: 'Optional file attachment',
   })
   @IsOptional()
-  file?: any;
+  file?: Express.Multer.File;
 }
