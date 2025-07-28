@@ -24,7 +24,7 @@ export class DefaultShiftService {
     private readonly prisma: PrismaService,
     @InjectQueue('shift')
     private readonly shiftQueue: Queue<ShiftEvent>,
-  ) { }
+  ) {}
 
   @HandleError('Error getting default shift of a user')
   async getDefaultShiftsByProjectId(
@@ -114,6 +114,39 @@ export class DefaultShiftService {
       },
       'Shift found successfully',
     );
+  }
+
+  @HandleError('Error getting default shift of a user')
+  async getDefaultShiftsByProjectIdAndUserId(
+    projectId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
+    const result = await this.prisma.defaultShift.findUnique({
+      where: {
+        userId_projectId: {
+          userId,
+          projectId,
+        },
+      },
+      include: {
+        user: true,
+        project: true,
+      },
+    });
+    return successResponse(result, 'Shift found successfully');
+  }
+
+  async getADefaultShift(id: string): Promise<TResponse<any>> {
+    const result = await this.prisma.defaultShift.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        user: true,
+        project: true,
+      },
+    });
+    return successResponse(result, 'Shift found successfully');
   }
 
   async setDefaultShiftForAUserUnderAProject(

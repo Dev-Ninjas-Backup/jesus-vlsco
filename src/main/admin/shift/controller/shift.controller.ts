@@ -30,20 +30,20 @@ export class ShiftController {
     private readonly shiftService: ShiftService,
     private readonly defaultShiftService: DefaultShiftService,
     private readonly shiftLogService: ShiftLogService,
-  ) {}
+  ) { }
 
   // * Defaults
-  @ApiOperation({
-    summary: 'Get default shifts assigned to employee of a project',
-  })
-  @Get('default/:projectId')
-  async getDefaultShiftsByProjectId(
+  @ApiOperation({ summary: 'Set default shift of a user' })
+  @Post('/:projectId/set/:userId')
+  async setDefaultShiftForAUserUnderAProject(
+    @Body() dto: ChangeShiftDto,
     @Param('projectId') projectId: string,
-    @Query() query: GetDefaultShiftsDto,
+    @Param('userId') userId: string,
   ) {
-    return await this.defaultShiftService.getDefaultShiftsByProjectId(
+    return await this.defaultShiftService.setDefaultShiftForAUserUnderAProject(
       projectId,
-      query,
+      userId,
+      dto,
     );
   }
 
@@ -61,18 +61,38 @@ export class ShiftController {
     );
   }
 
-  @ApiOperation({ summary: 'Set default shift of a user' })
-  @Post('/:projectId/set/:userId')
-  async setDefaultShiftForAUserUnderAProject(
-    @Body() dto: ChangeShiftDto,
+  @ApiOperation({
+    summary: 'Get default shifts assigned to employee of a project',
+  })
+  @Get('/:projectId/default')
+  async getDefaultShiftsByProjectId(
+    @Param('projectId') projectId: string,
+    @Query() query: GetDefaultShiftsDto,
+  ) {
+    return await this.defaultShiftService.getDefaultShiftsByProjectId(
+      projectId,
+      query,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Get a default shift assigned to employee of a project',
+  })
+  @Get('/:projectId/default/:userId')
+  async getDefaultShiftsByProjectIdAndUserId(
     @Param('projectId') projectId: string,
     @Param('userId') userId: string,
   ) {
-    return await this.defaultShiftService.setDefaultShiftForAUserUnderAProject(
+    return await this.defaultShiftService.getDefaultShiftsByProjectIdAndUserId(
       projectId,
       userId,
-      dto,
     );
+  }
+
+  @ApiOperation({ summary: 'Get a default shift' })
+  @Get('/default/:id')
+  async getADefaultShift(@Param('id') id: string) {
+    return await this.defaultShiftService.getADefaultShift(id);
   }
 
   @ApiOperation({ summary: 'Delete default shift of a user' })
@@ -85,7 +105,7 @@ export class ShiftController {
   @ApiOperation({
     summary: 'Assign a shift to employee (Not default shift change)',
   })
-  @Post('/:projectId/assign/:userId')
+  @Post('shift-log/:projectId/assign/:userId')
   async assignShiftToEmployee(
     @Body() dto: RequestShiftDto,
     @Param('projectId') projectId: string,
@@ -98,23 +118,8 @@ export class ShiftController {
     );
   }
 
-  @ApiOperation({
-    summary:
-      'Approve or reject requested shift change (Not default shift change)',
-  })
-  @Patch('update/:shiftLogId')
-  async updateRequestedShiftStatus(
-    @Query() dto: UpdateShiftStatusDto,
-    @Param('shiftLogId') shiftLogId: string,
-  ) {
-    return await this.shiftLogService.updateRequestedShiftStatus(
-      shiftLogId,
-      dto,
-    );
-  }
-
   @ApiOperation({ summary: 'Get all shift logs of a project of a user' })
-  @Get('/:projectId/all-shift-logs/:userId')
+  @Get('shift-log/:projectId/all-shift-logs/:userId')
   async getAllShiftsLogs(
     @Param('projectId') projectId: string,
     @Param('userId') userId: string,
@@ -127,14 +132,29 @@ export class ShiftController {
     );
   }
 
+  @ApiOperation({
+    summary:
+      'Approve or reject requested shift change (Not default shift change)',
+  })
+  @Patch('shift-log/:shiftLogId')
+  async updateRequestedShiftStatus(
+    @Query() dto: UpdateShiftStatusDto,
+    @Param('shiftLogId') shiftLogId: string,
+  ) {
+    return await this.shiftLogService.updateRequestedShiftStatus(
+      shiftLogId,
+      dto,
+    );
+  }
+
   @ApiOperation({ summary: 'Get a single shift log' })
-  @Get('/:shiftLogId')
+  @Get('shift-log/:shiftLogId')
   async getSingleShiftLog(@Param('shiftLogId') shiftLogId: string) {
     return await this.shiftLogService.getSingleShiftLog(shiftLogId);
   }
 
   @ApiOperation({ summary: 'Delete a shift log' })
-  @Delete('delete/:shiftLogId')
+  @Delete('shift-log/:shiftLogId')
   async deleteShiftLog(@Param('shiftLogId') shiftLogId: string) {
     return await this.shiftLogService.deleteShiftLog(shiftLogId);
   }
