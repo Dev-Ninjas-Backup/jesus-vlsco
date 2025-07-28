@@ -11,31 +11,51 @@ export class ShiftService {
   async requestDefaultShiftChange(
     userId: string,
     dto: RequestDefaultShiftChangeDto,
-  ) {}
+  ) {
+    console.log(userId, dto);
+  }
 
   async updateDefaultShiftRequest(
     userId: string,
     requestId: string,
     dto: UpdateShiftRequestDto,
-  ) {}
+  ) {
+    console.log(userId, requestId, dto);
+  }
 
-  async cancelDefaultShiftRequest(userId: string, requestId: string) {}
+  async cancelDefaultShiftRequest(userId: string, requestId: string) {
+    console.log(userId, requestId);
+  }
 
-  async getDefaultShift(id: string) {}
+  async getDefaultShift(id: string) {
+    console.log(id);
+  }
 
-  async getDefaultShifts(query: any) {}
+  async getDefaultShifts(query: any) {
+    console.log(query);
+  }
 
-  async requestAShiftChange(userId: string, dto: RequestAShiftChangeDto) {}
+  async requestAShiftChange(userId: string, dto: RequestAShiftChangeDto) {
+    console.log(userId, dto);
+  }
 
   async updateShiftRequest(
     userId: string,
     requestId: string,
     dto: UpdateShiftRequestDto,
-  ) {}
+  ) {
+    console.log(userId, requestId, dto);
+  }
 
-  async cancelShiftRequest(userId: string, requestId: string) {}
+  async cancelShiftRequest(userId: string, requestId: string) {
+    console.log(userId, requestId);
+  }
 
-  async getShift(id: string) {}
+  async getShift(id: string) {
+    console.log(id);
+  }
 
-  async getShifts(query: any) {}
+  async getShifts(query: any) {
+    console.log(query);
+  }
 }
