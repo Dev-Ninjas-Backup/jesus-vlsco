@@ -30,7 +30,7 @@ export class ShiftController {
     private readonly shiftService: ShiftService,
     private readonly defaultShiftService: DefaultShiftService,
     private readonly shiftLogService: ShiftLogService,
-  ) { }
+  ) {}
 
   // * Defaults
   @ApiOperation({ summary: 'Set default shift of a user' })
