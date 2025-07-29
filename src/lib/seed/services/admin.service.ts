@@ -22,7 +22,12 @@ export class AdminService implements OnModuleInit {
       ENVEnum.ADMIN_EMAIL,
     );
     const adminPass = this.configService.getOrThrow<string>(ENVEnum.ADMIN_PASS);
-    const adminOTP = this.configService.getOrThrow<string>(ENVEnum.ADMIN_OTP);
+    const adminPhone = this.configService.getOrThrow<string>(
+      ENVEnum.ADMIN_PHONE,
+    );
+    const adminEmployeeID = this.configService.getOrThrow<string>(
+      ENVEnum.ADMIN_EMPLOYEE_ID,
+    );
 
     const adminExists = await this.prisma.user.findFirst({
       where: {
@@ -35,11 +40,9 @@ export class AdminService implements OnModuleInit {
       const user = await this.prisma.user.create({
         data: {
           email: adminEmail,
-          employeeID: 12345,
-          phone: '8801405663070',
+          employeeID: Number(adminEmployeeID),
+          phone: adminPhone,
           password: await this.utils.hash(adminPass),
-          otp: await this.utils.hash(adminOTP),
-          otpExpiresAt: this.utils.generateOtpAndExpiry().expiryTime,
           isLogin: true,
           isVerified: true,
           lastLoginAt: new Date(),

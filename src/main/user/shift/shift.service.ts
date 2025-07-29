@@ -1,48 +1,92 @@
 import { Injectable } from '@nestjs/common';
+import { ShiftType } from '@prisma/client';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { RequestAShiftChangeDto } from './dto/request-a-shift-change.dto';
-import { RequestDefaultShiftChangeDto } from './dto/request-default-shift-change.dto';
-import { UpdateShiftRequestDto } from './dto/update-shift-request.dto';
+import { GetShiftsLogDto } from '@project/main/admin/shift/dto/get-default-shifts.dto';
+import dayjs from 'dayjs';
+import { RequestShiftDto } from './dto/request-shift.dto';
+import { UpdateShiftDto } from './dto/update-shift.dto';
 
 @Injectable()
 export class ShiftService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async requestDefaultShiftChange(
+  async requestShift(
     userId: string,
-    dto: RequestDefaultShiftChangeDto,
-  ) {
-    console.log(userId, dto);
-  }
+    projectId: string,
+    dto: RequestShiftDto,
+  ): Promise<TResponse<any>> {
+    const { startDate, endDate, startTime, endTime, managerNote } = dto;
 
-  async updateDefaultShiftRequest(
-    userId: string,
-    requestId: string,
-    dto: UpdateShiftRequestDto,
-  ) {
-    console.log(userId, requestId, dto);
-  }
+    const parsedStartDate = dayjs(startDate);
+    const parsedEndDate = dayjs(endDate);
 
-  async cancelDefaultShiftRequest(userId: string, requestId: string) {
-    console.log(userId, requestId);
-  }
+    if (!parsedStartDate.isValid() || !parsedEndDate.isValid()) {
+      throw new Error('Invalid start or end date');
+    }
 
-  async getDefaultShift(id: string) {
-    console.log(id);
-  }
+    if (parsedStartDate.isAfter(parsedEndDate)) {
+      throw new Error('startDate must not be after endDate');
+    }
 
-  async getDefaultShifts(query: any) {
-    console.log(query);
-  }
+    const sampleStart = dayjs(`2000-01-01T${startTime}`);
+    const sampleEnd = dayjs(`2000-01-01T${endTime}`);
 
-  async requestAShiftChange(userId: string, dto: RequestAShiftChangeDto) {
-    console.log(userId, dto);
+    if (!sampleStart.isValid() || !sampleEnd.isValid()) {
+      throw new Error('Invalid start or end time');
+    }
+
+    const shiftDuration = sampleEnd.diff(sampleStart, 'hour', true);
+    if (shiftDuration <= 0) {
+      throw new Error('Shift end time must be after start time');
+    }
+
+    // Infer shiftType based on start time
+    let shiftType = 'MORNING';
+    const hour = sampleStart.hour();
+
+    if (hour >= 5 && hour < 12) shiftType = 'MORNING';
+    else if (hour >= 12 && hour < 18) shiftType = 'AFTERNOON';
+    else if (hour >= 18 || hour < 5) shiftType = 'NIGHT';
+
+    const shiftLogs = [];
+    let currentDate = parsedStartDate;
+
+    while (currentDate.diff(parsedEndDate, 'day') <= 0) {
+      const fullStart = dayjs(
+        `${currentDate.format('YYYY-MM-DD')}T${startTime}`,
+      );
+      const fullEnd = dayjs(`${currentDate.format('YYYY-MM-DD')}T${endTime}`);
+
+      shiftLogs.push({
+        projectId,
+        userId,
+        startTime: fullStart.toDate(),
+        endTime: fullEnd.toDate(),
+        date: currentDate.toDate(),
+        shiftType: shiftType as ShiftType,
+        shiftDuration,
+        managerNote,
+      });
+
+      currentDate = currentDate.add(1, 'day');
+    }
+
+    const result = await this.prisma.shiftLog.createMany({
+      data: shiftLogs,
+      skipDuplicates: true, // Optional, prevents inserting duplicate keys if constrained
+    });
+
+    return successResponse(result, 'Shift request(s) submitted successfully');
   }
 
   async updateShiftRequest(
     userId: string,
     requestId: string,
-    dto: UpdateShiftRequestDto,
+    dto: UpdateShiftDto,
   ) {
     console.log(userId, requestId, dto);
   }
@@ -51,11 +95,11 @@ export class ShiftService {
     console.log(userId, requestId);
   }
 
-  async getShift(id: string) {
-    console.log(id);
+  async getShiftLogs(query: GetShiftsLogDto) {
+    console.log(query);
   }
 
-  async getShifts(query: any) {
-    console.log(query);
+  async getShiftLog(id: string) {
+    console.log(id);
   }
 }

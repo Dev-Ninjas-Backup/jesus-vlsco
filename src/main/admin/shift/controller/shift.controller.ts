@@ -19,7 +19,6 @@ import { RequestShiftDto } from '../dto/request-shift.dto';
 import { UpdateShiftStatusDto } from '../dto/update-shift-status.dto';
 import { DefaultShiftService } from '../services/default-shift.service';
 import { ShiftLogService } from '../services/shift-log.service';
-import { ShiftService } from '../services/shift.service';
 
 @ApiTags('Admin -- Shift')
 @Controller('admin/shift')
@@ -27,7 +26,6 @@ import { ShiftService } from '../services/shift.service';
 @ApiBearerAuth()
 export class ShiftController {
   constructor(
-    private readonly shiftService: ShiftService,
     private readonly defaultShiftService: DefaultShiftService,
     private readonly shiftLogService: ShiftLogService,
   ) {}
