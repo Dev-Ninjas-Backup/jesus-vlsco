@@ -7,7 +7,7 @@ import { VerifyOTPDto } from './dto/verify-otp.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) {}
 
   @Post('login/email')
   emailLogin(@Body() dto: EmailLoginDto) {
@@ -25,7 +25,9 @@ export class AuthController {
     return this.authService.phoneLogin(dto.firebaseIdToken);
   }
 
-  @ApiOperation({ summary: 'Super admin login with predefined email and password' })
+  @ApiOperation({
+    summary: 'Super admin login with predefined email and password',
+  })
   @Post('login/super-admin')
   superAdminLogin(@Body() dto: SuperAdminLoginDto) {
     return this.authService.superAdminLogin(dto.email, dto.password);
