@@ -26,7 +26,7 @@ export class ShiftWorker implements OnModuleInit {
 
         try {
           const userEmail = await this.utils.getEmailById(userId);
-          const shift = await this.utils.getShiftById(shiftId);
+          const shift = await this.utils.getDefaultShiftById(shiftId);
 
           const message = this.generateMessage(action, shift, meta);
           const title = this.generateTitle(action);

@@ -8,10 +8,12 @@ model Project {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  team         Team?         @relation(fields: [teamId], references: [id])
-  manager      User          @relation(fields: [managerId], references: [id])
-  projectUsers ProjectUser[]
-  tasks        Task[]
+  team          Team?          @relation(fields: [teamId], references: [id])
+  manager       User           @relation(fields: [managerId], references: [id])
+  defaultShifts DefaultShift[]
+  shiftLogs     ShiftLog[]
+  projectUsers  ProjectUser[]
+  tasks         Task[]
 }
 
 model ProjectUser {

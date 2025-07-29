@@ -3,7 +3,10 @@ import { ShiftStatus } from '@prisma/client';
 import { IsEnum } from 'class-validator';
 
 export class UpdateShiftStatusDto {
-  @ApiProperty({ enum: ShiftStatus, example: ShiftStatus.APPROVED })
-  @IsEnum(ShiftStatus)
-  status: ShiftStatus;
+  @ApiProperty({
+    enum: [ShiftStatus.APPROVED, ShiftStatus.REJECTED],
+    example: ShiftStatus.APPROVED,
+  })
+  @IsEnum([ShiftStatus.APPROVED, ShiftStatus.REJECTED])
+  status: typeof ShiftStatus.APPROVED | typeof ShiftStatus.REJECTED;
 }

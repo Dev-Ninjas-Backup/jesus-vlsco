@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Shift } from '@prisma/client';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { AppError } from '@project/common/error/handle-error.app';
 import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
+import { DefaultShift } from '@prisma/client';
 
 @Injectable()
 export class UtilsService {
@@ -168,8 +168,8 @@ export class UtilsService {
     return user.email;
   }
 
-  async getShiftById(id: string): Promise<Shift> {
-    const shift = await this.prisma.shift.findUnique({ where: { id } });
+  async getDefaultShiftById(id: string): Promise<DefaultShift> {
+    const shift = await this.prisma.defaultShift.findUnique({ where: { id } });
     if (!shift) throw new AppError(404, 'Shift not found');
     return shift;
   }
