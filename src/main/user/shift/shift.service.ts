@@ -1,48 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { RequestAShiftChangeDto } from './dto/request-a-shift-change.dto';
-import { RequestDefaultShiftChangeDto } from './dto/request-default-shift-change.dto';
-import { UpdateShiftRequestDto } from './dto/update-shift-request.dto';
+import { GetShiftsLogDto } from '@project/main/admin/shift/dto/get-default-shifts.dto';
+import { RequestShiftDto } from './dto/request-shift.dto';
+import { UpdateShiftDto } from './dto/update-shift.dto';
 
 @Injectable()
 export class ShiftService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
-  async requestDefaultShiftChange(
+  async requestShift(
     userId: string,
-    dto: RequestDefaultShiftChangeDto,
+    projectId: string,
+    dto: RequestShiftDto,
   ) {
-    console.log(userId, dto);
-  }
-
-  async updateDefaultShiftRequest(
-    userId: string,
-    requestId: string,
-    dto: UpdateShiftRequestDto,
-  ) {
-    console.log(userId, requestId, dto);
-  }
-
-  async cancelDefaultShiftRequest(userId: string, requestId: string) {
-    console.log(userId, requestId);
-  }
-
-  async getDefaultShift(id: string) {
-    console.log(id);
-  }
-
-  async getDefaultShifts(query: any) {
-    console.log(query);
-  }
-
-  async requestAShiftChange(userId: string, dto: RequestAShiftChangeDto) {
-    console.log(userId, dto);
+    console.log(userId, projectId, dto);
   }
 
   async updateShiftRequest(
     userId: string,
     requestId: string,
-    dto: UpdateShiftRequestDto,
+    dto: UpdateShiftDto,
   ) {
     console.log(userId, requestId, dto);
   }
@@ -51,11 +28,11 @@ export class ShiftService {
     console.log(userId, requestId);
   }
 
-  async getShift(id: string) {
-    console.log(id);
+  async getShiftLogs(query: GetShiftsLogDto) {
+    console.log(query);
   }
 
-  async getShifts(query: any) {
-    console.log(query);
+  async getShiftLog(id: string) {
+    console.log(id);
   }
 }
