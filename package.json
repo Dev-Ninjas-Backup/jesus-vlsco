@@ -16,6 +16,8 @@
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --ignore-path .gitignore --check \"**/*.+(js|ts|json)\"",
     "format:fix": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+    "ci:check": "npm run format && npm run lint && npm run prisma:validate && npm run build && npm run start:prod",
+    "ci:fix": "npm run format:fix && npm run lint:fix",
     "prisma": "npx prisma",
     "prisma:pull": "npx prisma db pull",
     "prisma:push": "npx prisma db push",

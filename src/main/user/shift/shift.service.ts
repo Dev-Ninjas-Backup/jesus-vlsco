@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ShiftType } from '@prisma/client';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetShiftsLogDto } from '@project/main/admin/shift/dto/get-default-shifts.dto';
 import dayjs from 'dayjs';
@@ -9,7 +12,7 @@ import { UpdateShiftDto } from './dto/update-shift.dto';
 
 @Injectable()
 export class ShiftService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async requestShift(
     userId: string,
@@ -53,7 +56,9 @@ export class ShiftService {
     let currentDate = parsedStartDate;
 
     while (currentDate.diff(parsedEndDate, 'day') <= 0) {
-      const fullStart = dayjs(`${currentDate.format('YYYY-MM-DD')}T${startTime}`);
+      const fullStart = dayjs(
+        `${currentDate.format('YYYY-MM-DD')}T${startTime}`,
+      );
       const fullEnd = dayjs(`${currentDate.format('YYYY-MM-DD')}T${endTime}`);
 
       shiftLogs.push({
@@ -77,7 +82,6 @@ export class ShiftService {
 
     return successResponse(result, 'Shift request(s) submitted successfully');
   }
-
 
   async updateShiftRequest(
     userId: string,

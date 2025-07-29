@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';// ← import your file service
+import { Injectable, NotFoundException } from '@nestjs/common'; // ← import your file service
 import { PrivateMessage } from '@prisma/client';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { FileService } from '@project/lib/utils/file.service';
@@ -99,10 +99,7 @@ export class PrivateChatService {
   async getUserConversations(userId: string) {
     return this.prisma.privateConversation.findMany({
       where: {
-        OR: [
-          { user1Id: userId },
-          { user2Id: userId },
-        ],
+        OR: [{ user1Id: userId }, { user2Id: userId }],
       },
       include: {
         messages: {

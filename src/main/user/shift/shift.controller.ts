@@ -20,7 +20,7 @@ import { ShiftService } from './shift.service';
 @ValidateEmployee()
 @ApiBearerAuth()
 export class ShiftController {
-  constructor(private readonly shiftService: ShiftService) { }
+  constructor(private readonly shiftService: ShiftService) {}
 
   @ApiOperation({ summary: 'Request to change shift' })
   @Post('request')
@@ -32,7 +32,9 @@ export class ShiftController {
     return this.shiftService.requestShift(userId, projectId, dto);
   }
 
-  @ApiOperation({ summary: 'Update shift request before admin approve or reject' })
+  @ApiOperation({
+    summary: 'Update shift request before admin approve or reject',
+  })
   @Patch('request/:id')
   updateShiftRequest(
     @GetUser('userId') userId: string,
@@ -42,7 +44,9 @@ export class ShiftController {
     return this.shiftService.updateShiftRequest(userId, requestId, dto);
   }
 
-  @ApiOperation({ summary: 'Cancel shift request before admin approve or reject' })
+  @ApiOperation({
+    summary: 'Cancel shift request before admin approve or reject',
+  })
   @Delete('request/:id')
   cancelShiftRequest(
     @GetUser('userId') userId: string,

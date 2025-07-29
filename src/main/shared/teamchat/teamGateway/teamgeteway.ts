@@ -19,7 +19,7 @@ import { ENVEnum } from '@project/common/enum/env.enum';
   cors: {
     origin: '*',
   },
-  namespace: ['/teams','/private'],
+  namespace: ['/teams', '/private'],
 })
 export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

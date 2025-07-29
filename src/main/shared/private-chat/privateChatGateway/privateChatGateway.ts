@@ -20,7 +20,9 @@ import { SendPrivateMessageDto } from '../dto/privateChatGateway.dto';
   },
   namespace: '/private',
 })
-export class PrivateChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class PrivateChatGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -45,7 +47,9 @@ export class PrivateChatGateway implements OnGatewayConnection, OnGatewayDisconn
       client.data.userId = userId;
       client.join(userId);
 
-      console.log(`Private chat: User ${userId} connected, socket ${client.id}`);
+      console.log(
+        `Private chat: User ${userId} connected, socket ${client.id}`,
+      );
     } catch (err) {
       client.disconnect();
       console.log(`Authentication failed: ${err.message}`);
@@ -68,10 +72,10 @@ export class PrivateChatGateway implements OnGatewayConnection, OnGatewayDisconn
     @ConnectedSocket() client: Socket,
   ) {
     const { recipientId, dto, file, userId } = payload;
-    console.log(payload,'payload')
+    console.log(payload, 'payload');
     // Validate sender matches token
     if (client.data.userId !== userId) {
-        console.log(client,'client')
+      console.log(client, 'client');
       console.log(
         `User ID mismatch: client ${client.data.userId} vs payload ${userId}`,
       );
@@ -80,7 +84,7 @@ export class PrivateChatGateway implements OnGatewayConnection, OnGatewayDisconn
 
     // Prevent sending to self
     if (userId === recipientId) {
-        console.log('hello')
+      console.log('hello');
       console.log(`User ${userId} cannot send message to themselves`);
       return;
     }
@@ -101,7 +105,7 @@ export class PrivateChatGateway implements OnGatewayConnection, OnGatewayDisconn
 
     // Emit to both users
     this.server.to(userId).emit('private:new_message', message);
-    console.log(message,'<=message',recipientId,'<=reciver id')
+    console.log(message, '<=message', recipientId, '<=reciver id');
     this.server.to(recipientId).emit('private:new_message', message);
   }
 

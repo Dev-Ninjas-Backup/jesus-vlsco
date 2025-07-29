@@ -6,6 +6,6 @@ import { PrivateChatGateway } from './privateChatGateway/privateChatGateway';
 
 @Module({
   controllers: [PrivateChatController],
-  providers: [PrivateChatService,FileService,PrivateChatGateway]
+  providers: [PrivateChatService, FileService, PrivateChatGateway],
 })
 export class PrivateChatModule {}

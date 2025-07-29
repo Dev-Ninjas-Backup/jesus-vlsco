@@ -5,6 +5,11 @@ import { TeamchatModule } from './teamchat/teamchat.module';
 import { PrivateChatModule } from './private-chat/private-chat.module';
 
 @Module({
-  imports: [AuthModule, NotificationSettingModule, TeamchatModule, PrivateChatModule],
+  imports: [
+    AuthModule,
+    NotificationSettingModule,
+    TeamchatModule,
+    PrivateChatModule,
+  ],
 })
 export class SharedModule {}

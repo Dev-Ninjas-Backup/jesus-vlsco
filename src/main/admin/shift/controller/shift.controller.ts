@@ -28,7 +28,7 @@ export class ShiftController {
   constructor(
     private readonly defaultShiftService: DefaultShiftService,
     private readonly shiftLogService: ShiftLogService,
-  ) { }
+  ) {}
 
   // * Defaults
   @ApiOperation({ summary: 'Set default shift of a user' })
