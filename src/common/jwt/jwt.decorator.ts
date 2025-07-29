@@ -29,10 +29,14 @@ export function ValidateAuth(...roles: UserEnum[]) {
   return applyDecorators(...decorators);
 }
 
+export function ValidateSuperAdmin() {
+  return ValidateAuth(UserEnum.SUPER_ADMIN);
+}
+
 export function ValidateAdmin() {
-  return ValidateAuth(UserEnum.ADMIN);
+  return ValidateAuth(UserEnum.ADMIN, UserEnum.SUPER_ADMIN);
 }
 
 export function ValidateEmployee() {
-  return ValidateAuth(UserEnum.EMPLOYEE);
+  return ValidateAuth(UserEnum.EMPLOYEE, UserEnum.SUPER_ADMIN);
 }
