@@ -55,3 +55,9 @@ docker stop local-postgres local-redis
 docker rm local-postgres local-redis
 ```
 
+### RUN THE APP
+```bash
+docker-compose up
+docker-compose down
+docker-compose build
+```
