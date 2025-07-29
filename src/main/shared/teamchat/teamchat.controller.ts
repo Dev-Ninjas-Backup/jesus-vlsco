@@ -29,7 +29,7 @@ export class TeamController {
   ) {}
 
   @Post(':teamId/messages')
-  @ApiOperation({ summary: 'Create a team' })
+  @ApiOperation({ summary: 'Sending team message' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {

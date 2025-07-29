@@ -3,7 +3,7 @@ model PrivateMessage {
   content        String
   conversationId String
   senderId       String
-  fileId         String
+  fileId         String?
 
   file         FileInstance?       @relation(fields: [fileId], references: [id])
   conversation PrivateConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
