@@ -8,98 +8,59 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
+import { GetShiftsLogDto } from '@project/main/admin/shift/dto/get-default-shifts.dto';
+import { RequestShiftDto } from './dto/request-shift.dto';
+import { UpdateShiftDto } from './dto/update-shift.dto';
 import { ShiftService } from './shift.service';
-import { RequestDefaultShiftChangeDto } from './dto/request-default-shift-change.dto';
-import { UpdateShiftRequestDto } from './dto/update-shift-request.dto';
-import { GetDefaultShiftsDto } from '@project/main/admin/shift/dto/get-default-shifts.dto';
-import { RequestAShiftChangeDto } from './dto/request-a-shift-change.dto';
 
 @ApiTags('Employee -- Manage Shift')
 @Controller('employee/shift')
 @ValidateEmployee()
 @ApiBearerAuth()
 export class ShiftController {
-  constructor(private readonly shiftService: ShiftService) {}
+  constructor(private readonly shiftService: ShiftService) { }
 
-  // Request to change default shift
-  @Post('default/request')
-  requestDefaultShiftChange(
-    @GetUser('userId') userId: string,
-    @Body() dto: RequestDefaultShiftChangeDto,
-  ) {
-    return this.shiftService.requestDefaultShiftChange(userId, dto);
-  }
-
-  // Update default shift request before admin approve or reject
-  @Patch('default/request/:id')
-  updateDefaultShiftRequest(
-    @Param('id') id: string,
-    @GetUser('userId') userId: string,
-    @Body() dto: UpdateShiftRequestDto,
-  ) {
-    return this.shiftService.updateDefaultShiftRequest(userId, id, dto);
-  }
-
-  // Cancel default shift request
-  @Delete('default/request/:id')
-  cancelDefaultShiftRequest(
-    @Param('id') id: string,
-    @GetUser('userId') userId: string,
-  ) {
-    return this.shiftService.cancelDefaultShiftRequest(userId, id);
-  }
-
-  // Get a default shift
-  @Get('default/:id')
-  getDefaultShift(@Param('id') id: string) {
-    return this.shiftService.getDefaultShift(id);
-  }
-
-  // Get default shifts (with filtering & pagination)
-  @Get('default')
-  getDefaultShifts(@Query() query: GetDefaultShiftsDto) {
-    return this.shiftService.getDefaultShifts(query);
-  }
-
-  // Request to change a shift
+  @ApiOperation({ summary: 'Request to change shift' })
   @Post('request')
-  requestAShiftChange(
+  requestShift(
     @GetUser('userId') userId: string,
-    @Body() dto: RequestAShiftChangeDto,
+    @Param('projectId') projectId: string,
+    @Body() dto: RequestShiftDto,
   ) {
-    return this.shiftService.requestAShiftChange(userId, dto);
+    return this.shiftService.requestShift(userId, projectId, dto);
   }
 
-  // Update shift request before admin approve or reject
+  @ApiOperation({ summary: 'Update shift request before admin approve or reject' })
   @Patch('request/:id')
   updateShiftRequest(
-    @Param('id') id: string,
     @GetUser('userId') userId: string,
-    @Body() dto: UpdateShiftRequestDto,
+    @Param('requestId') requestId: string,
+    @Body() dto: UpdateShiftDto,
   ) {
-    return this.shiftService.updateShiftRequest(userId, id, dto);
+    return this.shiftService.updateShiftRequest(userId, requestId, dto);
   }
 
-  // Cancel shift request
+  @ApiOperation({ summary: 'Cancel shift request before admin approve or reject' })
   @Delete('request/:id')
   cancelShiftRequest(
-    @Param('id') id: string,
     @GetUser('userId') userId: string,
+    @Param('requestId') requestId: string,
   ) {
-    return this.shiftService.cancelShiftRequest(userId, id);
+    return this.shiftService.cancelShiftRequest(userId, requestId);
   }
 
-  // Get a shift
-  @Get(':id')
-  getShift(@Param('id') id: string) {
-    return this.shiftService.getShift(id);
+  // Get all shifts log grouped by day, week or month (filter & pagination)
+  @ApiOperation({ summary: 'Get all shifts log' })
+  @Get('shift-logs')
+  getShiftLogs(@Query() query: GetShiftsLogDto) {
+    return this.shiftService.getShiftLogs(query);
   }
 
-  // Get shifts log under a project (filter & pagination)
-  @Get()
-  getShifts(@Query() query: GetDefaultShiftsDto) {
-    return this.shiftService.getShifts(query);
+  // Get a shift details
+  @Get('shift-logs/:id')
+  getShift(@Param('shiftLogId') shiftLogId: string) {
+    return this.shiftService.getShiftLog(shiftLogId);
   }
 }

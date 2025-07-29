@@ -15,8 +15,8 @@ import {
 } from '../dto/off-day-request.dto';
 import { OffDayRequestService } from '../services/off-day-request.service';
 
-@ApiTags('User -- Off Day Request')
-@Controller('user/time-off-request')
+@ApiTags('Employee -- Off Day Request')
+@Controller('employee/time-off-request')
 @ValidateAuth()
 @ApiBearerAuth()
 export class TimeoffRequestController {
