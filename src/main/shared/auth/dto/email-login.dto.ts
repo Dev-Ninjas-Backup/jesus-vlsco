@@ -7,3 +7,14 @@ export class EmailLoginDto {
   @IsNotEmpty()
   email: string;
 }
+
+export class SuperAdminLoginDto {
+  @ApiProperty({ example: 'jesus.vlsco@gmail.com' })
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+  @ApiProperty({ example: 'password' })
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+}

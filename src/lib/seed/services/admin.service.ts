@@ -11,7 +11,7 @@ export class AdminService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   onModuleInit(): Promise<void> {
     return this.seedAdminUser();
@@ -22,10 +22,12 @@ export class AdminService implements OnModuleInit {
       ENVEnum.ADMIN_EMAIL,
     );
     const adminPass = this.configService.getOrThrow<string>(ENVEnum.ADMIN_PASS);
-    const adminPhone = this.configService.getOrThrow<string>(ENVEnum.ADMIN_PHONE);
+    const adminPhone = this.configService.getOrThrow<string>(
+      ENVEnum.ADMIN_PHONE,
+    );
     const adminEmployeeID = this.configService.getOrThrow<string>(
       ENVEnum.ADMIN_EMPLOYEE_ID,
-    )
+    );
 
     const adminExists = await this.prisma.user.findFirst({
       where: {

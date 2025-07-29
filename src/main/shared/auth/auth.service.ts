@@ -136,4 +136,33 @@ export class AuthService {
 
     return successResponse(data, 'Login successful');
   }
+
+  @HandleError('Super admin login error')
+  async superAdminLogin(
+    email: string,
+    password: string,
+  ): Promise<TResponse<any>> {
+    const superAdmin = await this.prisma.user.findFirst({
+      where: { role: 'SUPER_ADMIN', email },
+    });
+
+    if (!superAdmin) {
+      throw new AppError(404, 'Super admin not found');
+    }
+
+    if (!(await this.utils.compare(password, superAdmin.password || ''))) {
+      throw new AppError(401, 'Invalid password');
+    }
+
+    const data = {
+      user: this.utils.sanitizedResponse(UserResponseDto, superAdmin),
+      token: this.utils.generateToken({
+        email: superAdmin.email,
+        roles: superAdmin.role,
+        sub: superAdmin.id,
+      }),
+    };
+
+    return successResponse(data, 'Login successful');
+  }
 }

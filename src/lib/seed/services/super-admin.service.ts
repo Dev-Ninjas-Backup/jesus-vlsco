@@ -11,7 +11,7 @@ export class SuperAdminService implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   onModuleInit(): Promise<void> {
     return this.seedSuperAdminUser();
@@ -29,7 +29,7 @@ export class SuperAdminService implements OnModuleInit {
     );
     const superAdminEmployeeID = this.configService.getOrThrow<string>(
       ENVEnum.SUPER_ADMIN_EMPLOYEE_ID,
-    )
+    );
 
     const superAdminExists = await this.prisma.user.findFirst({
       where: {
