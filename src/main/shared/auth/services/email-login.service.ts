@@ -12,7 +12,7 @@ import { UtilsService } from '@project/lib/utils/utils.service';
 import { EmailLoginDto } from '../dto/email-login.dto';
 
 @Injectable()
-export class AuthService {
+export class EmailLoginService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
