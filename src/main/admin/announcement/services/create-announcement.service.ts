@@ -20,7 +20,7 @@ export class CreateAnnouncementService {
     private readonly announcementQueue: Queue<AnnouncementEvent>,
   ) {}
 
-  // Create a new announcement
+  // Create a new announcementd
   @HandleError('Error creating announcement')
   async createAnnouncement(
     data: CreateAnnouncementDto,
