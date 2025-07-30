@@ -15,8 +15,8 @@ services:
       BASE_URL: https://api.lgcglobalcontractingltd.com/js
       PORT: 5005
 
-      MAIL_USER: arafatmannan2019@gmail.com
-      MAIL_PASS: eurp zvyi gnoy enag
+      MAIL_USER: jaranzov0107@gmail.com
+      MAIL_PASS: auxd gomn apfk cibl
 
       SUPER_ADMIN_EMAIL: 'jesus.vlsco@gmail.com'
       SUPER_ADMIN_PASS: 'superadmin'
