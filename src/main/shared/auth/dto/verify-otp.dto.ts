@@ -16,7 +16,10 @@ export class VerifyOTPDto {
 }
 
 export class VerifyPhoneOTPDto {
-  @ApiProperty({ example: '8801234567890', description: 'Phone number in international format without leading +.' })
+  @ApiProperty({
+    example: '8801234567890',
+    description: 'Phone number in international format without leading +.',
+  })
   @IsString()
   @IsNotEmpty()
   @Matches(/^[0-9]{10,15}$/, { message: 'Invalid phone number format' })

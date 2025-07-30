@@ -4,7 +4,10 @@ import { UserResponseDto } from '@project/common/dto/user-response.dto';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { Twilio } from 'twilio';
@@ -101,7 +104,7 @@ export class PhoneLoginService {
         email: updatedUser.email,
         roles: updatedUser.role,
         sub: updatedUser.id,
-      })
-    })
+      }),
+    });
   }
 }

@@ -8,37 +8,37 @@ services:
     environment:
       NODE_ENV: production
       DATABASE_URL: postgresql://postgres:postgres@db:5432/jesus_db
-      
+
       JWT_SECRET: asdfkamskfmasklfmaksmfaskfmaksfaopsfmpaomsfpaf
       JWT_EXPIRES_IN: 90d
-      
+
       BASE_URL: https://api.lgcglobalcontractingltd.com/js
       PORT: 5005
-      
+
       MAIL_USER: arafatmannan2019@gmail.com
       MAIL_PASS: eurp zvyi gnoy enag
-      
+
       SUPER_ADMIN_EMAIL: 'jesus.vlsco@gmail.com'
       SUPER_ADMIN_PASS: 'superadmin'
       SUPER_ADMIN_PHONE: 9999999999999
       SUPER_ADMIN_EMPLOYEE_ID: 100000
-      
+
       ADMIN_EMAIL: 'arafatmannan9@gmail.com'
       ADMIN_PASS: 'admin1234'
       ADMIN_PHONE: 9999999999991
       ADMIN_EMPLOYEE_ID: 100001
-      
+
       REDIS_URL: redis://redis:6379
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      
-      FIREBASE_PROJECT_ID: bbehmer-92d94
-      FIREBASE_CLIENT_EMAIL: firebase-adminsdk-fbsvc@bbehmer-92d94.iam.gserviceaccount.com
-      FIREBASE_PRIVATE_KEY: -----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDh7suBr84Dlcdp\nadlqd9SsHjwMR3+ozCRh9H29DiHJdbohFYbiIkk2n4dlGD1JCu/7gMi9jUorHPgN\nV9/00GgCIaNvPNHo3l5btga0YnGwhywOC50c8a11qU+oD52gQPAszNfSYVmXXKce\n54EaNmH6ttTjbdsTXnHXWI+oozBwEoWtGPS+c1AYi9zbTG7PPZBhg5uuy7FNPB2I\navheM0J8IPh62wva2mLb9OCeeohRmgBMKwk27ReCq1IFThVYFMAfsm3vN/OCsRVG\nA/oXuQ/RIzR6PI3fnEMO8+mvQpAcAOOb9zK/DaNWJdaZ2suxzIJANLUNbarJeQpS\nnxFNAuYNAgMBAAECggEACN4tlgaHfd6IItwTu45pMORIPmx5V0UZUdBIiyjIggwh\nOnaKLSAOuEUktFQc5lwL4AGbCiLx5qVOxdSi0WIeDaSyXIW08NX25X9MiLyrHQmr\n3KqaB8PN/NCgyXDrd+8fPjLqxF2BKGQWRIFDsPqyInwV+Q3xIQko9hHfeaKwyQVD\ng5kWKwBejVmCG6sd9/Luj/HotwRm+gyedWw6xaPGnM0QiI1UKHHPx092Y/+XZZcj\nSj96CfAUJq0zNysfMOm3dMkiO1iyyHmfYBIQu0Lm6SBqw58e/oTyuYyiVTHhdPLV\n5ZPq7e4q04wCKC7EG68AE/jnWeRJpZ+/1/NwzAQlgQKBgQD/PmL4O2+93kRxsLrH\nFZ75Thvgck5quM9LhVIefdLphM/SZQAJyZoVfmS4hSvV3kSAm6BLDFfTXnNzmFzn\nKQsH7dqZ9GstYrrgHR9OKxkFh24Q1hB1opHQJxchuTksEdxqC1TZUkvhRDe3JCCd\nLUqBo62bkHTvzjZeRSPnzaGk4QKBgQDimiy819F9jis1cNdbDfTbU3MT0SDSXHfq\nhe5nG+9EX9ABEZb/gJ4gvCZlZAyTe0aMp72ztWcL781kgmescEyo/AKWQyiE2vQh\n8xu55BpVdMzvfRry9DsOkpqclk9ScQSCz/satXatbm8yg//iLHzZ3hSV6MFPaJgU\nnLquaVu6rQKBgQDu/MgIKwa2XY3ycYqA6+KdBaCeaAi6bm5SBPPd7uvzkFJSahU+\nFNC7/UtrZe2kY2f6jzzn6Be3pkEtY+Tg4BIfC3taGXvc1Aur2ji8pSfZgHPzOavR\nqTUkE+XZwqcgd1zMwe1hSmgX9RrB1QbghE610b604O5MtuU7ITu8SFJooQKBgCCz\nw1UViGQoSlASEuJPJ1Env+nSOnxhX+T2oys6OtORSEF/Ol1xQGDVBm2HfNEj71CJ\nPLVcrpxoZSnmL/QQ2N9iTzVER+q0dpsXrJ6tLqe6jYDaezMo0AUQX0PN5XCuYspG\nHaUDHzd0QpP1vM31Qadnh20DBDLjk18WJ1LYXaaZAoGAWKjOO01PrSshE/xREbvR\niN9y2o5OrPrKsdXksWCOc++7e/qlsinmsE0mFvLlNWyk/3gZPiFcygcqRxCBGsL4\naO/WK5XQJbAmJl16crb8bqWpLBiN5zHR4IaXgL9DEGD4g0MFXVhL/7FCWAHRrJ4r\nepepZV7BI5DqLTEY3kK/4+E=\n-----END PRIVATE KEY-----\n
 
       CLOUDINARY_CLOUD_NAME: dajbvml9v
       CLOUDINARY_API_KEY: 446326388615888
       CLOUDINARY_API_SECRET: h-2JuLgUmuCN-crXiY-JKdcPyxE
+
+      TWILIO_ACCOUNT_SID: ACd0fcc3080950d9482d8af5ff4c14a32a
+      TWILIO_AUTH_TOKEN: 851d0d3463ded43c6851175a23388ed5
+      TWILIO_PHONE_NUMBER: +15074193157
     ports:
       - 5005:5005
     depends_on:
@@ -62,7 +62,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5400:5432"
+      - '5400:5432'
 
   redis:
     image: redis

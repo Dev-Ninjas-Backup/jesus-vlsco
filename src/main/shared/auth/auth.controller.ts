@@ -12,7 +12,7 @@ export class AuthController {
   constructor(
     private readonly emailLoginService: EmailLoginService,
     private readonly phoneLoginService: PhoneLoginService,
-  ) { }
+  ) {}
 
   @ApiOperation({ summary: 'Email login -- Requests OTP' })
   @Post('login/email')
