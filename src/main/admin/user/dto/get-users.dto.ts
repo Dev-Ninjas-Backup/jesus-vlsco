@@ -1,7 +1,8 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { UserEnum } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Department, UserEnum } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsNumber,
@@ -43,6 +44,18 @@ export class GetUsersDto {
   @IsOptional()
   @IsString()
   sortOrder?: 'asc' | 'desc';
+
+  @ApiPropertyOptional({
+    description: 'Filter by department(s) in profile',
+    isArray: true,
+    enum: Department,
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(Department, { each: true })
+  @Transform(({ value }) => (Array.isArray(value) ? value : [value]))
+  department?: Department[];
 
   @ApiPropertyOptional({
     description: 'Page number for pagination',
