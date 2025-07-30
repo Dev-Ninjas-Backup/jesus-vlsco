@@ -1,12 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
 export class PhoneLoginDto {
-  @ApiProperty({
-    example:
-      'eyJhbGciOiJSUzI1NiIsImtpZCI6ImE4ZGY2MmQzYTBhNDRlM2RmY2RjYWZjNmRhMTM4Mzc3NDU5ZjliMDEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vYmJlaG1lci05MmQ5NCIsImF1ZCI6ImJiZWhtZXItOTJkOTQiLCJhdXRoX3RpbWUiOjE3NTI3NzU1MjEsInVzZXJfaWQiOiJ0UHNnN3pkeTUzT01ZTG5vSWZoM1VNbGVKZGoxIiwic3ViIjoidFBzZzd6ZHk1M09NWUxub0lmaDNVTWxlSmRqMSIsImlhdCI6MTc1Mjc3NTUyMSwiZXhwIjoxNzUyNzc5MTIxLCJwaG9uZV9udW1iZXIiOiIrODgwMTQwNTY2MzA3MCIsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsicGhvbmUiOlsiKzg4MDE0MDU2NjMwNzAiXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwaG9uZSJ9fQ.f205S5g2YBWxtkXQCQS3Ztmcp0_nR5cVXD8-DepM5ez-KcxQBnZML9d3vJ5tOT54Fl_7UTdeV4NTt_NmWG1eBvvtsuFyaVE8gbMxJyKjLzOa8FV0b2MOSO2kbnOrg0hWt6zRmaBVIKdAl9V1z3FtXN1YEiZGgtNACwj-GwvfR-t49Dfa7MSw02ItJVm7gG17X04HkA5ICPX6YEWKFjDtU-WhTZaD0aWDlxKFiWuuNUUvojBKQJ331ljmfKMDtUybJjOAB_qJwRRQeWyoQ8blw1vxRvS7Knxc-v9e5XlaIt8lz_JhaJNEbvtBHo6vDT1EN_3JhkCHSnccerDZKEEc1w',
-  })
+  @ApiProperty({ example: '+8801234567890', description: 'Phone number in international format without leading +.' })
   @IsString()
   @IsNotEmpty()
-  firebaseIdToken: string;
+  phoneNumber: string;
 }
+
