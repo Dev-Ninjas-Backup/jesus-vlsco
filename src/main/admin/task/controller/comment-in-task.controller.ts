@@ -9,15 +9,15 @@ import { AddTaskCommentDto } from '../dto/add-comment-in-task.dto';
 @ApiBearerAuth()
 @ValidateAuth()
 export class CommentInTaskController {
-    constructor(private readonly commentInTaskService: CommentInTaskService) {}
+  constructor(private readonly commentInTaskService: CommentInTaskService) {}
 
-    @Post(':taskId')
-    @ApiOperation({ summary: 'Comment in task' })
-    async comment(
-        @Body() dto:AddTaskCommentDto,
-        @Param('taskId') taskId:string,
-        @GetUser('userId') userId:string
-    ){
-        return await this.commentInTaskService.addComment(dto,userId,taskId)
-    }
+  @Post(':taskId')
+  @ApiOperation({ summary: 'Comment in task' })
+  async comment(
+    @Body() dto: AddTaskCommentDto,
+    @Param('taskId') taskId: string,
+    @GetUser('userId') userId: string,
+  ) {
+    return await this.commentInTaskService.addComment(dto, userId, taskId);
+  }
 }

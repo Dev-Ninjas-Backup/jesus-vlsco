@@ -47,7 +47,6 @@ export class PhoneLoginService {
     if (!user) {
       throw new AppError(404, 'User not found');
     }
-    console.log(user);
 
     try {
       const message = await this.twilio.messages.create({

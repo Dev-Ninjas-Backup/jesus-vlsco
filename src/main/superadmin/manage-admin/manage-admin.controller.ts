@@ -9,7 +9,13 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ValidateSuperAdmin } from '@project/common/jwt/jwt.decorator';
 import { TResponse } from '@project/common/utils/response.util';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -24,26 +30,32 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 @ApiBearerAuth()
 @Controller('superadmin/manage-admin')
 export class ManageAdminController {
-  constructor(private readonly manageAdminService: ManageAdminService,private readonly cloudinaryService: CloudinaryService) {}
+  constructor(
+    private readonly manageAdminService: ManageAdminService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   @Post('create-admin')
   @ApiOperation({ summary: 'Create a new admin with profile photo' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-      description: 'User creation form data with profile image',
-      schema: {
-        type: 'object',
-        properties: {
-          ...createAdminSwagger.properties,
-          profileUrl: {
-            type: 'string',
-            format: 'binary',
-          },
+    description: 'User creation form data with profile image',
+    schema: {
+      type: 'object',
+      properties: {
+        ...createAdminSwagger.properties,
+        profileUrl: {
+          type: 'string',
+          format: 'binary',
         },
       },
-    })
+    },
+  })
   @UseInterceptors(FileInterceptor('profileUrl'))
-  async createAdmin(@Body() dto: CreateAdminDto,@UploadedFile() file:Express.Multer.File): Promise<TResponse<any>> {
+  async createAdmin(
+    @Body() dto: CreateAdminDto,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<TResponse<any>> {
     let uploadedUrl = null;
 
     if (file) {
@@ -52,7 +64,10 @@ export class ManageAdminController {
         file.originalname,
       );
     }
-    return await this.manageAdminService.createAdmin(dto,uploadedUrl?.url || null);
+    return await this.manageAdminService.createAdmin(
+      dto,
+      uploadedUrl?.url || null,
+    );
   }
 
   @Get('get-admins')

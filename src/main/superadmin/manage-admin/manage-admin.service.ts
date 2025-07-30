@@ -12,10 +12,16 @@ import { UtilsService } from '@project/lib/utils/utils.service';
 
 @Injectable()
 export class ManageAdminService {
-  constructor(private readonly prisma: PrismaService,private readonly utils:UtilsService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly utils: UtilsService,
+  ) {}
 
   @HandleError('Failed to create admin')
-  async createAdmin(dto: CreateAdminDto,profileUrl:string|null): Promise<TResponse<any>> {
+  async createAdmin(
+    dto: CreateAdminDto,
+    profileUrl: string | null,
+  ): Promise<TResponse<any>> {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -41,8 +47,8 @@ export class ManageAdminService {
     if (existingEmployeeID) {
       throw new AppError(400, 'Employee ID already exists');
     }
-    
-     const user = await this.prisma.user.create({
+
+    const user = await this.prisma.user.create({
       data: {
         phone: dto.phone,
         employeeID: dto.employeeID,
@@ -52,7 +58,7 @@ export class ManageAdminService {
         pinCode: dto.pinCode,
         profile: {
           create: {
-            profileUrl:profileUrl,
+            profileUrl: profileUrl,
             firstName: dto.firstName,
             lastName: dto.lastName,
             gender: dto.gender,
@@ -67,7 +73,6 @@ export class ManageAdminService {
           },
         },
       },
-
     });
 
     return successResponse(user, 'Admin created successfully');

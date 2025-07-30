@@ -50,46 +50,44 @@ export class PrismaUserQueryBuilder {
   }
 
   filter() {
-  const excluded = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
-  const filterKeys = Object.keys(this.query).filter(
-    (key) => !excluded.includes(key),
-  );
+    const excluded = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+    const filterKeys = Object.keys(this.query).filter(
+      (key) => !excluded.includes(key),
+    );
 
-  for (const key of filterKeys) {
-    let value = this.query[key];
+    for (const key of filterKeys) {
+      let value = this.query[key];
 
-    // Ensure array if multiple values are passed
-    if (Array.isArray(value)) {
-      value = value.map((v) => v.toString());
+      // Ensure array if multiple values are passed
+      if (Array.isArray(value)) {
+        value = value.map((v) => v.toString());
+      }
+
+      // Handle special case: frontend sends `department` but it's in `profile`
+      if (key === 'department') {
+        if (!this.where.profile) this.where.profile = {};
+        (this.where.profile as any)['department'] = Array.isArray(value)
+          ? { in: value }
+          : value;
+        continue;
+      }
+
+      // Handle other nested fields like `profile.gender`, etc.
+      if (key.startsWith('profile.')) {
+        const [, nestedKey] = key.split('.');
+        if (!this.where.profile) this.where.profile = {};
+        (this.where.profile as any)[nestedKey] = Array.isArray(value)
+          ? { in: value }
+          : value;
+        continue;
+      }
+
+      // Default filter for top-level fields
+      (this.where as any)[key] = Array.isArray(value) ? { in: value } : value;
     }
 
-    // Handle special case: frontend sends `department` but it's in `profile`
-    if (key === 'department') {
-      if (!this.where.profile) this.where.profile = {};
-      (this.where.profile as any)['department'] = Array.isArray(value)
-        ? { in: value }
-        : value;
-      continue;
-    }
-
-    // Handle other nested fields like `profile.gender`, etc.
-    if (key.startsWith('profile.')) {
-      const [, nestedKey] = key.split('.');
-      if (!this.where.profile) this.where.profile = {};
-      (this.where.profile as any)[nestedKey] = Array.isArray(value)
-        ? { in: value }
-        : value;
-      continue;
-    }
-
-    // Default filter for top-level fields
-    (this.where as any)[key] = Array.isArray(value)
-      ? { in: value }
-      : value;
+    return this;
   }
-
-  return this;
-}
 
   sort(allowedFields: string[] = ['createdAt']) {
     const sortInput = this.query.sort?.toString() || '-createdAt';

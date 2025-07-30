@@ -5,6 +5,6 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [ManageAdminController],
-  providers: [ManageAdminService,CloudinaryService],
+  providers: [ManageAdminService, CloudinaryService],
 })
 export class ManageAdminModule {}

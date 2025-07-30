@@ -1,6 +1,6 @@
-import { Department, Gender, JopTitle, UserEnum } from "@prisma/client";
+import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
 
-export const createAdminSwagger ={
+export const createAdminSwagger = {
   type: 'object',
   properties: {
     phone: { type: 'string', example: '8801234567890' },
@@ -25,7 +25,14 @@ export const createAdminSwagger ={
     },
     department: {
       type: 'string',
-      enum: [Department.DEVELOPMENT, Department.HR,Department.FINANCE,Department.MARKETING,Department.SEALS,Department.IT],
+      enum: [
+        Department.DEVELOPMENT,
+        Department.HR,
+        Department.FINANCE,
+        Department.MARKETING,
+        Department.SEALS,
+        Department.IT,
+      ],
       example: Department.DEVELOPMENT,
     },
     address: { type: 'string', example: '123 Street' },

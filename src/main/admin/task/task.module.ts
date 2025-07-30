@@ -10,7 +10,12 @@ import { CommentInTaskController } from './controller/comment-in-task.controller
 import { CommentInTaskService } from './services/comment-in-task.service';
 
 @Module({
-  controllers: [AddTaskController, UpdateTaskController, TaskController, CommentInTaskController],
+  controllers: [
+    AddTaskController,
+    UpdateTaskController,
+    TaskController,
+    CommentInTaskController,
+  ],
   providers: [
     AddTaskService,
     CloudinaryService,

@@ -89,15 +89,15 @@ export class UtilsService {
   async ensureTaskExists(taskId: string) {
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
-      include:{
-        taskComments:{
-            include:{
-              commentar:{
-                include:{
-                 profile:true
-                }
-              }
-            }
+      include: {
+        taskComments: {
+          include: {
+            commentar: {
+              include: {
+                profile: true,
+              },
+            },
+          },
           // select:{
           //   comment:true,
           //   commentar:true,
@@ -116,7 +116,7 @@ export class UtilsService {
           //   }
           // }
         },
-      }
+      },
     });
     if (!task) throw new AppError(404, 'Task not found');
     return task;

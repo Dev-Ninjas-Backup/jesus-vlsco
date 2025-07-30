@@ -7,23 +7,25 @@ import { successResponse } from '@project/common/utils/response.util';
 
 @Injectable()
 export class CommentInTaskService {
-    constructor(private readonly prisma:PrismaService) {}
-    
-    @HandleError('Comment Failed!!!')
-    async addComment(dto:AddTaskCommentDto,userId:string,taskId:string){
-        const isTaskExist = await this.prisma.task.findUniqueOrThrow({where:{id:taskId}})
-        if(!isTaskExist){
-            throw new AppError(404, "Task not found")
-        }
+  constructor(private readonly prisma: PrismaService) {}
 
-        const result = await this.prisma.taskComment.create({
-            data:{
-                comment:dto.comment,
-                commentBy:userId,
-                taskId
-            }
-        })
-
-        return successResponse(result,"Comment in task")
+  @HandleError('Comment Failed!!!')
+  async addComment(dto: AddTaskCommentDto, userId: string, taskId: string) {
+    const isTaskExist = await this.prisma.task.findUniqueOrThrow({
+      where: { id: taskId },
+    });
+    if (!isTaskExist) {
+      throw new AppError(404, 'Task not found');
     }
+
+    const result = await this.prisma.taskComment.create({
+      data: {
+        comment: dto.comment,
+        commentBy: userId,
+        taskId,
+      },
+    });
+
+    return successResponse(result, 'Comment in task');
+  }
 }
