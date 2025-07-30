@@ -12,18 +12,22 @@ import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTasksDto } from '../dto/get-tasks.dto';
 import { AssignEmployeesToTaskDto, UpdateTaskStatusDto } from '../dto/task.dto';
 import { TaskService } from '../services/task.service';
+import { GetAllTasksService } from '../services/get-all-tasks.service';
 
 @ApiTags('Admin -- Task')
 @Controller('admin/task')
 @ValidateAdmin()
 @ApiBearerAuth()
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(
+    private readonly taskService: TaskService,
+    private readonly getAllTasksService: GetAllTasksService,
+  ) {}
 
   @ApiOperation({ summary: 'Get all tasks' })
   @Get()
   async getAllTasks(@Query() query: GetTasksDto) {
-    return this.taskService.getAllTasks(query);
+    return this.getAllTasksService.getAllTasks(query);
   }
 
   @ApiOperation({ summary: 'Get task by id' })

@@ -8,6 +8,7 @@ import { TaskService } from './services/task.service';
 import { UpdateTaskService } from './services/update-task.service';
 import { CommentInTaskController } from './controller/comment-in-task.controller';
 import { CommentInTaskService } from './services/comment-in-task.service';
+import { GetAllTasksService } from './services/get-all-tasks.service';
 
 @Module({
   controllers: [
@@ -22,6 +23,7 @@ import { CommentInTaskService } from './services/comment-in-task.service';
     TaskService,
     UpdateTaskService,
     CommentInTaskService,
+    GetAllTasksService,
   ],
 })
 export class TaskModule {}

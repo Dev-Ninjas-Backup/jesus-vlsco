@@ -88,4 +88,12 @@ export class GetTasksDto {
   @IsOptional()
   @IsIn(['asc', 'desc'])
   sortOrder?: 'asc' | 'desc' = 'asc';
+
+  @ApiPropertyOptional({
+    description: 'Group by field',
+    enum: ['label', 'title', 'assignedTo'],
+  })
+  @IsOptional()
+  @IsIn(['label', 'title', 'assignedTo'])
+  groupBy: 'label' | 'title' | 'assignedTo' = 'label';
 }
