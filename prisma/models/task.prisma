@@ -7,7 +7,7 @@ model Task {
   endTime     DateTime
   location    String?
   attachment  String?
-  labels      String[]
+  labels      Labels?
   status      TaskStatus @default(DAFT)
 
   createdAt DateTime @default(now())
@@ -17,6 +17,12 @@ model Task {
   project    Project    @relation(fields: [projectId], references: [id])
   taskComments TaskComment[]
 
+}
+
+enum Labels {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 model TaskUser {
