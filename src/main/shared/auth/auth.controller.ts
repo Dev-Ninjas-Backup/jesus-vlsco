@@ -1,28 +1,41 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { EmailLoginDto, SuperAdminLoginDto } from './dto/email-login.dto';
 import { PhoneLoginDto } from './dto/phone-login.dto';
-import { VerifyOTPDto } from './dto/verify-otp.dto';
+import { VerifyOTPDto, VerifyPhoneOTPDto } from './dto/verify-otp.dto';
+import { EmailLoginService } from './services/email-login.service';
+import { PhoneLoginService } from './services/phone-login.service';
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly emailLoginService: EmailLoginService,
+    private readonly phoneLoginService: PhoneLoginService,
+  ) {}
 
+  @ApiOperation({ summary: 'Email login -- Requests OTP' })
   @Post('login/email')
   emailLogin(@Body() dto: EmailLoginDto) {
-    return this.authService.emailLogin(dto);
+    return this.emailLoginService.emailLogin(dto);
   }
 
+  @ApiOperation({ summary: 'Verify OTP sent to email' })
   @Post('verify/email')
   verifyOtp(@Body() dto: VerifyOTPDto) {
-    return this.authService.verifyOTP(dto.email, dto.otp);
+    return this.emailLoginService.verifyOTP(dto.email, dto.otp);
   }
 
-  @ApiOperation({ summary: 'Phone login with firebase token' })
+  @ApiOperation({ summary: 'Phone login -- Requests OTP' })
   @Post('login/phone')
-  async phoneLogin(@Body() dto: PhoneLoginDto) {
-    return this.authService.phoneLogin(dto.firebaseIdToken);
+  phoneLogin(@Body() dto: PhoneLoginDto) {
+    return this.phoneLoginService.phoneLogin(dto);
+  }
+
+  @ApiOperation({ summary: 'Verify OTP sent to phone' })
+  @Post('verify/phone')
+  verifyPhoneOtp(@Body() dto: VerifyPhoneOTPDto) {
+    return this.phoneLoginService.verifyPhoneOtp(dto);
   }
 
   @ApiOperation({
@@ -30,6 +43,6 @@ export class AuthController {
   })
   @Post('login/super-admin')
   superAdminLogin(@Body() dto: SuperAdminLoginDto) {
-    return this.authService.superAdminLogin(dto.email, dto.password);
+    return this.emailLoginService.superAdminLogin(dto.email, dto.password);
   }
 }

@@ -1,3 +1,5 @@
+import { Labels } from '@prisma/client';
+
 export const addTaskSwaggerSchema = {
   type: 'object',
   properties: {
@@ -15,9 +17,10 @@ export const addTaskSwaggerSchema = {
     },
     location: { type: 'string', example: 'Dhaka Office' },
     labels: {
-      type: 'array',
-      items: { type: 'string' },
-      example: ['UI', 'High Priority'],
+      type: 'string',
+      enum: Object.values(Labels),
+      example: Labels.LOW,
+      description: 'Task priority label',
     },
   },
 };
@@ -39,9 +42,10 @@ export const updateTaskSwaggerSchema = {
     },
     location: { type: 'string', example: 'Dhaka Main Office' },
     labels: {
-      type: 'array',
-      items: { type: 'string' },
-      example: ['UI', 'Bugfix'],
+      type: 'string',
+      enum: Object.values(Labels),
+      example: Labels.LOW,
+      description: 'Task priority label',
     },
     attachment: { type: 'string', format: 'binary' },
   },

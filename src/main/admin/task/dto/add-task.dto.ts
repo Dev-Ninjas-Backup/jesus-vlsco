@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
-import { IsArray, IsDate, IsOptional, IsString } from 'class-validator';
+import { Labels } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { IsDate, IsIn, IsOptional, IsString } from 'class-validator';
 
 export class AddTaskDto {
   @ApiProperty({ example: 'Design Homepage' })
@@ -26,19 +27,26 @@ export class AddTaskDto {
   @IsString()
   location?: string;
 
-  @ApiPropertyOptional({ example: ['UI', 'High Priority'] })
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      try {
-        return JSON.parse(value);
-      } catch (err) {
-        console.info(err);
-        return [value];
-      }
-    }
-    return value;
+  // @ApiPropertyOptional({ example: ['UI', 'High Priority'] })
+  // @Transform(({ value }) => {
+  //   if (typeof value === 'string') {
+  //     try {
+  //       return JSON.parse(value);
+  //     } catch (err) {
+  //       console.info(err);
+  //       return [value];
+  //     }
+  //   }
+  //   return value;
+  // })
+  // @IsArray()
+  // @IsString({ each: true })
+  // labels: any;
+  @ApiPropertyOptional({
+    description: 'Group by field',
+    enum: [Labels],
   })
-  @IsArray()
-  @IsString({ each: true })
-  labels: any;
+  @IsOptional()
+  @IsIn([Labels.HIGH, Labels.LOW, Labels.MEDIUM])
+  labels: Labels;
 }

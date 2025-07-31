@@ -6,19 +6,17 @@ import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
-import { FirebaseService } from '@project/lib/firebase/firebase.service';
 import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { EmailLoginDto } from './dto/email-login.dto';
+import { EmailLoginDto } from '../dto/email-login.dto';
 
 @Injectable()
-export class AuthService {
+export class EmailLoginService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly mailService: MailService,
-    private readonly firebaseService: FirebaseService,
   ) {}
 
   @HandleError('Error sending OTP')
@@ -81,47 +79,6 @@ export class AuthService {
         isLogin: true,
         isVerified: true,
         lastLoginAt: new Date(),
-      },
-    });
-
-    const data = {
-      user: this.utils.sanitizedResponse(UserResponseDto, updatedUser),
-      token: this.utils.generateToken({
-        email: user.email,
-        roles: user.role,
-        sub: user.id,
-      }),
-    };
-
-    return successResponse(data, 'Login successful');
-  }
-
-  @HandleError('Phone login error')
-  async phoneLogin(firebaseIdToken: string): Promise<TResponse<any>> {
-    const decoded = await this.firebaseService.verifyIdToken(firebaseIdToken);
-
-    if (!decoded.phone_number) {
-      throw new AppError(400, 'Phone number not found in token');
-    }
-
-    const normalized = decoded.phone_number.replace(/^\+/, ''); // strips '+'
-
-    const user = await this.prisma.user.findUnique({
-      where: { phone: normalized },
-    });
-
-    if (!user) {
-      throw new AppError(404, 'User not found');
-    }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id: user.id },
-      data: {
-        isLogin: true,
-        isVerified: true,
-        lastLoginAt: new Date(),
-        otp: null,
-        otpExpiresAt: null,
       },
     });
 

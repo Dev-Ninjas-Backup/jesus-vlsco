@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { UtilsService } from '@project/lib/utils/utils.service';
 import { JwtService } from '@nestjs/jwt';
-import { FirebaseService } from '@project/lib/firebase/firebase.service';
+import { UtilsService } from '@project/lib/utils/utils.service';
+import { AuthController } from './auth.controller';
+import { EmailLoginService } from './services/email-login.service';
+import { PhoneLoginService } from './services/phone-login.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, UtilsService, JwtService, FirebaseService],
+  providers: [EmailLoginService, UtilsService, JwtService, PhoneLoginService],
 })
 export class AuthModule {}
