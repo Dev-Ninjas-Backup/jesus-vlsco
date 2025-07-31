@@ -32,6 +32,7 @@ export class GetAllTasksService {
       groupBy = 'title',
     } = filters;
 
+    // Build the where clause
     const where: any = {};
     if (projectId) where.projectId = projectId;
     if (status) where.status = status;
@@ -56,8 +57,10 @@ export class GetAllTasksService {
     const skip = (page - 1) * limit;
     const take = limit;
 
+    // Count total tasks
     const total = await this.prisma.task.count({ where });
 
+    // Fetch tasks with relations needed for grouping
     const tasks = await this.prisma.task.findMany({
       where,
       orderBy: { [sortBy]: sortOrder },
@@ -69,10 +72,52 @@ export class GetAllTasksService {
       },
     });
 
+    // Group tasks according to the groupBy filter
+    const grouped: Record<string, typeof tasks> = {};
+    switch (groupBy) {
+      case 'assignedTo':
+        tasks.forEach((task) => {
+          if (task.tasksUsers?.length) {
+            task.tasksUsers.forEach((tu) => {
+              const key = tu.user.email;
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(task);
+            });
+          } else {
+            const key = 'UNASSIGNED';
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(task);
+          }
+        });
+        break;
+
+      case 'label':
+        tasks.forEach((task) => {
+          const key = task.labels ?? 'UNLABELED';
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(task);
+        });
+        break;
+
+      case 'title':
+      default:
+        tasks.forEach((task) => {
+          const key = `${task.title}#${task.projectId}`;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(task);
+        });
+        break;
+    }
+
+    // Prepare metadata
+    const pages = Math.ceil(total / limit);
+
+    // Return response with grouped data
     return successResponse(
       {
         data: tasks,
-        meta: { total, page, limit, pages: Math.ceil(total / limit) },
+        grouped,
+        meta: { total, page, limit, pages },
       },
       'Tasks fetched successfully',
     );
