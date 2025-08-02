@@ -4,7 +4,7 @@ model Experience {
   companyName        String
   jobType            JobType
   startDate          DateTime
-  endDate            DateTime
+  endDate            DateTime?
   description        String
   isCurrentlyWorking Boolean
   createdAt          DateTime @default(now())
