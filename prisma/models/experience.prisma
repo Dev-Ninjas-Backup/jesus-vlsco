@@ -13,3 +13,12 @@ model Experience {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  TEMPORARY
+  FREELANCE
+}

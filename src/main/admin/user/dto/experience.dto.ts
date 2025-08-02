@@ -1,6 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { JopTitle } from '@prisma/client'; // Ensure this enum is exported from Prisma
+import { JobType } from '@prisma/client'; // Ensure this enum is exported from Prisma
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -20,9 +20,9 @@ export class ExperienceItemDto {
   @IsString()
   companyName: string;
 
-  @ApiProperty({ enum: JopTitle })
-  @IsEnum(JopTitle)
-  jobTitle: JopTitle;
+  @ApiProperty({ enum: JobType })
+  @IsEnum(JobType)
+  jobType: JobType;
 
   @ApiProperty({ example: '2022-01-01T00:00:00.000Z' })
   @IsDateString()
