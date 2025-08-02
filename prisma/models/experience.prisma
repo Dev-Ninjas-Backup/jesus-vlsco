@@ -2,7 +2,7 @@ model Experience {
   id                 String   @id @default(uuid())
   designation        String
   companyName        String
-  jobTitle           JopTitle
+  jobType            JobType
   startDate          DateTime
   endDate            DateTime
   description        String

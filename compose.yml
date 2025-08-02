@@ -16,7 +16,7 @@ services:
       PORT: 5005
 
       MAIL_USER: jaranzov0107@gmail.com
-      MAIL_PASS: auxd gomn apfk cibl
+      MAIL_PASS: auxd gcmn apfk cibl
 
       SUPER_ADMIN_EMAIL: 'jesus.vlsco@gmail.com'
       SUPER_ADMIN_PASS: 'superadmin'
