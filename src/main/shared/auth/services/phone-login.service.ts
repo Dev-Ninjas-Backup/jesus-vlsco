@@ -65,8 +65,10 @@ export class PhoneLoginService {
 
   @HandleError('Error verifying OTP')
   async verifyPhoneOtp(dto: VerifyPhoneOTPDto): Promise<TResponse<any>> {
+    const removePlus = dto.phoneNumber.replace(/^\+/, '');
+
     const user = await this.prisma.user.findUnique({
-      where: { phone: dto.phoneNumber },
+      where: { phone: removePlus },
     });
 
     if (!user) {
