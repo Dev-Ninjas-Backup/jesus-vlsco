@@ -3,6 +3,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { JobType } from '@prisma/client'; // Ensure this enum is exported from Prisma
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -44,8 +45,23 @@ export class ExperienceItemDto {
 }
 
 export class ExperienceDto {
-  @ApiProperty({ type: [ExperienceItemDto] })
+  @ApiProperty({
+    type: [ExperienceItemDto],
+    description: 'List of experiences',
+    example: [
+      {
+        designation: 'Software Engineer',
+        companyName: 'Google',
+        jobType: 'FULL_TIME',
+        startDate: '2022-01-01T00:00:00.000Z',
+        endDate: '2023-12-31T00:00:00.000Z',
+        description: 'Worked on scalable backend services.',
+        isCurrentlyWorking: false,
+      },
+    ],
+  })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => ExperienceItemDto)
   experiences: ExperienceItemDto[];
