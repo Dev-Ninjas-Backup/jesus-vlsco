@@ -9,67 +9,75 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { UserTokenPayload } from '@project/common/jwt/jwt.interface';
-import { IncomingMessage } from 'http';
-import { Server, WebSocket } from 'ws';
+import { JWTPayload, UserTokenPayload } from '@project/common/jwt/jwt.interface';
+import { Server, Socket } from 'socket.io';
+import { PrismaService } from '../prisma/prisma.service';
 
 @WebSocketGateway({
-  path: '/notification',
   cors: { origin: '*' },
+  namespace: '/js/notification',
 })
 @Injectable()
 export class NotificationGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(NotificationGateway.name);
-  private readonly clients = new Map<string, Set<WebSocket>>();
+  private readonly clients = new Map<string, Set<Socket>>();
 
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly prisma: PrismaService,
+  ) { }
 
   @WebSocketServer()
   server: Server;
 
   afterInit(server: Server) {
-    this.logger.log('WebSocket server initialized');
-
-    server.on('error', (err: any) => {
-      this.logger.error(`WebSocket server error: ${err.message}`);
-    });
+    this.logger.log('Socket.IO server initialized', server.adapter.name);
   }
 
-  handleConnection(client: WebSocket, ...args: any[]) {
-    const req = args[0] as IncomingMessage;
-    const authHeader = req.headers['authorization'];
-
-    if (!authHeader?.startsWith('Bearer ')) {
-      this.logger.warn('Missing or invalid Authorization header');
-      return client.close();
-    }
-
-    const token = authHeader.split(' ')[1];
+  async handleConnection(client: Socket) {
     try {
-      // Verify token and cast to your JWT payload interface
-      const payload = this.jwtService.verify<UserTokenPayload>(token, {
+      const token = this.extractTokenFromSocket(client);
+
+      if (!token) {
+        this.logger.warn('Missing token');
+        return client.disconnect(true);
+      }
+
+      const payload = this.jwtService.verify<JWTPayload>(token, {
         secret: this.configService.getOrThrow(ENVEnum.JWT_SECRET),
       });
+      console.log(`JWT payload: ${JSON.stringify(payload)}`);
 
-      // Attach decoded user to the socket
       (client as any).user = payload;
+      if (!payload.sub) {
+        this.logger.warn('Invalid token payload: missing sub');
+        return client.disconnect(true);
+      }
 
-      this.subscribeClient(payload.userId, client);
-      this.logger.log(`Client connected: ${payload.userId}`);
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: { id: true, email: true, notificationToggle: true },
+      });
+      console.log(user);
+      // const paloadForSocketClient = {}
 
-      client.on('close', () => this.handleDisconnect(client));
+      if (!user) {
+        this.logger.warn('Invalid token payload: user not found');
+        return client.disconnect(true);
+      }
+
+      this.subscribeClient(payload.sub, client);
+
+      this.logger.log(`Client connected: ${payload.sub}`);
     } catch (err: any) {
       this.logger.warn(`JWT verification failed: ${err.message || err}`);
-      return client.close();
+      client.disconnect(true);
     }
   }
 
-  handleDisconnect(client: WebSocket) {
+  handleDisconnect(client: Socket) {
     const user: UserTokenPayload | undefined = (client as any).user;
     if (user?.userId) {
       this.unsubscribeClient(user.userId, client);
@@ -79,7 +87,21 @@ export class NotificationGateway
     }
   }
 
-  private subscribeClient(userId: string, client: WebSocket) {
+  private extractTokenFromSocket(client: Socket): string | null {
+    const authHeader =
+      client.handshake.headers.authorization ||
+      client.handshake.auth?.token;
+
+    if (!authHeader) return null;
+
+    if (authHeader.startsWith('Bearer ')) {
+      return authHeader.split(' ')[1];
+    }
+
+    return authHeader; // * fallback if only raw token is passed
+  }
+
+  private subscribeClient(userId: string, client: Socket) {
     if (!this.clients.has(userId)) {
       this.clients.set(userId, new Set());
     }
@@ -87,7 +109,7 @@ export class NotificationGateway
     this.logger.debug(`Subscribed client to user ${userId}`);
   }
 
-  private unsubscribeClient(userId: string, client: WebSocket) {
+  private unsubscribeClient(userId: string, client: Socket) {
     const set = this.clients.get(userId);
     if (!set) return;
 
@@ -99,7 +121,7 @@ export class NotificationGateway
     }
   }
 
-  public getClientsForUser(userId: string): Set<WebSocket> {
+  public getClientsForUser(userId: string): Set<Socket> {
     return this.clients.get(userId) || new Set();
   }
 }
