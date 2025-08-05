@@ -6,7 +6,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsEnum,
   IsOptional,
   IsString,
@@ -27,11 +27,13 @@ export class ExperienceItemDto {
   jobType: JobType;
 
   @ApiProperty({ example: '2022-01-01T00:00:00.000Z' })
-  @IsDateString()
+  @IsDate()
+  @Type(() => Date)
   startDate: string;
 
   @ApiPropertyOptional({ example: '2023-12-31T00:00:00.000Z' })
-  @IsDateString()
+  @IsDate()
+  @Type(() => Date)
   @IsOptional()
   endDate?: string;
 

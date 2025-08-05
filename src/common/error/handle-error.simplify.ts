@@ -41,5 +41,5 @@ export function simplifyError(
     }
   }
 
-  throw new InternalServerErrorException(customMessage);
+  throw new InternalServerErrorException(error.message || customMessage);
 }
