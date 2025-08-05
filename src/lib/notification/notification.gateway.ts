@@ -9,7 +9,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { JWTPayload, UserTokenPayload } from '@project/common/jwt/jwt.interface';
+import { PayloadForSocketClient } from '@project/common/interface/socket-client-payload';
+import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -39,7 +40,6 @@ export class NotificationGateway
   async handleConnection(client: Socket) {
     try {
       const token = this.extractTokenFromSocket(client);
-
       if (!token) {
         this.logger.warn('Missing token');
         return client.disconnect(true);
@@ -48,9 +48,7 @@ export class NotificationGateway
       const payload = this.jwtService.verify<JWTPayload>(token, {
         secret: this.configService.getOrThrow(ENVEnum.JWT_SECRET),
       });
-      console.log(`JWT payload: ${JSON.stringify(payload)}`);
 
-      (client as any).user = payload;
       if (!payload.sub) {
         this.logger.warn('Invalid token payload: missing sub');
         return client.disconnect(true);
@@ -58,19 +56,35 @@ export class NotificationGateway
 
       const user = await this.prisma.user.findUnique({
         where: { id: payload.sub },
-        select: { id: true, email: true, notificationToggle: true },
+        select: {
+          id: true,
+          email: true,
+          notificationToggle: true,
+        },
       });
-      console.log(user);
-      // const paloadForSocketClient = {}
 
       if (!user) {
-        this.logger.warn('Invalid token payload: user not found');
+        this.logger.warn(`User not found for ID: ${payload.sub}`);
         return client.disconnect(true);
       }
 
-      this.subscribeClient(payload.sub, client);
+      const payloadForSocketClient: PayloadForSocketClient = {
+        sub: user.id,
+        email: user.email,
+        emailToggle: user.notificationToggle?.email || false,
+        userUpdates: user.notificationToggle?.userUpdates || false,
+        communication: user.notificationToggle?.communication || false,
+        surveyAndPoll: user.notificationToggle?.surveyAndPoll || false,
+        tasksAndProjects: user.notificationToggle?.tasksAndProjects || false,
+        scheduling: user.notificationToggle?.scheduling || false,
+        message: user.notificationToggle?.message || false,
+        userRegistration: user.notificationToggle?.userRegistration || false,
+      };
 
-      this.logger.log(`Client connected: ${payload.sub}`);
+      client.data = { user: payloadForSocketClient };
+      this.subscribeClient(user.id, client);
+
+      this.logger.log(`Client connected: ${user.id}`);
     } catch (err: any) {
       this.logger.warn(`JWT verification failed: ${err.message || err}`);
       client.disconnect(true);
@@ -78,10 +92,10 @@ export class NotificationGateway
   }
 
   handleDisconnect(client: Socket) {
-    const user: UserTokenPayload | undefined = (client as any).user;
-    if (user?.userId) {
-      this.unsubscribeClient(user.userId, client);
-      this.logger.log(`Client disconnected: ${user.userId}`);
+    const userId = client.data?.user?.sub;
+    if (userId) {
+      this.unsubscribeClient(userId, client);
+      this.logger.log(`Client disconnected: ${userId}`);
     } else {
       this.logger.log('Client disconnected: unknown user');
     }
@@ -94,11 +108,9 @@ export class NotificationGateway
 
     if (!authHeader) return null;
 
-    if (authHeader.startsWith('Bearer ')) {
-      return authHeader.split(' ')[1];
-    }
-
-    return authHeader; // * fallback if only raw token is passed
+    return authHeader.startsWith('Bearer ')
+      ? authHeader.split(' ')[1]
+      : authHeader;
   }
 
   private subscribeClient(userId: string, client: Socket) {
