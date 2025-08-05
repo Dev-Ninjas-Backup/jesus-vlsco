@@ -1,7 +1,10 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EVENT_TYPES, EventPayloadMap } from '@project/common/interface/events-name';
+import {
+  EVENT_TYPES,
+  EventPayloadMap,
+} from '@project/common/interface/events-name';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Queue } from 'bullmq';
 
@@ -14,7 +17,6 @@ export class CompanyEventService {
 
   /**
    * Handles announcement creation events.
-   * Queues the job and optionally emits WebSocket notifications immediately.
    */
   @OnEvent(EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE)
   async handleCreateAnnouncement(
@@ -24,14 +26,7 @@ export class CompanyEventService {
     await this.notificationQueue.add(
       EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
       payload,
-      { delay: this.gateway.getDelay(payload.publishedAt) },
+      { delay: this.gateway.getDelay(payload.meta.publishedAt) },
     );
-
-    // Optionally emit live WS notification to admins
-    // await this.gateway.broadcast({
-    //   type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
-    //   data: payload,
-    //   createdAt: new Date(),
-    // });
   }
 }

@@ -61,13 +61,16 @@ export class CreateAnnouncementService {
     const payload: AnnouncementEvent = {
       announcementId: announcement.id,
       title: announcement.title,
-      message: announcement.description as any,
-      publishedAt: announcement.publishedNow
-        ? new Date()
-        : announcement.publishedAt!,
-      recipients: recipients.map((recipient) => recipient.email),
-      sendEmail: announcement.sendEmailNotification,
-      sendWs: true,
+      message: announcement.description as string,
+      action: 'CREATE',
+      meta: {
+        performedBy: userId,
+        publishedAt: announcement.publishedNow
+          ? new Date()
+          : announcement.publishedAt!,
+        recipients,
+        sendEmail: announcement.sendEmailNotification,
+      }
     };
 
     // Emit an event; CompanyEventService will queue and broadcast

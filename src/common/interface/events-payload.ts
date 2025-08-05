@@ -1,11 +1,22 @@
+export interface Notification {
+  type: string;
+  title: string;
+  message: string;
+  createdAt: Date;
+  read: boolean;
+}
+
 export interface AnnouncementEvent {
   announcementId: string;
   title: string;
   message: string;
-  publishedAt: Date;
-  recipients: string[];
-  sendEmail: boolean;
-  sendWs: boolean;
+  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  meta: {
+    performedBy?: string; // admin or user who created the announcement
+    publishedAt: Date;
+    recipients: { email: string, id: string }[];
+    sendEmail: boolean;
+  }
 }
 
 export interface ShiftEvent {

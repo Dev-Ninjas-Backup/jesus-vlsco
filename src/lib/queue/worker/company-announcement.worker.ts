@@ -1,7 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
 import { AnnouncementEvent } from '@project/common/interface/events-payload';
+import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Worker } from 'bullmq';
@@ -18,14 +20,16 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(
-      'notification',
+      QueueName.ANNOUNCEMENT,
       async (job) => {
-        if (job.name !== 'announcement:create') return;
+        if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
-        const { title, message, recipients, sendEmail, sendWs } = job.data;
+        const { title, message, meta: { recipients, sendEmail } } = job.data;
 
+        // * Send email notifications
         if (sendEmail) {
-          for (const email of recipients) {
+          for (const recipient of recipients) {
+            const email = recipient.email;
             try {
               await this.mailService.sendEmail(
                 email,
@@ -39,16 +43,20 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
           }
         }
 
-        if (sendWs) {
-          for (const userId of recipients) {
-            this.gateway.server
-              .to(userId)
-              .emit('announcement', { title, message });
-          }
-        }
+        // * Send Socket notifications
+        this.gateway.notifyMultipleUsers(
+          recipients.map((r) => r.id),
+          EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
+          { type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE, title, message, createdAt: new Date(), read: false },
+        );
+        this.logger.log(`WebSocket notifications sent to: ${recipients.map((r) => r.id).join(', ')}`);
       },
-      { connection: { host: this.config.get(ENVEnum.REDIS_HOST), port: +this.config.get(ENVEnum.REDIS_PORT) } },
+      {
+        connection: {
+          host: this.config.get(ENVEnum.REDIS_HOST),
+          port: +this.config.get(ENVEnum.REDIS_PORT),
+        },
+      },
     );
   }
 }
-
