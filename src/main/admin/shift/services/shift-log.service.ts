@@ -2,7 +2,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { EVENT_TYPES, ShiftEvent } from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { ShiftEvent } from '@project/common/interface/events-payload';
 import {
   successPaginatedResponse,
   successResponse,

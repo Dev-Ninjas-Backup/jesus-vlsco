@@ -2,7 +2,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { EVENT_TYPES, ShiftEvent } from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { ShiftEvent } from '@project/common/interface/events-payload';
 import {
   successPaginatedResponse,
   successResponse,
@@ -14,8 +15,8 @@ import { Queue } from 'bullmq';
 import dayjs from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { ChangeShiftDto } from '../dto/change-shift.dto';
-import { GetDefaultShiftsDto } from '../dto/get-default-shifts.dto';
 import { CreateDefaultShiftDto } from '../dto/create-default-shift.dto';
+import { GetDefaultShiftsDto } from '../dto/get-default-shifts.dto';
 dayjs.extend(weekOfYear);
 
 @Injectable()

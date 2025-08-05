@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { TimeOffEvent } from '@project/common/interface/events';
+import { TimeOffEvent } from '@project/common/interface/events-payload';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Worker } from 'bullmq';

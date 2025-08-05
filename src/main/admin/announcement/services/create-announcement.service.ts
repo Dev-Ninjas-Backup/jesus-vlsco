@@ -1,10 +1,8 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import {
-  AnnouncementEvent,
-  EVENT_TYPES,
-} from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { AnnouncementEvent } from '@project/common/interface/events-payload';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';

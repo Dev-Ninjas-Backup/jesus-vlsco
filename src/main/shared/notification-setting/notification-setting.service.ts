@@ -9,7 +9,7 @@ import { NotificationToggleDto } from './dto/notification-toggle.dto';
 
 @Injectable()
 export class NotificationSettingService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get notification setting')
   async getNotificationSetting(userId: string): Promise<TResponse<any>> {
@@ -65,7 +65,7 @@ export class NotificationSettingService {
         scheduling: dto.scheduling,
         message: dto.message,
         userRegistration: dto.userRegistration,
-      }
+      },
     });
     return successResponse(result, 'Notification setting updated successfully');
   }
