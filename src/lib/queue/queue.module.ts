@@ -1,5 +1,6 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Global, Module } from '@nestjs/common';
+import { CompanyEventService } from './services/company-event.service';
 import { CompanyAnnouncementWorker } from './worker/company-announcement.worker';
 import { ShiftWorker } from './worker/shift.worker';
 
@@ -12,7 +13,7 @@ import { ShiftWorker } from './worker/shift.worker';
       { name: 'shift' },
     ),
   ],
-  providers: [CompanyAnnouncementWorker, ShiftWorker],
+  providers: [CompanyAnnouncementWorker, ShiftWorker, CompanyEventService],
   exports: [BullModule],
 })
-export class QueueModule {}
+export class QueueModule { }

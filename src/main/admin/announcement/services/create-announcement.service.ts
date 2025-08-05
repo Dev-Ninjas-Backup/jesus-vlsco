@@ -1,12 +1,11 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES } from '@project/common/interface/events-name';
 import { AnnouncementEvent } from '@project/common/interface/events-payload';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { Queue } from 'bullmq';
 import { CreateAnnouncementDto } from '../dto/createAnnouncement.dto';
 
 @Injectable()
@@ -14,11 +13,16 @@ export class CreateAnnouncementService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-    @InjectQueue('announcement')
-    private readonly announcementQueue: Queue<AnnouncementEvent>,
-  ) {}
+    private readonly eventEmitter: EventEmitter2,
+  ) { }
 
-  // Create a new announcementd
+  /**
+   * Creates a new announcement and schedules it for processing.
+   * @param data - The announcement data.
+   * @param urls - Array of file URLs to attach to the announcement.
+   * @param userId - ID of the user creating the announcement.
+   * @returns A success response with the created announcement.
+   */
   @HandleError('Error creating announcement')
   async createAnnouncement(
     data: CreateAnnouncementDto,
@@ -37,7 +41,7 @@ export class CreateAnnouncementService {
         publishedAt: data.publishedAt,
         isForAllUsers: data.isForAllUsers,
         attachments: {
-          createMany: { data: urls.map((url) => ({ file: url })) },
+          createMany: { data: urls.map((file) => ({ file })) },
         },
       },
     });
@@ -53,6 +57,7 @@ export class CreateAnnouncementService {
       members.map((m) => m.teamId),
     );
 
+    // Minimal payload
     const payload: AnnouncementEvent = {
       announcementId: announcement.id,
       title: announcement.title,
@@ -65,16 +70,8 @@ export class CreateAnnouncementService {
       sendWs: true,
     };
 
-    // 3) Enqueue job (delay if scheduled)
-    const delay = data.publishedNow
-      ? 0
-      : Math.max(0, payload.publishedAt.getTime() - Date.now());
-
-    await this.announcementQueue.add(
-      EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
-      payload,
-      { delay },
-    );
+    // Emit an event; CompanyEventService will queue and broadcast
+    this.eventEmitter.emit(EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE, payload);
 
     return successResponse(announcement, 'Announcement created successfully');
   }

@@ -8,25 +8,23 @@ import { Worker } from 'bullmq';
 
 @Injectable()
 export class CompanyAnnouncementWorker implements OnModuleInit {
-  // LOGGER
-  private logger = new Logger(CompanyAnnouncementWorker.name);
+  private readonly logger = new Logger(CompanyAnnouncementWorker.name);
+
   constructor(
-    private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
-  ) {}
+    private readonly gateway: NotificationGateway,
+  ) { }
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(
-      'announcement',
+      'notification',
       async (job) => {
+        if (job.name !== 'announcement:create') return;
+
         const { title, message, recipients, sendEmail, sendWs } = job.data;
 
-        // Broadcast via email
-        if (sendEmail && recipients.length) {
-          this.logger.log(
-            `Sending email to ${recipients.length} recipients...`,
-          );
+        if (sendEmail) {
           for (const email of recipients) {
             try {
               await this.mailService.sendEmail(
@@ -34,29 +32,23 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
                 title,
                 `<h3>${title}</h3><p>${message}</p>`,
               );
-              this.logger.log(`Email sent to ${email}`);
+              this.logger.log(`Email sent: ${email}`);
             } catch (err) {
-              this.logger.error(`Failed to send email to ${email}`, err);
+              this.logger.error(`Email failed: ${email}`, err);
             }
           }
         }
 
-        // Broadcast via WebSocket
-        if (sendWs && recipients.length) {
+        if (sendWs) {
           for (const userId of recipients) {
-            const sockets = this.gateway.getClientsForUser(userId);
-            sockets.forEach((ws) =>
-              ws.send(JSON.stringify({ title, message })),
-            );
+            this.gateway.server
+              .to(userId)
+              .emit('announcement', { title, message });
           }
         }
       },
-      {
-        connection: {
-          host: this.config.getOrThrow(ENVEnum.REDIS_HOST),
-          port: +this.config.getOrThrow(ENVEnum.REDIS_PORT),
-        },
-      },
+      { connection: { host: this.config.get(ENVEnum.REDIS_HOST), port: +this.config.get(ENVEnum.REDIS_PORT) } },
     );
   }
 }
+
