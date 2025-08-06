@@ -1,5 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import {
   EVENT_TYPES,
   EventPayloadMap,
@@ -19,6 +20,7 @@ export class TimeoffEventService {
   /**
    * Handles time off creation events.
    */
+  @OnEvent(EVENT_TYPES.TIME_OFF_CREATE)
   async handleCreateTimeOff(
     payload: EventPayloadMap[typeof EVENT_TYPES.TIME_OFF_CREATE],
   ) {
@@ -29,6 +31,7 @@ export class TimeoffEventService {
   /**
    * Handles time off update events.
    */
+  @OnEvent(EVENT_TYPES.TIME_OFF_UPDATE)
   async handleUpdateTimeOff(
     payload: EventPayloadMap[typeof EVENT_TYPES.TIME_OFF_UPDATE],
   ) {
@@ -39,6 +42,7 @@ export class TimeoffEventService {
   /**
    * Handles time off deletion events.
    */
+  @OnEvent(EVENT_TYPES.TIME_OFF_DELETE)
   async handleDeleteTimeOff(
     payload: EventPayloadMap[typeof EVENT_TYPES.TIME_OFF_DELETE],
   ) {
@@ -49,6 +53,7 @@ export class TimeoffEventService {
   /**
    * Handles time off status change events.
    */
+  @OnEvent(EVENT_TYPES.TIME_OFF_STATUS_CHANGE)
   async handleStatusChangeTimeOff(
     payload: EventPayloadMap[typeof EVENT_TYPES.TIME_OFF_STATUS_CHANGE],
   ) {
