@@ -90,7 +90,7 @@ export class SurveyResponseService {
     const limit = pg.limit || 10;
     const offset = (page - 1) * limit;
 
-    const questions = await this.prisma.surveyQuestions.findMany({
+    const questionsAnswer = await this.prisma.surveyQuestions.findMany({
       where: {
         surveyId: { not: null },
       },
@@ -103,9 +103,17 @@ export class SurveyResponseService {
       },
     });
 
+    const openEndedAnswers = questionsAnswer.filter(
+      (q) => q.type === 'OPEN_ENDED',
+    );
+
+    const selectAnswers = questionsAnswer.filter((q) => q.type === 'SELECT');
+
+    const rangeAnswers = questionsAnswer.filter((q) => q.type === 'RANGE');
+
     const results: DashboardQuestionResponse[] = [];
 
-    for (const question of questions) {
+    for (const question of questionsAnswer) {
       const base = {
         id: question.id,
         question: question.question,
@@ -189,7 +197,14 @@ export class SurveyResponseService {
     }
 
     return successResponse(
-      results,
+      {
+        rawAnswers: {
+          openEnded: openEndedAnswers,
+          select: selectAnswers,
+          range: rangeAnswers,
+        },
+        analyticsAnswer: results,
+      },
       'Successfully retrieved recent question responses for all users',
     );
   }
