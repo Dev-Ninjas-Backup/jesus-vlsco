@@ -1,3 +1,5 @@
+import { AnnouncementMeta, ShiftMeta, TimeOffMeta } from "./events-meta";
+
 export interface Notification {
   type: string;
   title: string;
@@ -6,39 +8,24 @@ export interface Notification {
   meta: Record<string, any>;
 }
 
-export interface AnnouncementEvent {
+export interface BaseEvent<TMeta> {
+  action: string;
+  meta: TMeta;
+}
+
+export interface AnnouncementEvent extends BaseEvent<AnnouncementMeta> {
   title: string;
   message: string;
+  recipients: { email: string; id: string }[];
+  sendEmail: boolean;
   action: 'CREATE' | 'UPDATE' | 'DELETE';
-  meta: {
-    announcementId: string;
-    performedBy: string;
-    publishedAt: Date;
-    recipients: { email: string; id: string }[];
-    sendEmail: boolean;
-  };
 }
 
-export interface ShiftEvent {
+export interface ShiftEvent extends BaseEvent<ShiftMeta> {
   action: 'ASSIGN' | 'CHANGE' | 'STATUS_UPDATE';
-  meta: {
-    userId: string;
-    shiftId: string;
-    performedBy: string; // admin or manager who triggered it
-    status: 'APPROVED' | 'REJECTED' | 'PENDING';
-    date: string; // ISO string
-  };
 }
 
-export interface TimeOffEvent {
+export interface TimeOffEvent extends BaseEvent<TimeOffMeta> {
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE';
-  meta: {
-    userId: string;
-    requestId: string;
-    performedBy?: string; // admin or user
-    status?: 'APPROVED' | 'REJECTED' | 'PENDING'; // only for status change
-    reason?: string; // optional reason for rejection
-    startDate?: string; // ISO format
-    endDate?: string; // ISO format
-  };
+  meta: TimeOffMeta
 }

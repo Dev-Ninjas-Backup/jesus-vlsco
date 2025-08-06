@@ -25,14 +25,16 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
         if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
         const {
+          recipients,
           title,
           message,
+          sendEmail,
           meta,
         } = job.data;
 
         // * Send email notifications
-        if (meta.sendEmail) {
-          for (const recipient of meta.recipients) {
+        if (sendEmail) {
+          for (const recipient of recipients) {
             const email = recipient.email;
             try {
               await this.mailService.sendEmail(
@@ -49,7 +51,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
 
         // * Send Socket notifications
         this.gateway.notifyMultipleUsers(
-          meta.recipients.map((r) => r.id),
+          recipients.map((r) => r.id),
           EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
           {
             type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,

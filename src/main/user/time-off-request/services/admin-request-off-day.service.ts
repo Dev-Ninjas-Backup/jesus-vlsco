@@ -56,7 +56,6 @@ export class AdminRequestOffDayService {
         userId: updatedRequest.userId,
         startDate: new Date(updatedRequest.startDate).toISOString(),
         endDate: new Date(updatedRequest.endDate).toISOString(),
-        reason: updatedRequest.reason,
         status: updatedRequest.status,
         performedBy: updatedRequest.userId,
       },
