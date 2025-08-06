@@ -2,7 +2,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { EVENT_TYPES, ShiftEvent } from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { ShiftEvent } from '@project/common/interface/events-payload';
 import {
   successPaginatedResponse,
   successResponse,
@@ -42,12 +43,13 @@ export class ShiftLogService {
 
     // * Enqueue job
     const payload: ShiftEvent = {
-      shiftId: result.id,
-      userId,
       action: 'ASSIGN',
       meta: {
+        shiftId: result.id,
+        userId,
         performedBy: userId, // assuming user assigns to self
         date: new Date().toISOString(),
+        status: 'APPROVED',
       },
     };
 
@@ -75,10 +77,10 @@ export class ShiftLogService {
 
     // * Enqueue job
     const payload: ShiftEvent = {
-      shiftId: result.id,
-      userId: result.userId,
       action: 'STATUS_UPDATE',
       meta: {
+        shiftId: result.id,
+        userId: result.userId,
         performedBy: result.userId,
         date: new Date().toISOString(),
         status: dto.status,

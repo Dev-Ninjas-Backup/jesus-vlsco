@@ -1,7 +1,9 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { ShiftEvent } from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { ShiftEvent } from '@project/common/interface/events-payload';
+import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { UtilsService } from '@project/lib/utils/utils.service';
@@ -20,9 +22,12 @@ export class ShiftWorker implements OnModuleInit {
 
   onModuleInit() {
     new Worker<ShiftEvent>(
-      'shift',
+      QueueName.SHIFT,
       async (job) => {
-        const { shiftId, userId, action, meta } = job.data;
+        const {
+          action,
+          meta: { userId, shiftId, ...meta },
+        } = job.data;
 
         try {
           const userEmail = await this.utils.getEmailById(userId);
@@ -30,20 +35,19 @@ export class ShiftWorker implements OnModuleInit {
 
           const message = this.generateMessage(action, shift, meta);
           const title = this.generateTitle(action);
+          const eventName = this.generateShiftEventName(action);
 
           this.logger.log(`Processing shift event: ${action} for ${userEmail}`);
 
           // Send Email
           await this.mailService.sendEmail(userEmail, title, message);
 
-          // Send WebSocket Notification
-          this.gateway.getClientsForUser(userId).forEach((client) => {
-            client.send(
-              JSON.stringify({
-                type: 'SHIFT_EVENT',
-                data: { shiftId, action, title, message },
-              }),
-            );
+          // Send Socket Notification
+          this.gateway.notifySingleUser(userId, eventName, {
+            type: eventName,
+            title,
+            message,
+            createdAt: new Date(),
           });
 
           this.logger.log(`Shift ${action} notification sent to ${userEmail}`);
@@ -105,6 +109,19 @@ export class ShiftWorker implements OnModuleInit {
         `;
       default:
         return `<p>You have a shift update.</p>`;
+    }
+  }
+
+  private generateShiftEventName(action: ShiftEvent['action']): string {
+    switch (action) {
+      case 'ASSIGN':
+        return EVENT_TYPES.SHIFT_ASSIGN;
+      case 'CHANGE':
+        return EVENT_TYPES.SHIFT_CHANGE;
+      case 'STATUS_UPDATE':
+        return EVENT_TYPES.SHIFT_STATUS_UPDATE;
+      default:
+        return 'shift.unknown';
     }
   }
 }

@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import { ShiftEvent } from '@project/common/interface/events';
+import { ShiftEvent } from '@project/common/interface/events-payload';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { Queue } from 'bullmq';
 
