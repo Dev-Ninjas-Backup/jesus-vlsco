@@ -1,60 +1,68 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { AnnouncementEvent } from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { AnnouncementEvent } from '@project/common/interface/events-payload';
+import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Worker } from 'bullmq';
 
 @Injectable()
 export class CompanyAnnouncementWorker implements OnModuleInit {
-  // LOGGER
-  private logger = new Logger(CompanyAnnouncementWorker.name);
+  private readonly logger = new Logger(CompanyAnnouncementWorker.name);
+
   constructor(
-    private readonly gateway: NotificationGateway,
     private readonly config: ConfigService,
     private readonly mailService: MailService,
+    private readonly gateway: NotificationGateway,
   ) {}
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(
-      'announcement',
+      QueueName.ANNOUNCEMENT,
       async (job) => {
-        const { title, message, recipients, sendEmail, sendWs } = job.data;
+        if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
-        // Broadcast via email
-        if (sendEmail && recipients.length) {
-          this.logger.log(
-            `Sending email to ${recipients.length} recipients...`,
-          );
-          for (const email of recipients) {
+        const {
+          title,
+          message,
+          meta: { recipients, sendEmail },
+        } = job.data;
+
+        // * Send email notifications
+        if (sendEmail) {
+          for (const recipient of recipients) {
+            const email = recipient.email;
             try {
               await this.mailService.sendEmail(
                 email,
                 title,
                 `<h3>${title}</h3><p>${message}</p>`,
               );
-              this.logger.log(`Email sent to ${email}`);
+              this.logger.log(`Email sent: ${email}`);
             } catch (err) {
-              this.logger.error(`Failed to send email to ${email}`, err);
+              this.logger.error(`Email failed: ${email}`, err);
             }
           }
         }
 
-        // Broadcast via WebSocket
-        if (sendWs && recipients.length) {
-          for (const userId of recipients) {
-            const sockets = this.gateway.getClientsForUser(userId);
-            sockets.forEach((ws) =>
-              ws.send(JSON.stringify({ title, message })),
-            );
-          }
-        }
+        // * Send Socket notifications
+        this.gateway.notifyMultipleUsers(
+          recipients.map((r) => r.id),
+          EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
+          {
+            type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
+            title,
+            message,
+            createdAt: new Date(),
+          },
+        );
       },
       {
         connection: {
-          host: this.config.getOrThrow(ENVEnum.REDIS_HOST),
-          port: +this.config.getOrThrow(ENVEnum.REDIS_PORT),
+          host: this.config.get(ENVEnum.REDIS_HOST),
+          port: +this.config.get(ENVEnum.REDIS_PORT),
         },
       },
     );

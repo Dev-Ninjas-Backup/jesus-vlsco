@@ -2,7 +2,8 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { EVENT_TYPES, TimeOffEvent } from '@project/common/interface/events';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { TimeOffEvent } from '@project/common/interface/events-payload';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { Queue } from 'bullmq';
@@ -36,9 +37,10 @@ export class OffDayRequestService {
 
     const payload: TimeOffEvent = {
       action: 'CREATE',
-      requestId: result.id,
-      userId: userId,
+      title: 'Time Off Request',
       meta: {
+        requestId: result.id,
+        userId: userId,
         startDate: new Date(result.startDate).toISOString(),
         endDate: new Date(result.endDate).toISOString(),
         reason: result.reason,
