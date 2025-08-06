@@ -85,7 +85,6 @@ export class SurveyResponseService {
 
   async getAllRecentQuestionsResponsesByAllUsers(
     pg: PaginationDto,
-    questionIds?: string[],
   ): Promise<TResponse> {
     const page = pg.page || 1;
     const limit = pg.limit || 10;
@@ -94,7 +93,6 @@ export class SurveyResponseService {
     const questions = await this.prisma.surveyQuestions.findMany({
       where: {
         surveyId: { not: null },
-        id: { in: questionIds },
       },
       orderBy: { createdAt: 'desc' },
       skip: offset,
@@ -167,14 +165,12 @@ export class SurveyResponseService {
           })),
         });
       } else if (question.type === 'OPEN_ENDED') {
-        // OPEN_ENDED type — show top 5 sample answers
         const answers = await this.prisma.surveyAnswer.findMany({
           where: {
             questionId: question.id,
             answerText: { not: null },
           },
           select: { answerText: true },
-          take: 5,
         });
 
         const count = await this.prisma.surveyAnswer.count({
