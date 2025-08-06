@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
-import { SurveyResponseService } from '@project/main/user/survey/services/survey-response.service';
 import { SurveyAssignController } from './controller/survey-assign.controller';
 import { SurveyQuestionController } from './controller/survey-question.controller';
+import { SurveyResponseController } from './controller/survey-response.controller';
 import { SurveyTemplateController } from './controller/survey-template.controller';
 import { SurveyController } from './controller/survey.controller';
+import { GetSurveyResponseService } from './services/get-survey-response.service';
 import { SurveyAssignService } from './services/survey-assign.service';
 import { SurveyQuestionService } from './services/survey-question.service';
+import { SurveyResponseService } from './services/survey-response.service';
 import { SurveyTemplateService } from './services/survey-template.service';
 import { SurveyService } from './services/survey.service';
-import { GetSurveyResponseService } from './services/get-survey-response.service';
 
 @Module({
   controllers: [
@@ -16,6 +17,7 @@ import { GetSurveyResponseService } from './services/get-survey-response.service
     SurveyController,
     SurveyQuestionController,
     SurveyAssignController,
+    SurveyResponseController,
   ],
   providers: [
     SurveyService,
@@ -24,6 +26,7 @@ import { GetSurveyResponseService } from './services/get-survey-response.service
     SurveyAssignService,
     SurveyResponseService,
     GetSurveyResponseService,
+    SurveyResponseService,
   ],
 })
-export class SurveyModule {}
+export class SurveyModule { }
