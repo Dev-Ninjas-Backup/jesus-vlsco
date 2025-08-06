@@ -43,12 +43,13 @@ export class ShiftLogService {
 
     // * Enqueue job
     const payload: ShiftEvent = {
-      shiftId: result.id,
-      userId,
       action: 'ASSIGN',
       meta: {
+        shiftId: result.id,
+        userId,
         performedBy: userId, // assuming user assigns to self
         date: new Date().toISOString(),
+        status: 'APPROVED',
       },
     };
 
@@ -76,10 +77,10 @@ export class ShiftLogService {
 
     // * Enqueue job
     const payload: ShiftEvent = {
-      shiftId: result.id,
-      userId: result.userId,
       action: 'STATUS_UPDATE',
       meta: {
+        shiftId: result.id,
+        userId: result.userId,
         performedBy: result.userId,
         date: new Date().toISOString(),
         status: dto.status,

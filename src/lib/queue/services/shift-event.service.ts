@@ -10,25 +10,20 @@ import { NotificationGateway } from '@project/lib/notification/notification.gate
 import { Queue } from 'bullmq';
 
 @Injectable()
-export class CompanyEventService {
+export class ShiftEventService {
   constructor(
-    @InjectQueue(QueueName.ANNOUNCEMENT)
-    private readonly notificationQueue: Queue,
+    @InjectQueue(QueueName.SHIFT) private readonly notificationQueue: Queue,
     private readonly gateway: NotificationGateway,
   ) {}
 
   /**
-   * Handles announcement creation events.
+   * Handles shift assignment events.
    */
-  @OnEvent(EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE)
-  async handleCreateAnnouncement(
-    payload: EventPayloadMap[typeof EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE],
+  @OnEvent(EVENT_TYPES.SHIFT_ASSIGN)
+  async handleShiftAssignment(
+    payload: EventPayloadMap[typeof EVENT_TYPES.SHIFT_ASSIGN],
   ) {
     // Enqueue for processing by worker
-    await this.notificationQueue.add(
-      EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
-      payload,
-      { delay: this.gateway.getDelay(payload.meta.publishedAt) },
-    );
+    await this.notificationQueue.add(EVENT_TYPES.SHIFT_ASSIGN, payload);
   }
 }

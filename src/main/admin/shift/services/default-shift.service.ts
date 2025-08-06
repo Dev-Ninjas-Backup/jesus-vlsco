@@ -189,12 +189,13 @@ export class DefaultShiftService {
 
     // * Enqueue job
     const payload: ShiftEvent = {
-      shiftId: result.id,
-      userId: result.userId,
       action: 'STATUS_UPDATE',
       meta: {
+        userId: result.userId,
+        shiftId: result.id,
         performedBy: result.userId,
         date: new Date().toISOString(),
+        status: 'APPROVED', // assuming the change is approved
       },
     };
 

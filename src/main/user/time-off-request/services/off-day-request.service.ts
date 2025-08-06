@@ -37,9 +37,10 @@ export class OffDayRequestService {
 
     const payload: TimeOffEvent = {
       action: 'CREATE',
-      requestId: result.id,
-      userId: userId,
+      title: 'Time Off Request',
       meta: {
+        requestId: result.id,
+        userId: userId,
         startDate: new Date(result.startDate).toISOString(),
         endDate: new Date(result.endDate).toISOString(),
         reason: result.reason,

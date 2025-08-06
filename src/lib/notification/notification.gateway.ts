@@ -21,7 +21,8 @@ import { PrismaService } from '../prisma/prisma.service';
 })
 @Injectable()
 export class NotificationGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   private readonly logger = new Logger(NotificationGateway.name);
   private readonly clients = new Map<string, Set<Socket>>();
 
@@ -29,7 +30,7 @@ export class NotificationGateway
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-  ) { }
+  ) {}
 
   @WebSocketServer()
   server: Server;
@@ -253,11 +254,16 @@ export class NotificationGateway
     });
   }
 
-  public async notifyAllUsers(event: string, data: Notification): Promise<void> {
+  public async notifyAllUsers(
+    event: string,
+    data: Notification,
+  ): Promise<void> {
     this.clients.forEach((clients, userId) => {
       clients.forEach((client) => {
         client.emit(event, data);
-        this.logger.log(`Notification sent to all users via event ${event}`);
+        this.logger.log(
+          `Notification sent to all users via event ${event} for user ${userId}`,
+        );
       });
     });
   }

@@ -16,7 +16,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly mailService: MailService,
     private readonly gateway: NotificationGateway,
-  ) { }
+  ) {}
 
   onModuleInit() {
     new Worker<AnnouncementEvent>(
@@ -24,7 +24,11 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
       async (job) => {
         if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
-        const { title, message, meta: { recipients, sendEmail } } = job.data;
+        const {
+          title,
+          message,
+          meta: { recipients, sendEmail },
+        } = job.data;
 
         // * Send email notifications
         if (sendEmail) {
@@ -47,9 +51,13 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
         this.gateway.notifyMultipleUsers(
           recipients.map((r) => r.id),
           EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
-          { type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE, title, message, createdAt: new Date(), read: false },
+          {
+            type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
+            title,
+            message,
+            createdAt: new Date(),
+          },
         );
-        this.logger.log(`WebSocket notifications sent to: ${recipients.map((r) => r.id).join(', ')}`);
       },
       {
         connection: {
