@@ -5,7 +5,7 @@ model Profile {
   lastName    String?
   profileUrl  String?
   gender      Gender
-  jobTitle     JopTitle
+  jobTitle    JopTitle
   department  Department
   address     String
   city        String

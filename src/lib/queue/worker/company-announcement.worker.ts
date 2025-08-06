@@ -25,9 +25,8 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
         if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
         const {
-          title,
-          message,
-          meta: { recipients, sendEmail },
+          info: { title, message, recipients, sendEmail },
+          meta,
         } = job.data;
 
         // * Send email notifications
@@ -56,6 +55,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
             title,
             message,
             createdAt: new Date(),
+            meta,
           },
         );
       },

@@ -48,6 +48,7 @@ export class ShiftWorker implements OnModuleInit {
             title,
             message,
             createdAt: new Date(),
+            meta,
           });
 
           this.logger.log(`Shift ${action} notification sent to ${userEmail}`);
