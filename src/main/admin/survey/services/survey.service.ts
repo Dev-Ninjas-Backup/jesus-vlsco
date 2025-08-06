@@ -35,7 +35,6 @@ export class SurveyService {
             description: q.description,
             type: q.type,
             order: q.order,
-            status: 'ACTIVE',
             isRequired: q.isRequired,
             captureLocation: q.captureLocation,
             multiSelect: q.multiSelect,
@@ -49,6 +48,13 @@ export class SurveyService {
               },
             }),
           })),
+        },
+      },
+      include: {
+        questions: {
+          include: {
+            options: true,
+          },
         },
       },
     });
