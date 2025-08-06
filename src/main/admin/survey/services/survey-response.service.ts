@@ -20,7 +20,7 @@ type DashboardQuestionResponse = {
 
 @Injectable()
 export class SurveyResponseService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getASurveyResponseByAllEmployees(surveyId: string): Promise<TResponse> {
     const responses = await this.prisma.surveyResponse.findMany({
@@ -189,7 +189,10 @@ export class SurveyResponseService {
     }
 
     return successResponse(
-      results,
+      {
+        rawAnswers: questions,
+        analyticsAnswer: results,
+      },
       'Successfully retrieved recent question responses for all users',
     );
   }
