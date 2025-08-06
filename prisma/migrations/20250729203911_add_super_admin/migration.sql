@@ -1,2 +1,0 @@
--- AlterEnum
-ALTER TYPE "UserEnum" ADD VALUE 'SUPER_ADMIN';

@@ -21,7 +21,7 @@ model User {
   recognitions         RecognitionUser[]
   experience           Experience[]
   defaultShifts        DefaultShift[]
-  shiftLogs            ShiftLog[]
+  shift                 Shift[]
   taskUsers            TaskUser[]
   teamMembers          TeamMembers[]
   projectUsers         ProjectUser[]
