@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { SurveyStatus } from '@prisma/client';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 type DashboardQuestionResponse = {
@@ -15,16 +18,36 @@ type DashboardQuestionResponse = {
   sampleAnswers?: string[];
 };
 
-
 @Injectable()
 export class SurveyResponseService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async getASurveyResponseByAllEmployees(surveyId: string): Promise<TResponse> {
+    const responses = await this.prisma.surveyResponse.findMany({
+      where: { surveyId },
+      include: {
+        answers: {
+          include: {
+            question: {
+              select: {
+                id: true,
+                question: true,
+                type: true,
+              },
+            },
+            selectedOptions: {
+              select: {
+                id: true,
+              },
+            },
+          },
+        },
+      },
+    });
     return successResponse(
-      null,
+      responses,
       'Successfully retrieved survey responses',
-    )
+    );
   }
 
   async getAllRecentSurveyAllEmployees(pg: PaginationDto): Promise<TResponse> {
@@ -32,17 +55,37 @@ export class SurveyResponseService {
     const limit = pg.limit || 10;
 
     // * get the ids based on pagination
+    const offset = (page - 1) * limit;
+
+    const responses = await this.prisma.surveyResponse.findMany({
+      select: {
+        id: true,
+        surveyId: true,
+        userId: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
+    });
 
     // * get the most recent response for each user by the `getASurveyResponseByAllEmployees`
+    const surveyIds = responses.map((r) => r.surveyId);
+
+    const recentResponses = await Promise.all(
+      surveyIds.map((surveyId) =>
+        this.getASurveyResponseByAllEmployees(surveyId),
+      ),
+    );
 
     return successResponse(
-      null,
+      recentResponses,
       'Successfully retrieved recent survey responses for all employees',
     );
   }
 
   async getAllRecentQuestionsResponsesByAllUsers(
     pg: PaginationDto,
+    questionIds?: string[],
   ): Promise<TResponse> {
     const page = pg.page || 1;
     const limit = pg.limit || 10;
@@ -51,6 +94,7 @@ export class SurveyResponseService {
     const questions = await this.prisma.surveyQuestions.findMany({
       where: {
         surveyId: { not: null },
+        id: { in: questionIds },
       },
       orderBy: { createdAt: 'desc' },
       skip: offset,

@@ -24,7 +24,7 @@ export class SurveyController {
   constructor(
     private readonly surveyService: SurveyService,
     private readonly getSurveyResponseService: GetSurveyResponseService,
-  ) { }
+  ) {}
 
   @Post()
   async createSurvey(

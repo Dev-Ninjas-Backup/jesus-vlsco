@@ -29,4 +29,4 @@ import { SurveyService } from './services/survey.service';
     SurveyResponseService,
   ],
 })
-export class SurveyModule { }
+export class SurveyModule {}
