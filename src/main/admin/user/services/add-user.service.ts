@@ -6,8 +6,8 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { AddUserDto } from '../dto/add-user.dto';
 import { UtilsService } from '@project/lib/utils/utils.service';
+import { AddUserDto } from '../dto/add-user.dto';
 
 @Injectable()
 export class AddUserService {
@@ -29,10 +29,16 @@ export class AddUserService {
     if (existingUser) {
       throw new AppError(400, 'Email already exists');
     }
+    let phone = dto.phone;
+
+    // * replace + with space in phone number
+    if (dto.phone) {
+      phone = dto.phone.replace(/\+/g, ' ');
+    }
 
     // * check if phone already exists
     const existingPhone = await this.prisma.user.findUnique({
-      where: { phone: dto.phone },
+      where: { phone },
     });
 
     if (existingPhone) {
@@ -50,7 +56,7 @@ export class AddUserService {
 
     const user = await this.prisma.user.create({
       data: {
-        phone: dto.phone,
+        phone,
         employeeID: dto.employeeID,
         email: dto.email,
         role: dto.role,

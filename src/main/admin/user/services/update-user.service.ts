@@ -24,6 +24,7 @@ export class UpdateUserService {
   ): Promise<TResponse<any>> {
     // 1. Check user exists
     const existing = await this.utils.ensureUserExists(userId);
+    const removePlus = dto.phone?.replace(/^\+/, '');
 
     // 2. Unique checks if changing email/phone/employeeID
     if (dto.email && dto.email !== existing.email) {
@@ -32,9 +33,9 @@ export class UpdateUserService {
       });
       if (dup) throw new AppError(400, 'Email already exists');
     }
-    if (dto.phone && dto.phone !== existing.phone) {
+    if (dto.phone && removePlus !== existing.phone) {
       const dup = await this.prisma.user.findUnique({
-        where: { phone: dto.phone },
+        where: { phone: removePlus },
       });
       if (dup) throw new AppError(400, 'Phone already exists');
     }

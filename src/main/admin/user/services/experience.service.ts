@@ -6,7 +6,6 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import {
-  ExperienceDto,
   ExperienceItemDto,
   UpdateExperienceItemDto,
 } from '../dto/experience.dto';
@@ -17,11 +16,11 @@ export class ExperienceService {
 
   @HandleError('Error adding experience')
   async createExperiences(
-    dto: ExperienceDto,
+    dto: ExperienceItemDto[],
     userId: string,
   ): Promise<TResponse<any>> {
     const experiences = await this.prisma.experience.createMany({
-      data: dto.experiences.map((exp) => ({
+      data: dto.map((exp) => ({
         ...exp,
         userId,
       })),

@@ -6,7 +6,6 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import {
-  EducationDto,
   EducationItemDto,
   UpdateEducationDto,
   UpdateEducationItemDto,
@@ -18,11 +17,11 @@ export class EducationService {
 
   @HandleError('Error creating educations')
   async createEducations(
-    dto: EducationDto,
+    dto: EducationItemDto[],
     userid: string,
   ): Promise<TResponse<any>> {
     const educations = await this.prisma.education.createMany({
-      data: dto.educations.map((education) => ({
+      data: dto.map((education) => ({
         ...education,
         userId: userid,
       })),

@@ -2,6 +2,7 @@ import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsInt,
   IsNotEmpty,
@@ -31,8 +32,21 @@ export class EducationDto {
   @ApiProperty({
     type: [EducationItemDto],
     description: 'List of education records',
+    example: [
+      {
+        program: 'Bachelor of Science in Computer Science',
+        institution: 'University of Dhaka',
+        year: 2024,
+      },
+      {
+        program: 'Master of Science in Software Engineering',
+        institution: 'Bangladesh University of Engineering and Technology',
+        year: 2026,
+      },
+    ],
   })
   @IsArray()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => EducationItemDto)
   educations: EducationItemDto[];

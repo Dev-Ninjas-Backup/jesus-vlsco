@@ -30,7 +30,7 @@ export class EducationController {
 
   @Post('create/multiple/:userId')
   createEducations(@Body() dto: EducationDto, @Param('userId') id: string) {
-    return this.educationService.createEducations(dto, id);
+    return this.educationService.createEducations(dto.educations, id);
   }
 
   @Get('get/single/:id')

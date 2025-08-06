@@ -36,7 +36,7 @@ export class ExperienceController {
     @Body() dto: ExperienceDto,
     @Param('userId') userId: string,
   ) {
-    return this.experienceService.createExperiences(dto, userId);
+    return this.experienceService.createExperiences(dto.experiences, userId);
   }
 
   @Get('get/single/:userId')
