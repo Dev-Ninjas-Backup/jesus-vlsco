@@ -35,7 +35,7 @@ export class SurveyResponseController {
   }
 
   @ApiOperation({ summary: 'Get all recent question responses by all users' })
-  @Get('recent-questions')
+  @Get('questions/recent')
   async getAllRecentQuestionsResponsesByAllUsers(@Query() pg: PaginationDto) {
     // This method should return the most recent responses for all questions in a specific survey
     return this.surveyResponseService.getAllRecentQuestionsResponsesByAllUsers(
