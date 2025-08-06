@@ -3,6 +3,7 @@ export interface Notification {
   title: string;
   message: string;
   createdAt: Date;
+  meta: Record<string, any>;
 }
 
 export interface AnnouncementEvent {

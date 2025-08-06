@@ -47,6 +47,7 @@ export class TimeOffWorker implements OnModuleInit {
             title,
             message,
             createdAt: new Date(),
+            meta,
           });
 
           this.logger.log(`Time off ${action} notification sent to ${userEmail}`);

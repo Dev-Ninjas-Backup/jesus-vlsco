@@ -50,7 +50,7 @@ export class AdminRequestOffDayService {
 
     // * todo: send notification to the user (who created the request)
     const payload: TimeOffEvent = {
-      action: 'UPDATE',
+      action: 'STATUS_CHANGE',
       meta: {
         requestId: updatedRequest.id,
         userId: updatedRequest.userId,
@@ -61,7 +61,6 @@ export class AdminRequestOffDayService {
         performedBy: updatedRequest.userId,
       },
     };
-
     this.eventEmitter.emit(EVENT_TYPES.TIME_OFF_STATUS_CHANGE, payload);
 
     return successResponse(
