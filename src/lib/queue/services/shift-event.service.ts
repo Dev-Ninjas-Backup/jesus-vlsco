@@ -13,7 +13,7 @@ export class ShiftEventService {
   constructor(
     @InjectQueue(QueueName.SHIFT)
     private readonly notificationQueue: Queue,
-  ) { }
+  ) {}
 
   /**
    * Handles shift assignment events.

@@ -37,7 +37,6 @@ export class OffDayRequestService {
 
     const payload: TimeOffEvent = {
       action: 'CREATE',
-      title: 'Time Off Request',
       meta: {
         requestId: result.id,
         userId: userId,

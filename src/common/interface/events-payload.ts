@@ -30,8 +30,6 @@ export interface ShiftEvent {
 }
 
 export interface TimeOffEvent {
-  title: string;
-  message?: string; // optional message for notifications
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE';
   meta: {
     userId: string;
