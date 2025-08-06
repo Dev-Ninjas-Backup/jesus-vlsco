@@ -13,10 +13,9 @@ model Task {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tasksUsers TaskUser[]
-  project    Project?    @relation(fields: [projectId], references: [id])
+  tasksUsers   TaskUser[]
+  project      Project?      @relation(fields: [projectId], references: [id])
   taskComments TaskComment[]
-
 
   shiftLog ShiftLog[]
 
@@ -43,12 +42,12 @@ model TaskUser {
 }
 
 model TaskComment {
-  id     String @id @default(uuid())
-  commentBy  String @unique
-  commentar  User  @relation(fields: [commentBy],references: [id])
-  comment    String
-  taskId    String  
-  task      Task    @relation(fields: [taskId],references: [id])
+  id        String @id @default(uuid())
+  commentBy String @unique
+  commentar User   @relation(fields: [commentBy], references: [id])
+  comment   String
+  taskId    String
+  task      Task   @relation(fields: [taskId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

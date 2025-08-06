@@ -39,8 +39,7 @@ model User {
   privateConversation2 PrivateConversation[]     @relation("User2Conversations")
   privateMessage       PrivateMessage[]
   privateMessageStatus PrivateMessageStatus[]
-  taskComments TaskComment[]
-
+  taskComments         TaskComment[]
 
   ShiftActivity ShiftActivity[]
 }
