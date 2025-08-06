@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ShiftController } from './controller/shift.controller';
-import { DefaultShiftService } from './services/default-shift.service';
-import { ShiftLogService } from './services/shift-log.service';
-import { ShiftService } from './services/shift.service';
+import { ShiftService } from './shift.service';
+import { ShiftController } from './shift.controller';
 
 @Module({
   controllers: [ShiftController],
-  providers: [ShiftService, DefaultShiftService, ShiftLogService],
+  providers: [ShiftService],
 })
 export class ShiftModule {}

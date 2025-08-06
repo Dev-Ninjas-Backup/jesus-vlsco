@@ -41,6 +41,8 @@ model User {
   privateMessageStatus PrivateMessageStatus[]
   taskComments TaskComment[]
 
+
+  ShiftActivity ShiftActivity[]
 }
 
 enum UserEnum {
