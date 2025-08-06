@@ -5,6 +5,7 @@ import { UpdateShiftDto } from './dto/update-shift.dto';
 @Injectable()
 export class ShiftService {
   create(createShiftDto: CreateShiftDto) {
+    console.log('createShiftDto', createShiftDto);
     return 'This action adds a new shift';
   }
 
@@ -17,6 +18,7 @@ export class ShiftService {
   }
 
   update(id: number, updateShiftDto: UpdateShiftDto) {
+    console.log('updateShiftDto', updateShiftDto);
     return `This action updates a #${id} shift`;
   }
 
