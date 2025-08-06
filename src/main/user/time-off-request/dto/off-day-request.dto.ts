@@ -6,7 +6,7 @@ import {
   IsInt,
   IsString,
   MaxLength,
-  Min
+  Min,
 } from 'class-validator';
 
 export class CreateTimeOffRequestDto {
@@ -37,4 +37,4 @@ export class CreateTimeOffRequestDto {
 
 export class UpdateTimeOffRequestDto extends PartialType(
   CreateTimeOffRequestDto,
-) { }
+) {}

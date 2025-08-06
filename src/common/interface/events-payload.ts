@@ -1,4 +1,4 @@
-import { AnnouncementMeta, ShiftMeta, TimeOffMeta } from "./events-meta";
+import { AnnouncementMeta, ShiftMeta, TimeOffMeta } from './events-meta';
 
 export interface Notification {
   type: string;
@@ -14,10 +14,12 @@ export interface BaseEvent<TMeta> {
 }
 
 export interface AnnouncementEvent extends BaseEvent<AnnouncementMeta> {
-  title: string;
-  message: string;
-  recipients: { email: string; id: string }[];
-  sendEmail: boolean;
+  info: {
+    title: string;
+    message: string;
+    recipients: { email: string; id: string }[];
+    sendEmail: boolean;
+  };
   action: 'CREATE' | 'UPDATE' | 'DELETE';
 }
 
@@ -27,5 +29,4 @@ export interface ShiftEvent extends BaseEvent<ShiftMeta> {
 
 export interface TimeOffEvent extends BaseEvent<TimeOffMeta> {
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'STATUS_CHANGE';
-  meta: TimeOffMeta
 }

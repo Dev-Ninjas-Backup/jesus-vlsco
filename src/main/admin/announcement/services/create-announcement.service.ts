@@ -14,7 +14,7 @@ export class CreateAnnouncementService {
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   /**
    * Creates a new announcement and schedules it for processing.
@@ -60,10 +60,12 @@ export class CreateAnnouncementService {
     // Minimal payload
     const payload: AnnouncementEvent = {
       action: 'CREATE',
-      title: announcement.title,
-      message: announcement.description as string,
-      sendEmail: announcement.sendEmailNotification,
-      recipients,
+      info: {
+        title: announcement.title,
+        message: announcement.description as string,
+        sendEmail: announcement.sendEmailNotification,
+        recipients,
+      },
       meta: {
         announcementId: announcement.id,
         performedBy: userId,

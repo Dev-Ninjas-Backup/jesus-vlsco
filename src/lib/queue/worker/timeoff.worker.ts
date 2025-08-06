@@ -18,16 +18,13 @@ export class TimeOffWorker implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly mailService: MailService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   onModuleInit() {
     new Worker<TimeOffEvent>(
       QueueName.TIME_OFF,
       async (job) => {
-        const {
-          action,
-          meta
-        } = job.data;
+        const { action, meta } = job.data;
 
         try {
           const userEmail = await this.utils.getEmailById(meta.userId);
@@ -36,7 +33,9 @@ export class TimeOffWorker implements OnModuleInit {
           const title = this.generateTitle(action);
           const eventName = this.generateTimeOffEventName(action);
 
-          this.logger.log(`Processing time off event: ${action} for ${userEmail}`);
+          this.logger.log(
+            `Processing time off event: ${action} for ${userEmail}`,
+          );
 
           // Send Email
           await this.mailService.sendEmail(userEmail, title, message);
@@ -50,7 +49,9 @@ export class TimeOffWorker implements OnModuleInit {
             meta,
           });
 
-          this.logger.log(`Time off ${action} notification sent to ${userEmail}`);
+          this.logger.log(
+            `Time off ${action} notification sent to ${userEmail}`,
+          );
         } catch (err) {
           this.logger.error(
             `Failed to process time off event ${action}: ${err.message}`,

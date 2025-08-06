@@ -16,7 +16,7 @@ export class OffDayRequestService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   @HandleError('Unable to create time off request')
   async createOffDayRequset(dto: CreateTimeOffRequestDto, userId: string) {
