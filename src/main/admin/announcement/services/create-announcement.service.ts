@@ -59,17 +59,19 @@ export class CreateAnnouncementService {
 
     // Minimal payload
     const payload: AnnouncementEvent = {
-      title: announcement.title,
-      message: announcement.description as string,
       action: 'CREATE',
+      info: {
+        title: announcement.title,
+        message: announcement.description as string,
+        sendEmail: announcement.sendEmailNotification,
+        recipients,
+      },
       meta: {
         announcementId: announcement.id,
         performedBy: userId,
         publishedAt: announcement.publishedNow
           ? new Date()
           : announcement.publishedAt!,
-        recipients,
-        sendEmail: announcement.sendEmailNotification,
       },
     };
 

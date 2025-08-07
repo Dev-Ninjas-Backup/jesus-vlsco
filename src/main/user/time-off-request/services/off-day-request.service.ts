@@ -1,12 +1,11 @@
-import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES } from '@project/common/interface/events-name';
 import { TimeOffEvent } from '@project/common/interface/events-payload';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { Queue } from 'bullmq';
 import {
   CreateTimeOffRequestDto,
   UpdateTimeOffRequestDto,
@@ -16,8 +15,7 @@ import {
 export class OffDayRequestService {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectQueue('timeoff')
-    private readonly timeOffRequestQueue: Queue<TimeOffEvent>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   @HandleError('Unable to create time off request')
@@ -37,19 +35,17 @@ export class OffDayRequestService {
 
     const payload: TimeOffEvent = {
       action: 'CREATE',
-      title: 'Time Off Request',
       meta: {
         requestId: result.id,
         userId: userId,
         startDate: new Date(result.startDate).toISOString(),
         endDate: new Date(result.endDate).toISOString(),
-        reason: result.reason,
         status: result.status,
         performedBy: result.userId,
       },
     };
 
-    await this.timeOffRequestQueue.add(EVENT_TYPES.TIME_OFF_CREATE, payload);
+    this.eventEmitter.emit(EVENT_TYPES.TIME_OFF_CREATE, payload);
 
     return successResponse(result, 'Time off request created successfully');
   }
@@ -83,6 +79,10 @@ export class OffDayRequestService {
       );
     }
 
+    if (existingRequest.status === 'APPROVED') {
+      throw new AppError(403, 'Cannot update an approved request');
+    }
+
     const updatedRequest = await this.prisma.timeOffRequest.update({
       where: { id: requestId },
       data: {
@@ -93,6 +93,20 @@ export class OffDayRequestService {
         totalDaysOff,
       },
     });
+
+    const payload: TimeOffEvent = {
+      action: 'UPDATE',
+      meta: {
+        requestId: updatedRequest.id,
+        userId: userId,
+        startDate: new Date(updatedRequest.startDate).toISOString(),
+        endDate: new Date(updatedRequest.endDate).toISOString(),
+        status: updatedRequest.status,
+        performedBy: updatedRequest.userId,
+      },
+    };
+
+    this.eventEmitter.emit(EVENT_TYPES.TIME_OFF_UPDATE, payload);
 
     return successResponse(
       updatedRequest,
@@ -116,6 +130,20 @@ export class OffDayRequestService {
     await this.prisma.timeOffRequest.delete({
       where: { id: requestId },
     });
+
+    const payload: TimeOffEvent = {
+      action: 'DELETE',
+      meta: {
+        requestId: existingRequest.id,
+        userId: userId,
+        startDate: new Date(existingRequest.startDate).toISOString(),
+        endDate: new Date(existingRequest.endDate).toISOString(),
+        status: existingRequest.status,
+        performedBy: existingRequest.userId,
+      },
+    };
+
+    this.eventEmitter.emit(EVENT_TYPES.TIME_OFF_DELETE, payload);
 
     return successResponse(null, 'Time off request deleted successfully');
   }

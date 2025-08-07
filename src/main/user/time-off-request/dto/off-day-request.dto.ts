@@ -1,7 +1,8 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsInt,
   IsString,
   MaxLength,
@@ -9,14 +10,17 @@ import {
 } from 'class-validator';
 
 export class CreateTimeOffRequestDto {
-  @ApiProperty({ description: 'Off Day Start' })
-  @IsDateString()
+  @ApiProperty({ description: 'Off Day Start', example: '2023-10-10' })
+  @IsDate()
+  @Type(() => Date)
   startDate: string;
-  @ApiProperty({ description: 'Off Day End' })
-  @IsDateString()
+
+  @ApiProperty({ description: 'Off Day End', example: '2023-10-15' })
+  @IsDate()
+  @Type(() => Date)
   endDate: string;
 
-  @ApiProperty({ description: 'Write your reason' })
+  @ApiProperty({ description: 'Write your reason', example: 'Sick leave' })
   @IsString()
   @MaxLength(200)
   reason: string;
@@ -25,7 +29,7 @@ export class CreateTimeOffRequestDto {
   @IsBoolean()
   isFullDayOff: boolean;
 
-  @ApiProperty({ description: 'Total Off day' })
+  @ApiProperty({ description: 'Total Off day', example: 2 })
   @IsInt()
   @Min(1)
   totalDaysOff: number;
