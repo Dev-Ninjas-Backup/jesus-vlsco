@@ -14,9 +14,6 @@ COPY prisma ./prisma
 # Install Node.js dependencies
 RUN npm install --ignore-scripts
 
-# Make sure the Prisma schema is up to date
-RUN npx prisma migrate deploy
-
 # Generate Prisma client
 RUN npx prisma generate
 
