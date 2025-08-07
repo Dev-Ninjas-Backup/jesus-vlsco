@@ -46,16 +46,16 @@ jobs:
             docker compose up -d
             docker image prune -f
 
-      - name: Reset DB inside container (TEMPORARY)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: root
-          password: ${{ secrets.VPS_PASSWORD }}
-          script: |
-            docker compose down
-            docker compose rm -f
-            docker volume rm $(docker volume ls -qf dangling=true)
-            docker compose up -d
-            sleep 20
-            docker exec jesus-server-api npx prisma migrate reset --force --skip-generate --skip-seed
+      # - name: Reset DB inside container (TEMPORARY)
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.VPS_HOST }}
+      #     username: root
+      #     password: ${{ secrets.VPS_PASSWORD }}
+      #     script: |
+      #       docker compose down
+      #       docker compose rm -f
+      #       docker volume rm $(docker volume ls -qf dangling=true)
+      #       docker compose up -d
+      #       sleep 20
+      #       docker exec jesus-server-api npx prisma migrate reset --force --skip-generate --skip-seed
