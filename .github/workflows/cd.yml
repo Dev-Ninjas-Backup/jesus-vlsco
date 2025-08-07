@@ -53,4 +53,9 @@ jobs:
           username: root
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
+            docker compose down
+            docker compose rm -f
+            docker volume rm $(docker volume ls -qf dangling=true)
+            docker compose up -d
+            sleep 20
             docker exec jesus-server-api npx prisma migrate reset --force --skip-generate --skip-seed
