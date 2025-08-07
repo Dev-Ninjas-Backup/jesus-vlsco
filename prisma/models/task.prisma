@@ -17,9 +17,8 @@ model Task {
   project      Project?      @relation(fields: [projectId], references: [id])
   taskComments TaskComment[]
 
-  shiftLog ShiftLog[]
-
   ShiftActivity ShiftActivity[]
+  Shift         Shift[]
 }
 
 enum Labels {

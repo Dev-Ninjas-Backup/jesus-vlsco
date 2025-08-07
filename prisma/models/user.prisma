@@ -21,7 +21,7 @@ model User {
   recognitions         RecognitionUser[]
   experience           Experience[]
   defaultShifts        DefaultShift[]
-  shiftLogs            ShiftLog[]
+  shift                Shift[]
   taskUsers            TaskUser[]
   teamMembers          TeamMembers[]
   projectUsers         ProjectUser[]
@@ -40,8 +40,8 @@ model User {
   privateMessage       PrivateMessage[]
   privateMessageStatus PrivateMessageStatus[]
   taskComments         TaskComment[]
-  ShiftActivity        ShiftActivity[]
   notifications        UserNotification[]
+  ShiftActivity        ShiftActivity[]
 }
 
 enum UserEnum {
