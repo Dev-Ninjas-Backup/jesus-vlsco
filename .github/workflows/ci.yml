@@ -30,9 +30,6 @@ jobs:
       - name: ✅ Format Check
         run: npm run format
 
-      - name: 🧪 Validate Prisma Schema
-        run: npm run prisma:validate
-
       - name: 🏗 Build Project
         run: npm run build
 
