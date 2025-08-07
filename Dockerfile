@@ -27,5 +27,4 @@ RUN npm run build
 EXPOSE 5005
 
 # Run the application.
-CMD npx prisma migrate reset --force --skip-generate --skip-seed && npm run start:prod
-
+CMD ["npm", "run", "start:dev"]
