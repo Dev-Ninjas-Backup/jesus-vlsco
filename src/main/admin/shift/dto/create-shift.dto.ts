@@ -1,4 +1,5 @@
-import { ShiftStatus, ShiftType } from '@prisma/client';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ShiftStatus } from '@prisma/client';
 import {
   IsArray,
   IsBoolean,
@@ -8,34 +9,32 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateShiftDto {
+  @ApiProperty({
+    description: 'Current user Id',
+    example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
+  })
+  @IsString()
+  currentUserId: string;
 
-    @ApiProperty({
-        description: 'Current user Id',
-        example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
-    })
-    @IsString()
-    currentUserId: string;
+  @ApiProperty({
+    description: 'Project Id',
+    example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
+  })
+  @IsString()
+  currentProjectId: string;
 
-    @ApiProperty({
-        description: 'Project Id',
-        example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
-    })
-    @IsString()
-    currentProjectId:string
+  @ApiProperty({
+    description: 'The date of the shift (YYYY-MM-DD)',
+    example: '2025-08-07',
+  })
+  @IsDateString()
+  date: Date;
 
-    @ApiProperty({
-        description: 'The date of the shift (YYYY-MM-DD)',
-        example: '2025-08-07',
-    })
-    @IsDateString()
-    date: Date;
-
-    @ApiProperty({ enum: ShiftStatus })
-    @IsEnum(ShiftStatus)
-    shiftStatus: ShiftStatus;
+  @ApiProperty({ enum: ShiftStatus })
+  @IsEnum(ShiftStatus)
+  shiftStatus: ShiftStatus;
 
   @ApiProperty({
     description: 'Start time of the shift (ISO format)',
@@ -106,7 +105,7 @@ export class CreateShiftDto {
   @IsString()
   note: string;
 
-   @ApiProperty({
+  @ApiProperty({
     description: 'Save as template',
     example: true,
   })

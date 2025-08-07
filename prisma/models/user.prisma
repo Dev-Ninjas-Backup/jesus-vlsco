@@ -21,7 +21,7 @@ model User {
   recognitions         RecognitionUser[]
   experience           Experience[]
   defaultShifts        DefaultShift[]
-  shift                 Shift[]
+  shift                Shift[]
   taskUsers            TaskUser[]
   teamMembers          TeamMembers[]
   projectUsers         ProjectUser[]
@@ -39,8 +39,7 @@ model User {
   privateConversation2 PrivateConversation[]     @relation("User2Conversations")
   privateMessage       PrivateMessage[]
   privateMessageStatus PrivateMessageStatus[]
-  taskComments TaskComment[]
-
+  taskComments         TaskComment[]
 
   ShiftActivity ShiftActivity[]
 }

@@ -9,65 +9,73 @@ export class ShiftLogService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateShiftDto) {
-  const { userIds = [], taskIds = [], saveAsTemplate, ...shiftData } = dto;
+    const { userIds = [], taskIds = [], saveAsTemplate, ...shiftData } = dto;
 
-  return this.prisma.$transaction(async (tx) => {
-    // 1. Create Shift
-    const shift = await tx.shift.create({
-      data: {
-        ...shiftData,
-        users: userIds.length ? { connect: userIds.map((id) => ({ id })) } : undefined,
-        shiftTask: taskIds.length ? { connect: taskIds.map((id) => ({ id })) } : undefined,
-      },
-    });
-
-    // 2. Create ShiftActivity entries
-    if (userIds.length && taskIds.length) {
-      const shiftActivities = userIds.flatMap((userId) =>
-        taskIds.map((taskId) => ({
-          date: dto.date,
-          userId,
-          taskId,
-          shiftId: shift.id,
-          content: `${dto.shiftTitle} - Auto generated`,
-        }))
-      );
-
-      await tx.shiftActivity.createMany({ data: shiftActivities });
-    }
-
-    // 3. Save as DefaultShift template (if requested)
-    if (saveAsTemplate) {
-      await tx.defaultShift.upsert({
-        where: {
-          userId_projectId: {
-            userId: dto.currentUserId,
-            projectId: dto.currentProjectId,
-          },
-        },
-        create: {
-          userId: dto.currentUserId,
-          projectId: dto.currentProjectId,
-          shiftType: ShiftType.MORNING, // or derive from time
-          shiftDuration: Math.floor(
-            (new Date(dto.endTime).getTime() - new Date(dto.startTime).getTime()) / (1000 * 60 * 60)
-          ),
-          startTime: dto.startTime,
-          endTime: dto.endTime,
-        },
-        update: {
-          shiftDuration: Math.floor(
-            (new Date(dto.endTime).getTime() - new Date(dto.startTime).getTime()) / (1000 * 60 * 60)
-          ),
-          startTime: dto.startTime,
-          endTime: dto.endTime,
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Create Shift
+      const shift = await tx.shift.create({
+        data: {
+          ...shiftData,
+          users: userIds.length
+            ? { connect: userIds.map((id) => ({ id })) }
+            : undefined,
+          shiftTask: taskIds.length
+            ? { connect: taskIds.map((id) => ({ id })) }
+            : undefined,
         },
       });
-    }
 
-    return shift;
-  });
-}
+      // 2. Create ShiftActivity entries
+      if (userIds.length && taskIds.length) {
+        const shiftActivities = userIds.flatMap((userId) =>
+          taskIds.map((taskId) => ({
+            date: dto.date,
+            userId,
+            taskId,
+            shiftId: shift.id,
+            content: `${dto.shiftTitle} - Auto generated`,
+          })),
+        );
+
+        await tx.shiftActivity.createMany({ data: shiftActivities });
+      }
+
+      // 3. Save as DefaultShift template (if requested)
+      if (saveAsTemplate) {
+        await tx.defaultShift.upsert({
+          where: {
+            userId_projectId: {
+              userId: dto.currentUserId,
+              projectId: dto.currentProjectId,
+            },
+          },
+          create: {
+            userId: dto.currentUserId,
+            projectId: dto.currentProjectId,
+            shiftType: ShiftType.MORNING, // or derive from time
+            shiftDuration: Math.floor(
+              (new Date(dto.endTime).getTime() -
+                new Date(dto.startTime).getTime()) /
+                (1000 * 60 * 60),
+            ),
+            startTime: dto.startTime,
+            endTime: dto.endTime,
+          },
+          update: {
+            shiftDuration: Math.floor(
+              (new Date(dto.endTime).getTime() -
+                new Date(dto.startTime).getTime()) /
+                (1000 * 60 * 60),
+            ),
+            startTime: dto.startTime,
+            endTime: dto.endTime,
+          },
+        });
+      }
+
+      return shift;
+    });
+  }
 
   async findAll() {
     return this.prisma.shift.findMany({
