@@ -22,6 +22,7 @@ async function bootstrap() {
       'http://localhost:5179',
       'http://localhost:5180',
       'https://lgcglobalcontractingltd.com',
+      'https://jesus07.netlify.app'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
