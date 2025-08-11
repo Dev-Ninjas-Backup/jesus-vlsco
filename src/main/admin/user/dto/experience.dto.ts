@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { JobType } from '@prisma/client'; // Ensure this enum is exported from Prisma
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayMinSize,
   IsArray,
@@ -10,6 +10,7 @@ import {
   IsEnum,
   IsOptional,
   IsString,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 
@@ -32,16 +33,22 @@ export class ExperienceItemDto {
   startDate: string;
 
   @ApiPropertyOptional({ example: '2023-12-31T00:00:00.000Z' })
+  @ValidateIf((o) => o.isCurrentlyWorking === false)
   @IsDate()
   @Type(() => Date)
   @IsOptional()
-  endDate?: string;
+  endDate?: string | null;
 
   @ApiProperty({ example: 'Worked on scalable backend services.' })
   @IsString()
   description: string;
 
   @ApiProperty({ example: false })
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
   @IsBoolean()
   isCurrentlyWorking: boolean;
 }

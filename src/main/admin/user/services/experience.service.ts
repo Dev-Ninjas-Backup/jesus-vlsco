@@ -19,12 +19,23 @@ export class ExperienceService {
     dto: ExperienceItemDto[],
     userId: string,
   ): Promise<TResponse<any>> {
-    const experiences = await this.prisma.experience.createMany({
-      data: dto.map((exp) => ({
+    const experiencesData = dto.map((exp) => {
+      const endDate =
+        exp.isCurrentlyWorking || !exp.endDate || exp.endDate === ''
+          ? null
+          : new Date(exp.endDate);
+
+      return {
         ...exp,
+        endDate,
         userId,
-      })),
+      };
     });
+
+    const experiences = await this.prisma.experience.createMany({
+      data: experiencesData,
+    });
+
     return successResponse(experiences, 'Experiences added successfully');
   }
 
