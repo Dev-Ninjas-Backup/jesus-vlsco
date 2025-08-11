@@ -9,7 +9,7 @@ import { PoolService } from '../services/pool.service';
 @ApiBearerAuth()
 @Controller('pool')
 export class PoolController {
-  constructor(private readonly poolService: PoolService) { }
+  constructor(private readonly poolService: PoolService) {}
 
   @ApiOperation({ summary: 'Create pool' })
   @Post()

@@ -11,6 +11,16 @@ import {
 } from 'class-validator';
 
 export class CreatePoolDto {
+  @ApiPropertyOptional({ example: 'Q3 Employee Engagement Survey' })
+  @IsString()
+  title: string;
+
+  @ApiPropertyOptional({
+    example: 'This survey will assess employee engagement.',
+  })
+  @IsString()
+  description: string;
+
   @ApiProperty({ example: 'Q3 Employee Engagement Survey' })
   @IsString()
   @IsNotEmpty()
@@ -53,6 +63,16 @@ export class CreatePoolDto {
   @IsOptional()
   @IsBoolean()
   showOnFeed?: boolean = false;
+
+  @ApiPropertyOptional({ example: true, default: false })
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsOptional()
+  @IsBoolean()
+  shouldNotify?: boolean = false;
 
   @ApiPropertyOptional({ example: true, default: false })
   @Transform(({ value }) => {

@@ -9,11 +9,11 @@ import { CreatePoolDto } from '../dto/pool.dto';
 
 @Injectable()
 export class PoolService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to create pool')
   async createPool(dto: CreatePoolDto): Promise<TResponse<any>> {
-    const { employees, ...rest } = dto
+    const { employees, ...rest } = dto;
 
     const pool = await this.prisma.pool.create({
       data: {
@@ -38,8 +38,8 @@ export class PoolService {
       include: {
         options: true,
         poolUser: true,
-        poolResponse: true
-      }
+        poolResponse: true,
+      },
     });
 
     return successResponse(pool, 'Pool created successfully');
