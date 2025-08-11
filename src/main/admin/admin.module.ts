@@ -8,6 +8,7 @@ import { SurveyModule } from './survey/survey.module';
 import { TaskModule } from './task/task.module';
 import { TeamModule } from './team/team.module';
 import { UserModule } from './user/user.module';
+import { PoolModule } from './pool/pool.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserModule } from './user/user.module';
     TaskModule,
     SurveyModule,
     AnnouncementModule,
+    PoolModule,
   ],
 })
 export class AdminModule {}
