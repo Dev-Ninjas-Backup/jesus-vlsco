@@ -6,4 +6,4 @@ import { PoolService } from './services/pool.service';
   controllers: [PoolController],
   providers: [PoolService],
 })
-export class PoolModule { }
+export class PoolModule {}
