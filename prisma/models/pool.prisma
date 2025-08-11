@@ -1,0 +1,67 @@
+model pool {
+  id String @id @default(uuid())
+
+  question String
+
+  isForAll     Boolean @default(false)
+  isTemplate   Boolean @default(false)
+  showOnFeed   Boolean @default(false)
+  shouldNotify Boolean @default(false)
+
+  publishTime  DateTime?
+  reminderTime DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  options      poolOption[]
+  poolUser     poolUser[]
+  poolResponse poolResponse[]
+}
+
+model poolOption {
+  id String @id @default(uuid())
+
+  poolId String
+  pool   pool   @relation(fields: [poolId], references: [id], onDelete: Cascade)
+
+  option String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  poolResponse poolResponse[]
+}
+
+model poolUser {
+  id String @id @default(uuid())
+
+  poolId String
+  pool   pool   @relation(fields: [poolId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  isResponded Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model poolResponse {
+  id String @id @default(uuid())
+
+  poolId String
+  pool   pool   @relation(fields: [poolId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  optionId String
+  option   poolOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([poolId, userId])
+}

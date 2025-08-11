@@ -16,12 +16,12 @@ model Survey {
   title       String
   description String?
 
-  surveyType   SurveyType @default(EmployeeSatisfaction)
+  surveyType   SurveyType   @default(EmployeeSatisfaction)
   status       SurveyStatus @default(DRAFT)
   publishTime  DateTime?
   showOnFeed   Boolean      @default(false)
   reminderTime DateTime?
-  isForAll    Boolean      @default(false)
+  isForAll     Boolean      @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

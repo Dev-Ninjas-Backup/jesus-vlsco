@@ -42,6 +42,8 @@ model User {
   taskComments         TaskComment[]
   notifications        UserNotification[]
   ShiftActivity        ShiftActivity[]
+  poolUser             poolUser[]
+  poolResponse         poolResponse[]
 }
 
 enum UserEnum {
