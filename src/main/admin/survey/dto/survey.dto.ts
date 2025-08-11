@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { SurveyStatus, SurveyType } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { SurveyQuestionType, SurveyStatus, SurveyType } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
@@ -10,6 +10,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { QuestionDto } from './question.dto';
@@ -27,14 +28,28 @@ export class CreateSurveyDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ enum: SurveyType })
-  @IsEnum(SurveyType)
-  surveyType: SurveyType;
-
-  @ApiPropertyOptional({ enum: SurveyStatus, default: SurveyStatus.DRAFT })
+  @ApiProperty({
+    example: [
+      'e432cde3-b4cd-44f7-9bd6-3d287540a839',
+      'd132bfc7-1d4e-4472-9d65-72ed7f6bb54c',
+    ],
+    description: 'Array of employee IDs to assign',
+    isArray: true,
+  })
+  @IsArray()
+  @IsUUID('4', { each: true })
   @IsOptional()
-  @IsEnum(SurveyStatus)
-  status?: SurveyStatus = SurveyStatus.DRAFT;
+  employees?: string[];
+
+  @ApiProperty({ example: true, default: false })
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @IsOptional()
+  @IsBoolean()
+  isForAll?: boolean;
 
   @ApiPropertyOptional({ example: '2025-08-01T10:00:00.000Z' })
   @IsOptional()
@@ -51,11 +66,51 @@ export class CreateSurveyDto {
   @IsDateString()
   reminderTime?: string;
 
-  @ApiProperty({ type: [QuestionDto] })
+  @ApiProperty({
+    example: [
+      {
+        question: 'How satisfied are you with your job?',
+        description: 'Rate your satisfaction on a scale of 1–5',
+        type: 'SELECT',
+        order: 1,
+        isRequired: true,
+        captureLocation: false,
+        multiSelect: false,
+        options: ['1', '2', '3'],
+      },
+      {
+        question: 'How satisfied are you with your job?',
+        description: 'Rate your satisfaction on a scale of 1–5',
+        type: SurveyQuestionType.OPEN_ENDED,
+        order: 2,
+        isRequired: true,
+        captureLocation: false,
+      },
+      {
+        question: 'How satisfied are you with your job?',
+        description: 'Rate your satisfaction on a scale of 1–5',
+        type: SurveyQuestionType.RANGE,
+        order: 3,
+        isRequired: true,
+        captureLocation: false,
+        rangeStart: 1,
+        rangeEnd: 5,
+      },
+    ],
+  })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => QuestionDto)
   questions: QuestionDto[];
 }
 
-export class UpdateSurveyDto extends PartialType(CreateSurveyDto) {}
+export class UpdateSurveyDto extends PartialType(CreateSurveyDto) {
+  @ApiProperty({ enum: SurveyType })
+  @IsEnum(SurveyType)
+  surveyType: SurveyType;
+
+  @ApiPropertyOptional({ enum: SurveyStatus, default: SurveyStatus.DRAFT })
+  @IsOptional()
+  @IsEnum(SurveyStatus)
+  status?: SurveyStatus = SurveyStatus.DRAFT;
+}

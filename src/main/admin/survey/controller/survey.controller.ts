@@ -13,7 +13,6 @@ import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateSurveyFromTemplateDto } from '../dto/create-survey-from-template.dto';
 import { GetAllSurveysDto } from '../dto/get-survey.dto';
 import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
-import { GetSurveyResponseService } from '../services/get-survey-response.service';
 import { SurveyService } from '../services/survey.service';
 
 @ApiTags('Admin -- Survey')
@@ -21,10 +20,7 @@ import { SurveyService } from '../services/survey.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyController {
-  constructor(
-    private readonly surveyService: SurveyService,
-    private readonly getSurveyResponseService: GetSurveyResponseService,
-  ) {}
+  constructor(private readonly surveyService: SurveyService) {}
 
   @Post()
   async createSurvey(

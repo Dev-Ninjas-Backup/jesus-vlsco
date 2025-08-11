@@ -20,14 +20,20 @@ export class SurveyService {
     private readonly utils: UtilsService,
   ) {}
 
-  @HandleError('Failed to create survey')
+  @HandleError('Failed to create survey', 'survey')
   async createSurvey(
     userId: string,
     dto: CreateSurveyDto,
   ): Promise<TResponse<any>> {
     const survey = await this.prisma.survey.create({
       data: {
-        ...dto,
+        title: dto.title,
+        description: dto.description,
+        isForAll: dto.isForAll,
+        publishTime: dto.publishTime,
+        reminderTime: dto.reminderTime,
+        showOnFeed: dto.showOnFeed,
+        status: 'ACTIVE',
         createdBy: userId,
         questions: {
           create: dto.questions.map((q) => ({
@@ -48,6 +54,11 @@ export class SurveyService {
               },
             }),
           })),
+        },
+        surveyUsers: {
+          createMany: {
+            data: dto?.employees?.map((id) => ({ userId: id })) || [],
+          },
         },
       },
       include: {
