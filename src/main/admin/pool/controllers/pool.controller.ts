@@ -1,8 +1,16 @@
-import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CreatePoolDto } from '../dto/pool.dto';
+import { CreatePoolDto, UpdatePoolDto } from '../dto/pool.dto';
 import { PoolService } from '../services/pool.service';
 
 @ApiTags('Admin -- Pool')
@@ -10,12 +18,18 @@ import { PoolService } from '../services/pool.service';
 @ApiBearerAuth()
 @Controller('pool')
 export class PoolController {
-  constructor(private readonly poolService: PoolService) { }
+  constructor(private readonly poolService: PoolService) {}
 
   @ApiOperation({ summary: 'Create pool' })
   @Post()
   createPool(@Body() dto: CreatePoolDto) {
     return this.poolService.createPool(dto);
+  }
+
+  @ApiOperation({ summary: 'Update pool' })
+  @Patch(':poolId')
+  updatePool(@Body() dto: UpdatePoolDto, @Param(':poolId') id: string) {
+    return this.poolService.updatePool(id, dto);
   }
 
   @ApiOperation({ summary: 'Get all pools' })

@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsArray,
@@ -99,3 +99,5 @@ export class CreatePoolDto {
   @IsOptional()
   options: string[];
 }
+
+export class UpdatePoolDto extends PartialType(CreatePoolDto) {}
