@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateProjectDto } from '../dto/create-project.dto';
+import { UpdateProjectTitle } from '../dto/project.dto';
 
 @Injectable()
 export class ProjectService {
@@ -180,5 +181,19 @@ export class ProjectService {
     });
 
     return successResponse(project, 'Project deleted successfully');
+  }
+
+  // ========== UPDATE PROJECT TITLE ==========
+  @HandleError('Failed to update project title')
+  async updateProjectTitle(
+    projectId: string,
+    dto: UpdateProjectTitle,
+  ): Promise<TResponse<any>> {
+    await this.utils.ensureProjectExists(projectId);
+    const project = await this.prisma.project.update({
+      where: { id: projectId },
+      data: { title: dto.title, updatedAt: new Date() },
+    });
+    return successResponse(project, 'Project title updated successfully');
   }
 }

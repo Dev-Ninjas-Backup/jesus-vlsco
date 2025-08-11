@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsUUID } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class AssignEmployeesToProjectDto {
   @ApiProperty({
@@ -13,4 +13,14 @@ export class AssignEmployeesToProjectDto {
   @IsArray()
   @IsUUID('4', { each: true })
   employees: string[];
+}
+
+export class UpdateProjectTitle {
+  @ApiProperty({
+    example: 'Project Title',
+    description: 'Title of the project',
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 }

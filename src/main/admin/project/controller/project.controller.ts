@@ -12,7 +12,10 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateProjectDto } from '../dto/create-project.dto';
 import { GetProjectsDto } from '../dto/get-projects.dto';
-import { AssignEmployeesToProjectDto } from '../dto/project.dto';
+import {
+  AssignEmployeesToProjectDto,
+  UpdateProjectTitle,
+} from '../dto/project.dto';
 import { GetAllProjectsService } from '../services/get-all-projects.service';
 import { ProjectService } from '../services/project.service';
 
@@ -102,5 +105,14 @@ export class ProjectController {
   @Get()
   async getAll(@Query() query: GetProjectsDto) {
     return this.getAllProjectsServices.getAllProjects(query);
+  }
+
+  @ApiOperation({ summary: 'Update Project Title' })
+  @Patch(':projectId/update-title')
+  updateProjectTitle(
+    @Param('projectId') projectId: string,
+    @Body() dto: UpdateProjectTitle,
+  ) {
+    return this.projectService.updateProjectTitle(projectId, dto);
   }
 }
