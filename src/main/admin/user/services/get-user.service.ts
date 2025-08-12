@@ -34,6 +34,9 @@ export class GetUserService {
         educations: true,
         experience: true,
         payroll: true,
+        projects: true,
+        shift: true,
+        defaultShifts: true,
       },
     });
 
@@ -42,7 +45,16 @@ export class GetUserService {
     }
 
     // Extract only the main user fields
-    const { profile, educations, experience, payroll, ...mainUser } = user;
+    const {
+      profile,
+      educations,
+      experience,
+      payroll,
+      projects,
+      defaultShifts,
+      shift,
+      ...mainUser
+    } = user;
 
     const sanitizedUser = this.utils.sanitizedResponse(
       UserResponseDto,
@@ -56,6 +68,9 @@ export class GetUserService {
       educations,
       experience,
       payroll,
+      projects,
+      defaultShifts,
+      shift,
     };
 
     return successResponse(data, 'User data fetched successfully');
@@ -87,13 +102,24 @@ export class GetUserService {
           experience: true,
           payroll: true,
           projects: true,
+          defaultShifts: true,
+          shift: true,
         },
       }),
       builder.countTotal(this.prisma.user),
     ]);
 
     const sanitizedUsers = users.map((user) => {
-      const { profile, educations, experience, payroll, ...mainUser } = user;
+      const {
+        profile,
+        educations,
+        experience,
+        payroll,
+        projects,
+        defaultShifts,
+        shift,
+        ...mainUser
+      } = user;
       const sanitizedUser = this.utils.sanitizedResponse(
         UserResponseDto,
         mainUser,
@@ -105,6 +131,9 @@ export class GetUserService {
         educations,
         experience,
         payroll,
+        projects,
+        defaultShifts,
+        shift,
       };
     });
 
