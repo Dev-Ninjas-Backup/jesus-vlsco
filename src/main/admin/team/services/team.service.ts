@@ -7,6 +7,7 @@ import {
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class TeamService {
@@ -22,6 +23,10 @@ export class TeamService {
     creatorId: string,
     uploadedUrl: string,
   ): Promise<TResponse<any>> {
+    if (!uploadedUrl) {
+      throw new AppError(500, 'File is Required');
+    }
+
     const { title, description, department, members } = dto;
 
     // 1. Create the team
