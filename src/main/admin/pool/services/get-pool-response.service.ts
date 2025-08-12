@@ -13,19 +13,14 @@ export class GetPoolResponseService {
 
   @HandleError('Failed to get responses')
   async getPoolResponse(): Promise<TResponse<any>> {
-    const pool = await this.prisma.pool.findUnique({
-      select: {
-        title: true,
-        description: true,
-        question: true,
-        poolUser: { select: { id: true } },
+    const pool = await this.prisma.pool.findMany({
+      include: {
         options: {
-          select: {
-            id: true,
-            option: true,
-            poolResponse: { select: { id: true } },
+          include: {
+            poolResponse: true,
           },
         },
+        poolUser: true,
       },
     });
 
@@ -33,16 +28,13 @@ export class GetPoolResponseService {
       throw new AppError(404, 'Pool not found');
     }
 
-    const result = {
-      title: pool.title,
-      description: pool.description,
-      question: pool.question,
-      totalAssignedUsers: pool.poolUser.length,
-      options: pool.options.map((opt: any) => ({
-        option: opt.option,
-        responseCount: opt.poolResponse.length,
+    const result = pool.map((pool) => ({
+      ...pool,
+      options: pool.options.map((option) => ({
+        ...option,
+        poolResponse: option.poolResponse,
       })),
-    };
+    }));
 
     return successResponse(result, 'Pool fetched successfully');
   }

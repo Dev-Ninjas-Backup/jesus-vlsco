@@ -19,7 +19,7 @@ export class GetUsersDto {
   searchTerm?: string;
 
   @ApiPropertyOptional({
-    description:'Filter by employee Assigned to',   
+    description: 'Filter by employee Assigned to',
   })
   @IsOptional()
   @IsBoolean()
