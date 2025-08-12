@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  Delete,
+  Param,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -19,7 +21,7 @@ import { AddUserDto } from '../dto/add-user.dto';
 import { swaggerSchema } from '../dto/add-user.swagger';
 import { AddUserService } from '../services/add-user.service';
 
-@ApiTags('Admin -- Add User')
+@ApiTags('Admin -- Add & Delete User')
 @Controller('admin/user')
 @ValidateAdmin()
 @ApiBearerAuth()
@@ -63,5 +65,11 @@ export class AddUserController {
       dto,
       uploadedUrl?.url || null,
     );
+  }
+
+  @ApiOperation({ summary: 'Delete a user' })
+  @Delete(':userId')
+  async deleteUser(@Param('userId') userId: string) {
+    return await this.addUserService.deleteUser(userId);
   }
 }
