@@ -5,7 +5,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class SettingsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to get company with branch')
   async getCompanyWithBranches() {
@@ -41,6 +41,24 @@ export class SettingsService {
     return successResponse(
       company,
       'Companies and branches retrieved successfully',
+    );
+  }
+
+  @HandleError('Failed to get projects with managers')
+  async getProjectsWithManagers() {
+    const projects = await this.prisma.project.findMany({
+      include: {
+        manager: {
+          include: {
+            profile: true,
+          },
+        },
+      },
+    });
+
+    return successResponse(
+      projects,
+      'Projects and managers retrieved successfully',
     );
   }
 }

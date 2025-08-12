@@ -32,8 +32,7 @@ export class SettingsController {
     private readonly getCompanyService: SettingsService,
     private readonly addBranchService: AddBranchService,
     private readonly deleteCompanyBranchService: DeleteCompanyBranchService,
-    // private readonly cloudinaryService: CloudinaryService
-  ) {}
+  ) { }
 
   // Get all companies with branches
   @Get('get-companies')
@@ -55,15 +54,7 @@ export class SettingsController {
   })
   async createCompany(
     @Body() dto: CreateCompanyWithBranchDto,
-    // @UploadedFile() file: Express.Multer.File,
   ) {
-    // let uploadedUrl;
-    // if (file) {
-    //         uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-    //         file.buffer,
-    //         file.originalname,
-    //     );
-    // }
     return this.createCompanyService.createCompany(dto);
   }
 
@@ -129,5 +120,11 @@ export class SettingsController {
     @Body('companyId') companyId: string,
   ) {
     return this.deleteCompanyBranchService.deleteBranch(companyId, branchId);
+  }
+
+  // Get all projects
+  @Get('projects/all')
+  async getProjectsWithManagers() {
+    return this.getCompanyService.getProjectsWithManagers();
   }
 }
