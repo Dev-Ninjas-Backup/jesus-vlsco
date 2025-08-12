@@ -13,13 +13,17 @@ import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreatePoolDto, UpdatePoolDto } from '../dto/pool.dto';
 import { PoolService } from '../services/pool.service';
+import { GetPoolResponseService } from '../services/get-pool-response.service';
 
 @ApiTags('Admin -- Pool')
 @ValidateAdmin()
 @ApiBearerAuth()
 @Controller('pool')
 export class PoolController {
-  constructor(private readonly poolService: PoolService) {}
+  constructor(
+    private readonly poolService: PoolService,
+    private readonly getPoolResponseService: GetPoolResponseService,
+  ) {}
 
   @ApiOperation({ summary: 'Create pool' })
   @Post()
@@ -49,5 +53,11 @@ export class PoolController {
   @Delete('delete/:id')
   deletePoolById(@Body('id') id: string) {
     return this.poolService.deletePool(id);
+  }
+
+  @ApiOperation({ summary: 'Get pool by id' })
+  @Get(':id')
+  getPoolResponse() {
+    return this.getPoolResponseService.getPoolResponse();
   }
 }
