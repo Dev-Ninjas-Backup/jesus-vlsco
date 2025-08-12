@@ -13,7 +13,11 @@ export class SettingsService {
       include: {
         branches: {
           include: {
-            manager: true,
+            manager: {
+              include: {
+                profile: true,
+              },
+            },
           },
         },
       },
