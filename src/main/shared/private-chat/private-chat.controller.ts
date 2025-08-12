@@ -8,6 +8,7 @@ import {
   OnModuleInit,
   Inject,
   forwardRef,
+  Get,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -38,6 +39,12 @@ export class PrivateChatController implements OnModuleInit {
 
   onModuleInit() {
     this.gateway = this.injectedGateway;
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get All Private message' })
+  async getAllPrivateMessage(@GetUser('userId') userId: string) {
+    return await this.privateService.getAllChatsWithLastMessage(userId);
   }
 
   @Post('send-message/:recipientId')
