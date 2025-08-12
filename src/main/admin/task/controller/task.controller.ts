@@ -31,7 +31,7 @@ export class TaskController {
   }
 
   @ApiOperation({ summary: 'Get all unassigned tasks by userId' })
-  @Get('unassigned')
+  @Get('unassigned/:userId')
   async getAllUnassignedTasks(@Param('userId') userId: string) {
     return this.getAllTasksService.getAllUnassignedTasks(userId);
   }
