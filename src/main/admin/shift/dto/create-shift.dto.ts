@@ -7,16 +7,15 @@ import {
   IsEnum,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 
 export class CreateShiftDto {
-  @ApiProperty({
-    description: 'Current user Id',
-    example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
-  })
-  @IsString()
-  currentUserId: string;
+  // @ApiProperty({
+  //   description: 'Current user Id',
+  //   example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
+  // })
+  // @IsString()
+  // currentUserId: string;
 
   @ApiProperty({
     description: 'Project Id',
@@ -78,7 +77,7 @@ export class CreateShiftDto {
   })
   @IsOptional()
   @IsArray()
-  @IsUUID('all', { each: true })
+  // @IsUUID('all', { each: true })
   userIds?: string[];
 
   @ApiPropertyOptional({
@@ -88,7 +87,7 @@ export class CreateShiftDto {
   })
   @IsOptional()
   @IsArray()
-  @IsUUID('all', { each: true })
+  // @IsUUID('all', { each: true })
   taskIds?: string[];
 
   @ApiProperty({

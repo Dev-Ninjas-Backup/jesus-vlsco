@@ -8,7 +8,7 @@ import { ShiftType } from '@prisma/client';
 export class ShiftLogService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateShiftDto) {
+  async create(dto: CreateShiftDto, currentUserId: string) {
     const { userIds = [], taskIds = [], saveAsTemplate, ...shiftData } = dto;
 
     return this.prisma.$transaction(async (tx) => {
@@ -45,12 +45,12 @@ export class ShiftLogService {
         await tx.defaultShift.upsert({
           where: {
             userId_projectId: {
-              userId: dto.currentUserId,
+              userId: currentUserId,
               projectId: dto.currentProjectId,
             },
           },
           create: {
-            userId: dto.currentUserId,
+            userId: currentUserId,
             projectId: dto.currentProjectId,
             shiftType: ShiftType.MORNING, // or derive from time
             shiftDuration: Math.floor(
