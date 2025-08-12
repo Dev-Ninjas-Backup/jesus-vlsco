@@ -1,17 +1,17 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
 } from '@nestjs/common';
-import { ShiftLogService } from './shift.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { ShiftLogService } from './shift.service';
 
 @ApiTags('Admin -- Shift')
 @ValidateAdmin()
@@ -21,8 +21,8 @@ export class ShiftController {
   constructor(private readonly shiftLogService: ShiftLogService) {}
 
   @Post()
-  async create(@Body() dto: CreateShiftDto, @GetUser('userId') userId: string) {
-    return await this.shiftLogService.create(dto, userId);
+  async create(@Body() dto: CreateShiftDto) {
+    return await this.shiftLogService.create(dto);
   }
 
   @Get()

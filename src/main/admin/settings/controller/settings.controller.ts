@@ -32,7 +32,7 @@ export class SettingsController {
     private readonly getCompanyService: SettingsService,
     private readonly addBranchService: AddBranchService,
     private readonly deleteCompanyBranchService: DeleteCompanyBranchService,
-  ) { }
+  ) {}
 
   // Get all companies with branches
   @Get('get-companies')
@@ -52,9 +52,7 @@ export class SettingsController {
       required: ['name', 'location'],
     },
   })
-  async createCompany(
-    @Body() dto: CreateCompanyWithBranchDto,
-  ) {
+  async createCompany(@Body() dto: CreateCompanyWithBranchDto) {
     return this.createCompanyService.createCompany(dto);
   }
 

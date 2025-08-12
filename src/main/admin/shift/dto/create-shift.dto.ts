@@ -10,12 +10,12 @@ import {
 } from 'class-validator';
 
 export class CreateShiftDto {
-  // @ApiProperty({
-  //   description: 'Current user Id',
-  //   example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
-  // })
-  // @IsString()
-  // currentUserId: string;
+  @ApiProperty({
+    description: 'Current user Id',
+    example: 'a1b2c3d4-e5f6-7890-1234-56789abcdef0',
+  })
+  @IsString()
+  currentUserId: string;
 
   @ApiProperty({
     description: 'Project Id',
