@@ -18,6 +18,14 @@ export class GetUsersDto {
   @IsString()
   searchTerm?: string;
 
+  @ApiPropertyOptional({
+    description:'Filter by employee Assigned to',   
+  })
+  @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  assigned?: boolean;
+
   @ApiPropertyOptional({ enum: UserEnum, description: 'Filter by user role' })
   @IsOptional()
   @IsEnum(UserEnum)

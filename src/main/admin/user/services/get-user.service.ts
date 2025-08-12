@@ -86,6 +86,7 @@ export class GetUserService {
           educations: true,
           experience: true,
           payroll: true,
+          projects: true,
         },
       }),
       builder.countTotal(this.prisma.user),
