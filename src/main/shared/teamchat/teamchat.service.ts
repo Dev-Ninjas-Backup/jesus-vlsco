@@ -20,6 +20,7 @@ export class TeamchatService {
   // team.service.ts
 
   @HandleError('Failed to send team message')
+  @HandleError('Failed to send team message')
   async sendTeamMessage(
     teamId: string,
     dto: SendTeamMessageDto,
@@ -33,7 +34,7 @@ export class TeamchatService {
     // 1. Upload file if provided
     let fileId: string | null = null;
     if (file) {
-      const uploadfile = await this.file.processUploadedFile(file); // implement this
+      const uploadfile = await this.file.processUploadedFile(file);
       fileId = uploadfile.id;
     }
 
@@ -65,6 +66,12 @@ export class TeamchatService {
       skipDuplicates: true,
     });
 
+    // 4. Update team's last message
+    await this.prisma.team.update({
+      where: { id: teamId },
+      data: { lastMessageId: message.id },
+    });
+
     return successResponse(message, 'Message sent successfully');
   }
 
@@ -82,5 +89,53 @@ export class TeamchatService {
     });
 
     return !!team;
+  }
+
+  @HandleError('Failed to get teams list')
+  async getTeamsWithLastMessage(): Promise<TResponse<any>> {
+    const teams = await this.prisma.team.findMany({
+      include: {
+        lastMessage: {
+          include: {
+            sender: {
+              select: {
+                id: true,
+                profile: {
+                  select: {
+                    profileUrl: true,
+                    firstName: true,
+                    lastName: true,
+                  },
+                },
+                email: true,
+              },
+            },
+            file: true,
+          },
+        },
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                email: true,
+                profile: {
+                  select: {
+                    profileUrl: true,
+                    firstName: true,
+                    lastName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    return successResponse(teams, 'Teams fetched successfully');
   }
 }

@@ -7,6 +7,9 @@ model Team {
   creatorId   String
   creator     User    @relation(fields: [creatorId], references: [id])
 
+  lastMessageId String? 
+  lastMessage   TeamMessage? @relation("TeamLastMessage", fields: [lastMessageId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -70,7 +73,10 @@ model TeamMessage {
   sender User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   statuses  TeamMessageStatus[]
-  createdAt DateTime            @default(now())
+  createdAt DateTime @default(now())
+
+  // Back relation to Team's last message
+  TeamLastMessage Team[] @relation("TeamLastMessage")
 }
 
 model TeamMessageStatus {

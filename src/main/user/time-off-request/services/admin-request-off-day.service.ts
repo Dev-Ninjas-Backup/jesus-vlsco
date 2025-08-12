@@ -26,6 +26,7 @@ export class AdminRequestOffDayService {
       orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
+      include: { user: true },
     });
 
     return successResponse(

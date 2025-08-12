@@ -2,6 +2,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   Post,
   UploadedFile,
@@ -30,6 +31,11 @@ export class TeamController {
     private readonly teamService: TeamchatService,
     private readonly teamGateway: TeamGateway,
   ) {}
+  @Get()
+  @ApiOperation({ summary: 'All the teams' })
+  async getTeamsWithLastMessage() {
+    return this.teamService.getTeamsWithLastMessage();
+  }
 
   @Post(':teamId/messages')
   @ApiOperation({ summary: 'Sending team message' })
