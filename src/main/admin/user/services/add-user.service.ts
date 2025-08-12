@@ -90,4 +90,21 @@ export class AddUserService {
 
     return successResponse(result, 'User created successfully');
   }
+
+  @HandleError('Error creating user')
+  async deleteUser(userId: string): Promise<TResponse<any>> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError(400, 'User not found');
+    }
+
+    await this.prisma.user.delete({
+      where: { id: user.id },
+    });
+
+    return successResponse(null, 'User deleted successfully');
+  }
 }

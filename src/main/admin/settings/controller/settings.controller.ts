@@ -81,15 +81,7 @@ export class SettingsController {
   async updateCompany(
     @Param('companyId') companyId: string,
     @Body() dto: UpdateCompanyWithBranchesDto,
-    // @UploadedFile() file: Express.Multer.File,
   ) {
-    // let uploadedUrl;
-    // if (file) {
-    //     uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-    //         file.buffer,
-    //         file.originalname,
-    //     );
-    // }
     return this.updateCompanyService.updateCompanyWithBranches(companyId, dto);
   }
 

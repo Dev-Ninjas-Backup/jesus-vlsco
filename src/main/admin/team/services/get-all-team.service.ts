@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetTeamsDto } from '../dto/get-teams.dto';
-import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class GetAllTeamsService {
@@ -49,7 +49,15 @@ export class GetAllTeamsService {
       skip,
       take,
       include: {
-        members: { include: { user: true } },
+        members: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
         projects: true,
       },
     });

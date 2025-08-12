@@ -1,15 +1,16 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import { CreateCompanyBranchNestedDto } from './createCompanyBranch.dto';
-import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsArray, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { CreateCompanyBranchNestedDto } from './createCompanyBranch.dto';
 
 export class UpdateBranchDto extends PartialType(CreateCompanyBranchNestedDto) {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: 'branch_abc123',
     description: 'ID of the existing branch to update',
   })
   @IsString()
-  id: string;
+  @IsOptional()
+  id?: string;
 }
 
 export class UpdateCompanyWithBranchesDto {
