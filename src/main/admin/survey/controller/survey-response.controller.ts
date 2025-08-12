@@ -2,6 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetSurveyResponseService } from '../services/get-survey-response.service';
 import { SurveyResponseService } from '../services/survey-response.service';
 
 @ApiTags('Admin -- Survey Response')
@@ -9,7 +10,10 @@ import { SurveyResponseService } from '../services/survey-response.service';
 @ValidateAdmin()
 @ApiBearerAuth()
 export class SurveyResponseController {
-  constructor(private readonly surveyResponseService: SurveyResponseService) {}
+  constructor(
+    private readonly surveyResponseService: SurveyResponseService,
+    private readonly getSurveyResponseService: GetSurveyResponseService,
+  ) {}
 
   @ApiOperation({
     summary:
@@ -19,7 +23,6 @@ export class SurveyResponseController {
   async getASurveyResponseByAllEmployees(
     @Param('surveyId') responseId: string,
   ) {
-    // This method should return all responses for a specific survey
     return this.surveyResponseService.getASurveyResponseByAllEmployees(
       responseId,
     );
@@ -30,16 +33,21 @@ export class SurveyResponseController {
   })
   @Get('recent')
   async getAllRecentSurveyAllEmployees(@Query() pg: PaginationDto) {
-    // This method should return the most recent response for a specific survey by a user
     return this.surveyResponseService.getAllRecentSurveyAllEmployees(pg);
   }
 
   @ApiOperation({ summary: 'Get all recent question responses by all users' })
   @Get('questions/recent')
   async getAllRecentQuestionsResponsesByAllUsers(@Query() pg: PaginationDto) {
-    // This method should return the most recent responses for all questions in a specific survey
     return this.surveyResponseService.getAllRecentQuestionsResponsesByAllUsers(
       pg,
     );
+  }
+
+  @ApiOperation({ summary: 'Get all responses for a specific survey' })
+  @Get('responses/analytics')
+  async getAllResponses() {
+    // This method should return all responses for a specific survey
+    return this.getSurveyResponseService.getSurveyRespondUserAnalytics();
   }
 }

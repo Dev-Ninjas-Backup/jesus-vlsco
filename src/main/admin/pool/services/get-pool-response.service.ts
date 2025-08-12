@@ -20,7 +20,6 @@ export class GetPoolResponseService {
             poolResponse: true,
           },
         },
-        poolUser: true,
       },
     });
 
@@ -31,8 +30,8 @@ export class GetPoolResponseService {
     const result = pool.map((pool) => ({
       ...pool,
       options: pool.options.map((option) => ({
-        ...option,
-        poolResponse: option.poolResponse,
+        option: option.option,
+        totalResponse: option.poolResponse?.length,
       })),
     }));
 

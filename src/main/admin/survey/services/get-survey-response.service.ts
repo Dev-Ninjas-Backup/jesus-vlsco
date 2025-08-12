@@ -55,4 +55,49 @@ export class GetSurveyResponseService {
 
     return successResponse(response, 'Response retrieved successfully');
   }
+
+  @HandleError('Failed to get survey response analytics')
+  async getSurveyRespondUserAnalytics(): Promise<TResponse<any>> {
+    const surveys = await this.prisma.survey.findMany({
+      include: {
+        surveyUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const analytics = surveys.map((survey) => {
+      const totalAssigned = survey.surveyUsers.length;
+      const respondedCount = survey.surveyUsers.filter(
+        (su) => su.isResponded,
+      ).length;
+      const notRespondedCount = totalAssigned - respondedCount;
+
+      return {
+        ...survey,
+        surveyId: survey.id,
+        title: survey.title,
+        totalAssigned,
+        respondedCount,
+        notRespondedCount,
+        respondedUsers: survey.surveyUsers
+          .filter((su) => su.isResponded)
+          .map((su) => su.user),
+        notRespondedUsers: survey.surveyUsers
+          .filter((su) => !su.isResponded)
+          .map((su) => su.user),
+      };
+    });
+
+    return successResponse(
+      analytics,
+      'Survey response analytics retrieved successfully',
+    );
+  }
 }

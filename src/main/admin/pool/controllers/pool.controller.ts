@@ -56,7 +56,7 @@ export class PoolController {
   }
 
   @ApiOperation({ summary: 'Get pool by id' })
-  @Get(':id')
+  @Get('pool-response/all')
   getPoolResponse() {
     return this.getPoolResponseService.getPoolResponse();
   }
