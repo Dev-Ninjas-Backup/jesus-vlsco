@@ -11,8 +11,8 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTasksDto } from '../dto/get-tasks.dto';
 import { AssignEmployeesToTaskDto, UpdateTaskStatusDto } from '../dto/task.dto';
-import { TaskService } from '../services/task.service';
 import { GetAllTasksService } from '../services/get-all-tasks.service';
+import { TaskService } from '../services/task.service';
 
 @ApiTags('Admin -- Task')
 @Controller('admin/task')
@@ -28,6 +28,12 @@ export class TaskController {
   @Get()
   async getAllTasks(@Query() query: GetTasksDto) {
     return this.getAllTasksService.getAllTasks(query);
+  }
+
+  @ApiOperation({ summary: 'Get all unassigned tasks by userId' })
+  @Get('unassigned')
+  async getAllUnassignedTasks(@Param('userId') userId: string) {
+    return this.getAllTasksService.getAllUnassignedTasks(userId);
   }
 
   @ApiOperation({ summary: 'Get task by id' })

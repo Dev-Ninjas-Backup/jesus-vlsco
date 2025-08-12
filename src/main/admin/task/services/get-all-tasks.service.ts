@@ -122,4 +122,13 @@ export class GetAllTasksService {
       'Tasks fetched successfully',
     );
   }
+
+  // * get all tasks that are not assigned to any a user
+  @HandleError('Error getting all unassigned tasks')
+  async getAllUnassignedTasks(userId: string): Promise<TResponse<any>> {
+    const tasks = await this.prisma.task.findMany({
+      where: { tasksUsers: { none: { userId } } },
+    });
+    return successResponse(tasks, 'Tasks fetched successfully');
+  }
 }

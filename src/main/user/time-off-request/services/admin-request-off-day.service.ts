@@ -4,19 +4,28 @@ import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES } from '@project/common/interface/events-name';
 import { TimeOffEvent } from '@project/common/interface/events-payload';
-import { successPaginatedResponse, successResponse, TPaginatedResponse } from '@project/common/utils/response.util';
+import {
+  successPaginatedResponse,
+  successResponse,
+  TPaginatedResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { AdminRequestOffDayStatusDto, GetTimeOffRequestDto } from '../dto/admin-off-day-request.dto';
+import {
+  AdminRequestOffDayStatusDto,
+  GetTimeOffRequestDto,
+} from '../dto/admin-off-day-request.dto';
 
 @Injectable()
 export class AdminRequestOffDayService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventEmitter: EventEmitter2,
-  ) { }
+  ) {}
 
   @HandleError('Failed to get all off day requests')
-  async getAllOffDayRequests(query: GetTimeOffRequestDto): Promise<TPaginatedResponse<any>> {
+  async getAllOffDayRequests(
+    query: GetTimeOffRequestDto,
+  ): Promise<TPaginatedResponse<any>> {
     const page = query.page && query.page > 0 ? query.page : 1;
     const limit = query.limit && query.limit > 0 ? query.limit : 15;
     const skip = (page - 1) * limit;
@@ -47,7 +56,6 @@ export class AdminRequestOffDayService {
     }
 
     const total = await this.prisma.timeOffRequest.count({ where });
-    const totalPage = Math.ceil(total / limit);
 
     const requests = await this.prisma.timeOffRequest.findMany({
       where,
