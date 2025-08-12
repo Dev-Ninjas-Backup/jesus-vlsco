@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
@@ -34,7 +35,7 @@ export class PoolController {
 
   @ApiOperation({ summary: 'Get all pools' })
   @Get('all')
-  getAllPools(pg: PaginationDto) {
+  getAllPools(@Query() pg: PaginationDto) {
     return this.poolService.getPools(pg);
   }
 

@@ -163,7 +163,7 @@ export class PoolService {
       this.prisma.pool.findMany({
         skip,
         take: limit,
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: 'desc' }, // latest first
         include: {
           options: true,
           poolUser: true,
