@@ -87,7 +87,11 @@ export class ShiftLogService {
   async findAll() {
     return this.prisma.shift.findMany({
       include: {
-        users: true,
+        users: {
+          include: {
+            profile: true,
+          },
+        },
         shiftTask: true,
         shiftActivity: true,
       },
@@ -98,7 +102,11 @@ export class ShiftLogService {
     return this.prisma.shift.findUnique({
       where: { id },
       include: {
-        users: true,
+        users: {
+          include: {
+            profile: true,
+          },
+        },
         shiftTask: true,
         shiftActivity: true,
       },
@@ -126,7 +134,11 @@ export class ShiftLogService {
       where: { id },
       data: updateData,
       include: {
-        users: true,
+        users: {
+          include: {
+            profile: true,
+          },
+        },
         shiftTask: true,
         shiftActivity: true,
       },
