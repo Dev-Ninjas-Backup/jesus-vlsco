@@ -47,6 +47,18 @@ export class PrivateChatController implements OnModuleInit {
     return await this.privateService.getAllChatsWithLastMessage(userId);
   }
 
+  @Get(':conversationId')
+  @ApiOperation({ summary: 'Get messages for a specific private conversation' })
+  async getConversationMessages(
+    @Param('conversationId') conversationId: string,
+    @GetUser('userId') userId: string,
+  ) {
+    return await this.privateService.getPrivateConversationWithMessages(
+      conversationId,
+      userId,
+    );
+  }
+
   @Post('send-message/:recipientId')
   @ApiOperation({ summary: 'Sending Private message' })
   @ApiConsumes('multipart/form-data')

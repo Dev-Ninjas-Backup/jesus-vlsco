@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common'; // ← import your file service
-import { PrivateMessage } from '@prisma/client';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { FileService } from '@project/lib/utils/file.service';
 import { SendPrivateMessageDto } from './dto/privateChatGateway.dto';
@@ -64,7 +63,7 @@ export class PrivateChatService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const formattedPrivateChats = privateChats.map((chat) => {
+    const formattedPrivateChats = privateChats.map((chat: any) => {
       const otherUser = chat.user1Id === userId ? chat.user2 : chat.user1;
       return {
         type: 'private',
@@ -112,7 +111,7 @@ export class PrivateChatService {
       orderBy: { updatedAt: 'desc' },
     });
 
-    const formattedTeamChats = teamChats.map((team) => ({
+    const formattedTeamChats = teamChats.map((team: any) => ({
       type: 'team',
       chatId: team.id,
       title: team.title,
@@ -162,7 +161,7 @@ export class PrivateChatService {
     senderId: string,
     dto: SendPrivateMessageDto,
     file?: Express.Multer.File,
-  ): Promise<PrivateMessage & { file?: any; sender: any }> {
+  ): Promise<any & { file?: any; sender: any }> {
     let fileRecord;
 
     if (file) {
@@ -235,5 +234,72 @@ export class PrivateChatService {
       },
       orderBy: { updatedAt: 'desc' },
     });
+  }
+
+  async getPrivateConversationWithMessages(
+    conversationId: string,
+    userId: string,
+  ) {
+    // Ensure user is part of the conversation
+    const conversation = await this.prisma.privateConversation.findFirst({
+      where: {
+        id: conversationId,
+        OR: [{ user1Id: userId }, { user2Id: userId }],
+      },
+      include: {
+        user1: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profileUrl: true,
+              },
+            },
+          },
+        },
+        user2: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profileUrl: true,
+              },
+            },
+          },
+        },
+        messages: {
+          orderBy: { createdAt: 'asc' },
+          include: {
+            sender: {
+              select: {
+                id: true,
+                profile: {
+                  select: {
+                    firstName: true,
+                    lastName: true,
+                    profileUrl: true,
+                  },
+                },
+              },
+            },
+            file: true,
+          },
+        },
+      },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException(`Conversation not found or access denied`);
+    }
+
+    return {
+      conversationId: conversation.id,
+      participants: [conversation.user1, conversation.user2],
+      messages: conversation.messages,
+    };
   }
 }
