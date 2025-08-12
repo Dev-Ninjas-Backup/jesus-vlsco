@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { AdminRequestOffDayStatusDto } from '../dto/admin-off-day-request.dto';
 import { AdminRequestOffDayService } from '../services/admin-request-off-day.service';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 
 @ApiTags('Admin -- Off Day Request')
 @Controller('admin/time-off-request')
@@ -15,8 +16,8 @@ export class AdminRequestOffDayController {
 
   @Get('all-requests')
   @ApiOperation({ summary: 'Get all off day requests' })
-  async getAllOffDayRequests() {
-    return this.adminRequestOffDayService.getAllOffDayRequests();
+  async getAllOffDayRequests(@Body() query: PaginationDto) {
+    return this.adminRequestOffDayService.getAllOffDayRequests(query);
   }
 
   // Off Day Request Update by Admin

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES } from '@project/common/interface/events-name';
@@ -16,9 +17,15 @@ export class AdminRequestOffDayService {
   ) {}
 
   @HandleError('Failed to get all off day requests')
-  async getAllOffDayRequests() {
+  async getAllOffDayRequests(query: PaginationDto) {
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 5;
+    const skip = (page - 1) * limit;
+
     const requests = await this.prisma.timeOffRequest.findMany({
       orderBy: { createdAt: 'desc' },
+      skip,
+      take: limit,
     });
 
     return successResponse(
