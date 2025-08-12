@@ -9,15 +9,9 @@ export class SettingsService {
 
   @HandleError('Failed to get company with branch')
   async getCompanyWithBranches() {
-    const company = await this.prisma.companies.findMany({
+    const company = await this.prisma.companies.findFirst({
       include: {
         branches: {
-          select: {
-            id: true,
-            name: true,
-            location: true,
-            managerId: true,
-          },
           include: {
             manager: true,
           },
@@ -26,7 +20,18 @@ export class SettingsService {
     });
 
     if (!company) {
-      throw new Error('Companies not found');
+      // *create company
+      const newCompany = await this.prisma.companies.create({
+        data: {
+          name: 'TechCorp Inc.',
+          location: 'San Francisco, CA',
+        },
+      });
+
+      return successResponse(
+        newCompany,
+        'Company and branches created successfully',
+      );
     }
 
     return successResponse(

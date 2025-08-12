@@ -1,6 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetBadgeDto } from '../dto/get-badge.dto';
 import { GetAllBadgeService } from '../services/get-all-badge.service';
 
 @ApiTags('Admin -- Recognition')
@@ -13,7 +14,7 @@ export class GetAllBadgeController {
   // Get All Badgs
   @Get('/all-badgs')
   @ApiOperation({ summary: 'Get All Badges' })
-  async getAllBadgs() {
-    return await this.getAllBadgeService.getAllBadge();
+  async getAllBadgs(@Query() query: GetBadgeDto) {
+    return await this.getAllBadgeService.getAllBadge(query);
   }
 }

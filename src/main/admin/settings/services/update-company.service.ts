@@ -3,6 +3,7 @@ import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UpdateCompanyWithBranchesDto } from '../dto/updateCompany.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class UpdateCompanyService {
@@ -20,7 +21,7 @@ export class UpdateCompanyService {
       });
 
       if (!existingCompany) {
-        throw new NotFoundException('Company not found');
+        throw new AppError(404, 'Company not found');
       }
 
       // Step 2: Update the company (partial fields)

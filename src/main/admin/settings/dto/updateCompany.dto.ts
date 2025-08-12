@@ -23,14 +23,6 @@ export class UpdateCompanyWithBranchesDto {
   @IsString()
   location?: string;
 
-  //   @ApiProperty({
-  //     example: 'https://example.com/new-logo.png',
-  //     required: false,
-  //   })
-  //   @IsOptional()
-  //   @IsString()
-  //   logo?: string;
-
   @ApiProperty({
     type: [UpdateBranchDto],
     required: false,
