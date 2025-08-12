@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { AdminRequestOffDayStatusDto } from '../dto/admin-off-day-request.dto';
@@ -16,7 +16,7 @@ export class AdminRequestOffDayController {
 
   @Get('all-requests')
   @ApiOperation({ summary: 'Get all off day requests' })
-  async getAllOffDayRequests(@Body() query: PaginationDto) {
+  async getAllOffDayRequests(@Query() query: PaginationDto) {
     return this.adminRequestOffDayService.getAllOffDayRequests(query);
   }
 
