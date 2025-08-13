@@ -46,43 +46,78 @@ export class UpdateUserService {
       if (dup) throw new AppError(400, 'Employee ID already exists');
     }
 
-    // 3. Build update data
+    // 3. Build user update data
     const data: any = {};
     if (dto.email) data.email = dto.email;
-    if (dto.phone) data.phone = dto.phone;
+    if (dto.phone) data.phone = removePlus;
     if (dto.employeeID) data.employeeID = dto.employeeID;
     if (dto.role) data.role = dto.role;
     if (dto.password) data.password = await this.utils.hash(dto.password);
-    if (dto.pinCode) data.pinCode = dto.pinCode;
+    if (dto.pinCode !== undefined) data.pinCode = dto.pinCode;
 
-    // Profile updates
-    const profileData: any = {};
-    if (dto.firstName) profileData.firstName = dto.firstName;
-    if (dto.lastName) profileData.lastName = dto.lastName;
-    if (dto.gender) profileData.gender = dto.gender;
-    if (dto.jobTitle) profileData.jobTitle = dto.jobTitle;
-    if (dto.department) profileData.department = dto.department;
-    if (dto.address) profileData.address = dto.address;
-    if (dto.city) profileData.city = dto.city;
-    if (dto.state) profileData.state = dto.state;
-    if (dto.dob) profileData.dob = new Date(dto.dob);
-    if (dto.country) profileData.country = dto.country;
-    if (dto.nationality) profileData.nationality = dto.nationality;
-    if (profileUrl !== null) profileData.profileUrl = profileUrl;
+    // 4. Fetch existing profile
+    const existingProfile = await this.prisma.profile.findUnique({
+      where: { userId },
+    });
 
-    // 4. Perform update
-    const updated = await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...data,
-        profile: {
-          upsert: {
-            create: profileData,
-            update: profileData,
+    // 5. Define default values for required profile fields
+    const defaults = {
+      firstName: 'NoFirstName',
+      gender: 'PREFER_NOT_TO_SAY' as const,
+      jobTitle: 'HR_MANAGER' as const,
+      department: 'HR' as const,
+      address: 'Not Provided',
+      city: 'Not Provided',
+      state: 'Not Provided',
+      dob: new Date('2000-01-01'),
+    };
+
+    // 6. Build profile data using dto or defaults (required fields must be set)
+    const profileData = {
+      firstName:
+        dto.firstName ?? existingProfile?.firstName ?? defaults.firstName,
+      lastName: dto.lastName ?? existingProfile?.lastName ?? null,
+      gender: dto.gender ?? existingProfile?.gender ?? defaults.gender,
+      jobTitle: dto.jobTitle ?? existingProfile?.jobTitle ?? defaults.jobTitle,
+      department:
+        dto.department ?? existingProfile?.department ?? defaults.department,
+      address: dto.address ?? existingProfile?.address ?? defaults.address,
+      city: dto.city ?? existingProfile?.city ?? defaults.city,
+      state: dto.state ?? existingProfile?.state ?? defaults.state,
+      country: dto.country ?? existingProfile?.country ?? null,
+      nationality: dto.nationality ?? existingProfile?.nationality ?? null,
+      profileUrl:
+        profileUrl !== null
+          ? profileUrl
+          : (existingProfile?.profileUrl ?? null),
+    };
+
+    // 7. Perform transaction: update user and profile
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data,
+      });
+
+      if (existingProfile) {
+        await tx.profile.update({
+          where: { userId },
+          data: profileData,
+        });
+      } else {
+        await tx.profile.create({
+          data: {
+            userId,
+            ...profileData,
+            dob: defaults.dob,
           },
-        },
-      },
-      include: { profile: true },
+        });
+      }
+
+      return tx.user.findUnique({
+        where: { id: userId },
+        include: { profile: true },
+      });
     });
 
     return successResponse(updated, 'User updated successfully');
