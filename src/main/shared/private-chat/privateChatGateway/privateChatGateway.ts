@@ -31,6 +31,7 @@ export class PrivateChatGateway
     private readonly configService: ConfigService,
   ) {}
 
+  /** Handle socket connection and authentication */
   async handleConnection(client: Socket) {
     const token = client.handshake.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -60,6 +61,21 @@ export class PrivateChatGateway
     console.log(`Private chat disconnected: ${client.id}`);
   }
 
+  /** Load all conversations for the connected user */
+  @SubscribeMessage('private:load_conversations')
+  async handleLoadConversations(@ConnectedSocket() client: Socket) {
+    const userId = client.data.userId;
+    if (!userId) {
+      console.log('User not authenticated');
+      return;
+    }
+
+    const conversations =
+      await this.privateChatService.getUserConversations(userId);
+    client.emit('private:conversation_list', conversations);
+  }
+
+  /** Send a message (create conversation if new) */
   @SubscribeMessage('private:send_message')
   async handleMessage(
     @MessageBody()
@@ -72,10 +88,9 @@ export class PrivateChatGateway
     @ConnectedSocket() client: Socket,
   ) {
     const { recipientId, dto, file, userId } = payload;
-    console.log(payload, 'payload');
+
     // Validate sender matches token
     if (client.data.userId !== userId) {
-      console.log(client, 'client');
       console.log(
         `User ID mismatch: client ${client.data.userId} vs payload ${userId}`,
       );
@@ -84,16 +99,24 @@ export class PrivateChatGateway
 
     // Prevent sending to self
     if (userId === recipientId) {
-      console.log('hello');
       console.log(`User ${userId} cannot send message to themselves`);
       return;
     }
 
-    // Get or create conversation
-    const conversation = await this.privateChatService.findOrCreateConversation(
+    // Find existing conversation
+    let conversation = await this.privateChatService.findConversation(
       userId,
       recipientId,
     );
+
+    let isNewConversation = false;
+    if (!conversation) {
+      conversation = await this.privateChatService.createConversation(
+        userId,
+        recipientId,
+      );
+      isNewConversation = true;
+    }
 
     // Send message
     const message = await this.privateChatService.sendPrivateMessage(
@@ -103,12 +126,27 @@ export class PrivateChatGateway
       file,
     );
 
-    // Emit to both users
+    // Emit new message to both users
     this.server.to(userId).emit('private:new_message', message);
-    console.log(message, '<=message', recipientId, '<=reciver id');
     this.server.to(recipientId).emit('private:new_message', message);
+
+    // If this was a new conversation, refresh both users' chat lists
+    if (isNewConversation) {
+      const senderConversations =
+        await this.privateChatService.getUserConversations(userId);
+      const recipientConversations =
+        await this.privateChatService.getUserConversations(recipientId);
+
+      this.server
+        .to(userId)
+        .emit('private:new_conversation', senderConversations);
+      this.server
+        .to(recipientId)
+        .emit('private:new_conversation', recipientConversations);
+    }
   }
 
+  /** Helper for external services to emit new messages */
   emitNewMessage(userId: string, message: any) {
     this.server.to(userId).emit('private:new_message', message);
   }

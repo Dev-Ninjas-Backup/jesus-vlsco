@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common'; // ← import your file service
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { FileService } from '@project/lib/utils/file.service';
 import { SendPrivateMessageDto } from './dto/privateChatGateway.dto';
@@ -11,6 +11,9 @@ export class PrivateChatService {
     private readonly fileService: FileService,
   ) {}
 
+  /**
+   * Load all chats (private + team) with last message for chat list
+   */
   async getAllChatsWithLastMessage(userId: string) {
     // 1️⃣ Private chats
     const privateChats = await this.prisma.privateConversation.findMany({
@@ -82,7 +85,7 @@ export class PrivateChatService {
       };
     });
 
-    // 2️⃣ Team chats (if you have lastMessageId in Team as well)
+    // 2️⃣ Team chats (optional)
     const teamChats = await this.prisma.team.findMany({
       where: {
         members: {
@@ -135,10 +138,12 @@ export class PrivateChatService {
     return successResponse(allChats, 'Chats fetched successfully');
   }
 
-  async findOrCreateConversation(userA: string, userB: string) {
-    const [user1Id, user2Id] = [userA, userB].sort(); // enforce consistent ordering
-
-    let conversation = await this.prisma.privateConversation.findUnique({
+  /**
+   * Find existing conversation between two users or create one
+   */
+  async findConversation(userA: string, userB: string) {
+    const [user1Id, user2Id] = [userA, userB].sort();
+    return this.prisma.privateConversation.findUnique({
       where: {
         user1Id_user2Id: {
           user1Id,
@@ -146,22 +151,32 @@ export class PrivateChatService {
         },
       },
     });
+  }
 
+  async createConversation(userA: string, userB: string) {
+    const [user1Id, user2Id] = [userA, userB].sort();
+    return this.prisma.privateConversation.create({
+      data: { user1Id, user2Id },
+    });
+  }
+
+  async findOrCreateConversation(userA: string, userB: string) {
+    let conversation = await this.findConversation(userA, userB);
     if (!conversation) {
-      conversation = await this.prisma.privateConversation.create({
-        data: { user1Id, user2Id },
-      });
+      conversation = await this.createConversation(userA, userB);
     }
-
     return conversation;
   }
 
+  /**
+   * Send a private message and update lastMessage in conversation
+   */
   async sendPrivateMessage(
     conversationId: string,
     senderId: string,
     dto: SendPrivateMessageDto,
     file?: Express.Multer.File,
-  ): Promise<any & { file?: any; sender: any }> {
+  ) {
     let fileRecord;
 
     if (file) {
@@ -176,12 +191,32 @@ export class PrivateChatService {
         fileId: fileRecord?.id,
       },
       include: {
-        sender: true,
+        sender: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                profileUrl: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
         file: true,
       },
     });
 
-    // Fetch both participants to assign delivery status
+    // Update last message reference in conversation
+    await this.prisma.privateConversation.update({
+      where: { id: conversationId },
+      data: {
+        lastMessageId: message.id,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Fetch conversation to set delivery status
     const conversation = await this.prisma.privateConversation.findUnique({
       where: { id: conversationId },
     });
@@ -209,6 +244,75 @@ export class PrivateChatService {
     return message;
   }
 
+  /**
+   * Get all conversations for a user
+   */
+  async getUserConversations(userId: string) {
+    const conversations = await this.prisma.privateConversation.findMany({
+      where: {
+        OR: [{ user1Id: userId }, { user2Id: userId }],
+      },
+      include: {
+        lastMessage: {
+          include: {
+            sender: {
+              select: {
+                id: true,
+                profile: {
+                  select: {
+                    profileUrl: true,
+                    firstName: true,
+                    lastName: true,
+                  },
+                },
+              },
+            },
+            file: true,
+          },
+        },
+        user1: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                profileUrl: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+        user2: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                profileUrl: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    return conversations.map((chat: any) => {
+      const otherUser = chat.user1Id === userId ? chat.user2 : chat.user1;
+      return {
+        type: 'private',
+        chatId: chat.id,
+        participant: otherUser,
+        lastMessage: chat.lastMessage || null,
+        updatedAt: chat.updatedAt,
+      };
+    });
+  }
+
+  /**
+   * Get all messages for a conversation
+   */
   async getConversationMessages(conversationId: string) {
     return this.prisma.privateMessage.findMany({
       where: { conversationId },
@@ -220,27 +324,13 @@ export class PrivateChatService {
     });
   }
 
-  async getUserConversations(userId: string) {
-    return this.prisma.privateConversation.findMany({
-      where: {
-        OR: [{ user1Id: userId }, { user2Id: userId }],
-      },
-      include: {
-        messages: {
-          take: 1,
-          orderBy: { createdAt: 'desc' },
-          include: { file: true },
-        },
-      },
-      orderBy: { updatedAt: 'desc' },
-    });
-  }
-
+  /**
+   * Get a conversation with messages (validate access)
+   */
   async getPrivateConversationWithMessages(
     conversationId: string,
     userId: string,
   ) {
-    // Ensure user is part of the conversation
     const conversation = await this.prisma.privateConversation.findFirst({
       where: {
         id: conversationId,
