@@ -11,17 +11,17 @@ import { GetAllBadgeService } from '../services/get-all-badge.service';
 export class GetAllBadgeController {
   constructor(private readonly getAllBadgeService: GetAllBadgeService) {}
 
+  // Get Single Badges
+  @Get('single/:badgeId')
+  @ApiOperation({ summary: 'Get Single Badges' })
+  async getSingleBadge(@Param('badgeId') badgeId: string) {
+    return await this.getAllBadgeService.getSingleBadge(badgeId);
+  }
+
   // Get All Badgs
   @Get('all-badgs')
   @ApiOperation({ summary: 'Get All Badges' })
   async getAllBadgs(@Query() query: GetBadgeDto) {
     return await this.getAllBadgeService.getAllBadge(query);
-  }
-
-  // Get Single Badges
-  @Get('single/:id')
-  @ApiOperation({ summary: 'Get Single Badges' })
-  async getSingleBadge(@Param('badgeId') badgeId: string) {
-    return await this.getAllBadgeService.getSingleBadge(badgeId);
   }
 }

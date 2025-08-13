@@ -27,7 +27,7 @@ export class GetAllBadgeService {
 
   @HandleError('Error Getting Single Badge')
   async getSingleBadge(badgeId: string): Promise<TResponse<any>> {
-    const badge = await this.prisma.badge.findFirst({
+    const badge = await this.prisma.badge.findUnique({
       where: { id: badgeId },
     });
 
