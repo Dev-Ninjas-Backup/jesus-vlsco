@@ -1,7 +1,7 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Department, Gender, JopTitle, UserEnum } from "@prisma/client";
-import { Transform, Type } from "class-transformer";
-import { IsDate, IsEmail, IsEnum, IsInt, IsOptional, IsString } from "class-validator";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
+import { Transform, Type } from 'class-transformer';
+import { IsEmail, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 /**
  * Transforms empty string values into `undefined` so `@IsOptional()` will skip validation.
