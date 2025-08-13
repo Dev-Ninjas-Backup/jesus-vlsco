@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetUserService } from '../services/get-user.service';
 import { GetUsersDto } from '../dto/get-users.dto';
 
@@ -42,5 +42,10 @@ export class GetUserController {
   @Get('employeeID/:employeeID')
   async getUserByEmployeeID(@Param('employeeID') employeeID: number) {
     return this.getUserService.getUserByEmployeeID(employeeID);
+  }
+
+  @Get('me/profile')
+  async getMe(@GetUser('userId') userId: string) {
+    return this.getUserService.getUserById(userId);
   }
 }

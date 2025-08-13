@@ -65,7 +65,6 @@ export class UpdateUserService {
     if (dto.address) profileData.address = dto.address;
     if (dto.city) profileData.city = dto.city;
     if (dto.state) profileData.state = dto.state;
-    if (dto.dob) profileData.dob = new Date(dto.dob);
     if (dto.country) profileData.country = dto.country;
     if (dto.nationality) profileData.nationality = dto.nationality;
     if (profileUrl !== null) profileData.profileUrl = profileUrl;
