@@ -1,6 +1,7 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BadgeCategory } from '@prisma/client';
+import { Transform } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class AddBadgeDto {
   @ApiProperty({ example: 'Creative' })
@@ -13,17 +14,23 @@ export class AddBadgeDto {
   category: BadgeCategory;
 }
 
+function EmptyToUndefined() {
+  return Transform(({ value }) => (value === '' ? undefined : value));
+}
+
 export class UpdateBadgeDto {
   @ApiPropertyOptional({ example: 'Creative' })
-  @IsString()
   @IsOptional()
+  @IsString()
+  @EmptyToUndefined()
   title?: string;
 
   @ApiPropertyOptional({
     enum: BadgeCategory,
     example: BadgeCategory.MILESTONE,
   })
-  @IsEnum(BadgeCategory)
   @IsOptional()
+  @IsEnum(BadgeCategory)
+  @EmptyToUndefined()
   category?: BadgeCategory;
 }

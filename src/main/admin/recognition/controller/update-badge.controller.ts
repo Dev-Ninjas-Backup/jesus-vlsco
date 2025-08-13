@@ -7,13 +7,13 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { UpdateBadgeService } from '../services/update-badge.service';
-import { addBadgeSwaggerSchema } from '../dto/add-badge.swagger';
 import { UpdateBadgeDto } from '../dto/add-badge.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { addBadgeSwaggerSchema } from '../dto/add-badge.swagger';
+import { UpdateBadgeService } from '../services/update-badge.service';
 
 @ApiTags('Admin -- Recognition')
 @Controller('admin/recognition')
@@ -52,13 +52,12 @@ export class UpdateBadgeController {
         file.buffer,
         file.originalname,
       );
-
-      return await this.updateBadgeService.updateBadge(
-        id,
-        dto,
-        uploadedUrl?.url,
-      );
     }
+    return await this.updateBadgeService.updateBadge(
+      id,
+      dto,
+      uploadedUrl?.url || null,
+    );
   }
 
   // Delete Badge by ID
