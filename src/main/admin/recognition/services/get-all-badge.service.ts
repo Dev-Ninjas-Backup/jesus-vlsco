@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetBadgeDto } from '../dto/get-badge.dto';
 
@@ -19,5 +23,18 @@ export class GetAllBadgeService {
     const badges = await this.prisma.badge.findMany({ where });
 
     return successResponse(badges, 'Badges Fetched Successfully');
+  }
+
+  @HandleError('Error Getting Single Badge')
+  async getSingleBadge(badgeId: string): Promise<TResponse<any>> {
+    const badge = await this.prisma.badge.findFirst({
+      where: { id: badgeId },
+    });
+
+    if (!badge) {
+      throw new AppError(404, 'Badge not found');
+    }
+
+    return successResponse(badge, 'Badge Fetched Successfully');
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetBadgeDto } from '../dto/get-badge.dto';
@@ -12,9 +12,16 @@ export class GetAllBadgeController {
   constructor(private readonly getAllBadgeService: GetAllBadgeService) {}
 
   // Get All Badgs
-  @Get('/all-badgs')
+  @Get('all-badgs')
   @ApiOperation({ summary: 'Get All Badges' })
   async getAllBadgs(@Query() query: GetBadgeDto) {
     return await this.getAllBadgeService.getAllBadge(query);
+  }
+
+  // Get Single Badges
+  @Get('single/:id')
+  @ApiOperation({ summary: 'Get Single Badges' })
+  async getSingleBadge(@Param('badgeId') badgeId: string) {
+    return await this.getAllBadgeService.getSingleBadge(badgeId);
   }
 }
