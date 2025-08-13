@@ -11,28 +11,28 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  app.enableCors({
-    origin: ['*'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
-
   // app.enableCors({
-  //   origin: ["*"
-  //     // 'http://localhost:5173',
-  //     // 'http://localhost:5174',
-  //     // 'http://localhost:5175',
-  //     // 'http://localhost:5176',
-  //     // 'http://localhost:5177',
-  //     // 'http://localhost:5178',
-  //     // 'http://localhost:5179',
-  //     // 'http://localhost:5180',
-  //     // 'https://lgcglobalcontractingltd.com',
-  //     // 'https://jesus07.netlify.app',
-  //   ],
+  //   origin: ['*'],
   //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   //   credentials: true,
   // });
+
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:5174',
+      'http://localhost:5175',
+      'http://localhost:5176',
+      'http://localhost:5177',
+      'http://localhost:5178',
+      'http://localhost:5179',
+      'http://localhost:5180',
+      'https://lgcglobalcontractingltd.com',
+      'https://jesus07.netlify.app',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
