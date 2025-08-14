@@ -28,3 +28,17 @@ export class UpdateTaskStatusDto {
 }
 
 export class UpdateTaskDto extends PartialType(AddTaskDto) {}
+
+export class DeleteTasksDto {
+  @ApiProperty({
+    example: [
+      'e432cde3-b4cd-44f7-9bd6-3d287540a839',
+      'd132bfc7-1d4e-4472-9d65-72ed7f6bb54c',
+    ],
+    description: 'Array of task IDs to delete',
+    isArray: true,
+  })
+  @IsArray()
+  @IsUUID('4', { each: true })
+  tasks: string[];
+}

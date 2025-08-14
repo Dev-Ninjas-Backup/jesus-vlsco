@@ -34,6 +34,14 @@ export class TaskService {
     return successResponse(task, 'Task deleted successfully');
   }
 
+  @HandleError('Error deleting multiple tasks')
+  async deleteMultipleTasks(ids: string[]): Promise<TResponse<any>> {
+    const tasks = await this.prisma.task.deleteMany({
+      where: { id: { in: ids } },
+    });
+    return successResponse(tasks, 'Tasks deleted successfully');
+  }
+
   @HandleError('Error assigning employee to task')
   async assignEmployeeToTask(
     taskId: string,

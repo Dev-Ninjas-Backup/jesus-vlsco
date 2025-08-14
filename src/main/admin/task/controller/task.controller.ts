@@ -10,7 +10,11 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTasksDto } from '../dto/get-tasks.dto';
-import { AssignEmployeesToTaskDto, UpdateTaskStatusDto } from '../dto/task.dto';
+import {
+  AssignEmployeesToTaskDto,
+  DeleteTasksDto,
+  UpdateTaskStatusDto,
+} from '../dto/task.dto';
 import { GetAllTasksService } from '../services/get-all-tasks.service';
 import { TaskService } from '../services/task.service';
 
@@ -46,6 +50,12 @@ export class TaskController {
   @Delete(':taskId')
   deleteTask(@Param('taskId') taskId: string) {
     return this.taskService.deleteTask(taskId);
+  }
+
+  @ApiOperation({ summary: 'Delete multiple tasks' })
+  @Delete()
+  deleteMultipleTasks(@Body() dto: DeleteTasksDto) {
+    return this.taskService.deleteMultipleTasks(dto.tasks);
   }
 
   @ApiOperation({ summary: 'Assign employee to task' })
