@@ -5,7 +5,7 @@ model Recognition {
   visibility         VisibilityType
   shouldNotify       Boolean
   isAllowedToLike    Boolean
-  badge              Badge                    @relation(fields: [badgeId], references: [id])
+  badge              Badge                    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
   recognitionUsers   RecognitionUser[] // 👈 relation to User through join table
   RecognitionComment RecognitionLikeComment[]
 
@@ -18,7 +18,7 @@ model RecognitionLikeComment {
   comment       String?
   reaction      Reaction? // optional reaction (like, smile, etc.)
   recognitionId String
-  recognition   Recognition @relation(fields: [recognitionId], references: [id])
+  recognition   Recognition @relation(fields: [recognitionId], references: [id], onDelete: Cascade)
 
   recognitionUserId String // who made the comment/reaction
   recognitionUser   RecognitionUser @relation(fields: [recognitionId, recognitionUserId], references: [recognitionId, userId])
@@ -36,8 +36,8 @@ model RecognitionUser {
   recognitionId String
   userId        String
 
-  recognition Recognition @relation(fields: [recognitionId], references: [id])
-  user        User        @relation(fields: [userId], references: [id])
+  recognition Recognition @relation(fields: [recognitionId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id] , onDelete: Cascade)
 
   RecognitionLikeComment RecognitionLikeComment[]
 

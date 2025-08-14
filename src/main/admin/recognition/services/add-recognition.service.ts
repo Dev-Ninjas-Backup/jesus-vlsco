@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { AddRecognitionDto } from '../dto/add-recognition.dto';
+import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
-import { HandleError } from '@project/common/error/handle-error.decorator';
+import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { AddRecognitionDto } from '../dto/add-recognition.dto';
 
 @Injectable()
 export class AddRecognitionService {
@@ -15,7 +16,16 @@ export class AddRecognitionService {
   async addRecognition(dto: AddRecognitionDto): Promise<TResponse<any>> {
     // validate input if needed
     if (!dto.recognitionUserIds?.length) {
-      throw new BadRequestException('At least one user must be recognized');
+      throw new AppError(400, 'At least one user must be recognized');
+    }
+
+    // * check if badge exists
+    const badge = await this.prisma.badge.findUnique({
+      where: { id: dto.badgeId },
+    });
+
+    if (!badge) {
+      throw new AppError(400, 'Badge not found');
     }
 
     const result = await this.prisma.$transaction(async (tx) => {

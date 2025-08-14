@@ -18,8 +18,8 @@ model Announcement {
   likedUser   AnnouncementReactedUser[]
   attachments Attachments[]
 
-  author   User                 @relation(fields: [createdBy], references: [id])
-  category AnnouncementCategory @relation(fields: [categoryId], references: [id])
+  author   User                 @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  category AnnouncementCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   teamAnnouncements TeamAnnouncement[]
 }
@@ -31,8 +31,8 @@ model AnnouncementReactedUser {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  user         User         @relation(fields: [userId], references: [id])
-  announcement Announcement @relation(fields: [announcementId], references: [id])
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
 }
 
 model Attachments {
@@ -42,5 +42,5 @@ model Attachments {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  announcement Announcement @relation(fields: [announcementId], references: [id])
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
 }
