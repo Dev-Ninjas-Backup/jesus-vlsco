@@ -68,7 +68,18 @@ export class GetAllTasksService {
       take,
       include: {
         project: true,
-        tasksUsers: { include: { user: true } },
+        tasksUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+                payroll: true,
+                shift: true,
+                taskUsers: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -112,10 +123,41 @@ export class GetAllTasksService {
     // Prepare metadata
     const pages = Math.ceil(total / limit);
 
+    const overdueTasks = await this.prisma.task.findMany({
+      where: {
+        startTime: { lte: new Date() },
+        endTime: { gte: new Date() },
+        status: { not: 'DONE' },
+      },
+      include: {
+        project: true,
+        tasksUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+                payroll: true,
+                shift: true,
+                taskUsers: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const totalDone = tasks.filter((task) => task.status === 'DONE').length;
+
     // Return response with grouped data
     return successResponse(
       {
         data: tasks,
+        analytics: {
+          total,
+          done: totalDone,
+          open: total - totalDone,
+        },
+        overdueTasks,
         grouped,
         meta: { total, page, limit, pages },
       },
