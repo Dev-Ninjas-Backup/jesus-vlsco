@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ShiftController } from './shift.controller';
-import { ShiftLogService } from './shift.service';
+import { ShiftLogService } from './services/shift.service';
+import { GetShiftsService } from './services/get-shifts.service';
 
 @Module({
   controllers: [ShiftController],
-  providers: [ShiftLogService],
+  providers: [ShiftLogService, GetShiftsService],
 })
 export class ShiftModule {}

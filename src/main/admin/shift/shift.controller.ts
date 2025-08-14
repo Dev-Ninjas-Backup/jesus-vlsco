@@ -11,7 +11,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
-import { ShiftLogService } from './shift.service';
+import { ShiftLogService } from './services/shift.service';
 
 @ApiTags('Admin -- Shift')
 @ValidateAdmin()
