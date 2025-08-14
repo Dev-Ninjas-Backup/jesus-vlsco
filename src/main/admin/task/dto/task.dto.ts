@@ -1,7 +1,6 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { TaskStatus } from '@prisma/client';
 import { IsArray, IsEnum, IsUUID } from 'class-validator';
-import { AddTaskDto } from './add-task.dto';
 
 export class AssignEmployeesToTaskDto {
   @ApiProperty({
@@ -26,8 +25,6 @@ export class UpdateTaskStatusDto {
   @IsEnum(TaskStatus)
   status: TaskStatus;
 }
-
-export class UpdateTaskDto extends PartialType(AddTaskDto) {}
 
 export class DeleteTasksDto {
   @ApiProperty({

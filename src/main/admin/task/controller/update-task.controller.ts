@@ -16,8 +16,8 @@ import {
 } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { UpdateTaskDto } from '../dto/task.dto';
 import { updateTaskSwaggerSchema } from '../dto/task.swagger';
+import { UpdateTaskDto } from '../dto/update-task.dto';
 import { UpdateTaskService } from '../services/update-task.service';
 
 @ApiTags('Admin -- Update Task')

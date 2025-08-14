@@ -9,7 +9,7 @@ import { AddTaskDto } from '../dto/add-task.dto';
 
 @Injectable()
 export class AddTaskService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to create task')
   async createTask(
@@ -48,8 +48,8 @@ export class AddTaskService {
               include: {
                 profile: true,
               },
-            }
-          }
+            },
+          },
         },
       },
     });
