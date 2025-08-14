@@ -1,8 +1,8 @@
-import { Controller, Get, Injectable, Query } from '@nestjs/common';
-import { GetRecognitionService } from '../services/get-recognition.service';
-import { GetRecognitionDto } from '../dto/recognition.dto';
+import { Controller, Get, Injectable, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetRecognitionDto } from '../dto/recognition.dto';
+import { GetRecognitionService } from '../services/get-recognition.service';
 
 @ApiTags('Admin -- Recognition')
 @Controller('admin/recognition')
@@ -10,10 +10,15 @@ import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 @ApiBearerAuth()
 @Injectable()
 export class GetRecognitionController {
-  constructor(private readonly recognitionService: GetRecognitionService) {}
+  constructor(private readonly recognitionService: GetRecognitionService) { }
 
   @Get()
   async getRecognitions(@Query() dto: GetRecognitionDto) {
     return this.recognitionService.getRecognitions(dto);
+  }
+
+  @Get('single/:recognitionId')
+  async getSingleRecognition(@Param('recognitionId') id: string) {
+    return this.recognitionService.getSingleRecognition(id);
   }
 }
