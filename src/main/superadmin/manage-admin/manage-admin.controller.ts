@@ -1,28 +1,8 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { TResponse } from '@project/common/utils/response.util';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { createAdminSwagger } from './dto/create-admin-swagger';
-import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ManageAdminService } from './manage-admin.service';
 
@@ -31,45 +11,42 @@ import { ManageAdminService } from './manage-admin.service';
 @ApiBearerAuth()
 @Controller('superadmin/manage-admin')
 export class ManageAdminController {
-  constructor(
-    private readonly manageAdminService: ManageAdminService,
-    private readonly cloudinaryService: CloudinaryService,
-  ) {}
+  constructor(private readonly manageAdminService: ManageAdminService) {}
 
-  @Post('create-admin')
-  @ApiOperation({ summary: 'Create a new admin with profile photo' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'User creation form data with profile image',
-    schema: {
-      type: 'object',
-      properties: {
-        ...createAdminSwagger.properties,
-        profileUrl: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @UseInterceptors(FileInterceptor('profileUrl'))
-  async createAdmin(
-    @Body() dto: CreateAdminDto,
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<TResponse<any>> {
-    let uploadedUrl = null;
+  // @Post('create-admin')
+  // @ApiOperation({ summary: 'Create a new admin with profile photo' })
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({
+  //   description: 'User creation form data with profile image',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       ...createAdminSwagger.properties,
+  //       profileUrl: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // @UseInterceptors(FileInterceptor('profileUrl'))
+  // async createAdmin(
+  //   @Body() dto: CreateAdminDto,
+  //   @UploadedFile() file: Express.Multer.File,
+  // ): Promise<TResponse<any>> {
+  //   let uploadedUrl = null;
 
-    if (file) {
-      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      );
-    }
-    return await this.manageAdminService.createAdmin(
-      dto,
-      uploadedUrl?.url || null,
-    );
-  }
+  //   if (file) {
+  //     uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
+  //       file.buffer,
+  //       file.originalname,
+  //     );
+  //   }
+  //   return await this.manageAdminService.createAdmin(
+  //     dto,
+  //     uploadedUrl?.url || null,
+  //   );
+  // }
 
   @Get('get-admins')
   async getAdmins(@Query() query: PaginationDto): Promise<TResponse<any>> {
@@ -81,12 +58,12 @@ export class ManageAdminController {
     return await this.manageAdminService.getAAdmin(adminId);
   }
 
-  @Delete(':adminId')
-  async deleteAdmin(
-    @Param('adminId') adminId: string,
-  ): Promise<TResponse<any>> {
-    return await this.manageAdminService.deleteAdmin(adminId);
-  }
+  // @Delete(':adminId')
+  // async deleteAdmin(
+  //   @Param('adminId') adminId: string,
+  // ): Promise<TResponse<any>> {
+  //   return await this.manageAdminService.deleteAdmin(adminId);
+  // }
 
   @ApiOperation({ summary: 'Update user password' })
   @Post('me/update-password')

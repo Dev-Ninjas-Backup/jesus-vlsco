@@ -35,14 +35,14 @@ export class ProjectController {
     return this.projectService.createProject(dto);
   }
 
-  @ApiOperation({ summary: 'Assign Project to Employee' })
-  @Patch(':projectId/assign-employee/:userId')
-  assignProject(
-    @Param('projectId') projectId: string,
-    @Param('userId') userId: string,
-  ) {
-    return this.projectService.assignProjectToEmployee(projectId, userId);
-  }
+  // @ApiOperation({ summary: 'Assign Project to Employee' })
+  // @Patch(':projectId/assign-employee/:userId')
+  // assignProject(
+  //   @Param('projectId') projectId: string,
+  //   @Param('userId') userId: string,
+  // ) {
+  //   return this.projectService.assignProjectToEmployee(projectId, userId);
+  // }
 
   @ApiOperation({ summary: 'Assign Project to Employees' })
   @Patch(':projectId/assign-employees')
@@ -56,38 +56,38 @@ export class ProjectController {
     );
   }
 
-  @ApiOperation({ summary: 'Assign Project to Team or Update Project Team' })
-  @Patch(':projectId/assign-team/:teamId')
-  assignProjectToTeam(
-    @Param('projectId') projectId: string,
-    @Param('teamId') teamId: string,
-  ) {
-    return this.projectService.setProjectTeam(projectId, teamId);
-  }
+  // @ApiOperation({ summary: 'Assign Project to Team or Update Project Team' })
+  // @Patch(':projectId/assign-team/:teamId')
+  // assignProjectToTeam(
+  //   @Param('projectId') projectId: string,
+  //   @Param('teamId') teamId: string,
+  // ) {
+  //   return this.projectService.setProjectTeam(projectId, teamId);
+  // }
 
-  @ApiOperation({ summary: 'Remove Project Team' })
-  @Patch(':projectId/remove-team')
-  removeProjectTeam(@Param('projectId') projectId: string) {
-    return this.projectService.removeProjectTeam(projectId);
-  }
+  // @ApiOperation({ summary: 'Remove Project Team' })
+  // @Patch(':projectId/remove-team')
+  // removeProjectTeam(@Param('projectId') projectId: string) {
+  //   return this.projectService.removeProjectTeam(projectId);
+  // }
 
-  @ApiOperation({ summary: 'Assign Project to Manager' })
-  @Patch(':projectId/assign-manager/:managerId')
-  assignProjectToManager(
-    @Param('projectId') projectId: string,
-    @Param('managerId') managerId: string,
-  ) {
-    return this.projectService.assignProjectToManager(projectId, managerId);
-  }
+  // @ApiOperation({ summary: 'Assign Project to Manager' })
+  // @Patch(':projectId/assign-manager/:managerId')
+  // assignProjectToManager(
+  //   @Param('projectId') projectId: string,
+  //   @Param('managerId') managerId: string,
+  // ) {
+  //   return this.projectService.assignProjectToManager(projectId, managerId);
+  // }
 
-  @ApiOperation({ summary: 'Update manager of a Project' })
-  @Patch(':projectId/update-manager/:managerId')
-  updateProjectManager(
-    @Param('projectId') projectId: string,
-    @Param('managerId') managerId: string,
-  ) {
-    return this.projectService.updateProjectManager(projectId, managerId);
-  }
+  // @ApiOperation({ summary: 'Update manager of a Project' })
+  // @Patch(':projectId/update-manager/:managerId')
+  // updateProjectManager(
+  //   @Param('projectId') projectId: string,
+  //   @Param('managerId') managerId: string,
+  // ) {
+  //   return this.projectService.updateProjectManager(projectId, managerId);
+  // }
 
   @ApiOperation({ summary: 'Delete Project' })
   @Delete(':id')
