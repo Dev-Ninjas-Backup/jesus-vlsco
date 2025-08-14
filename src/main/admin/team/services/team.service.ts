@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -7,14 +8,13 @@ import {
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
-import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class TeamService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) {}
+  ) { }
 
   // ================ Team CRUD ================
   @HandleError('Failed to create team')
@@ -179,7 +179,19 @@ export class TeamService {
 
     const teamMembers = await this.prisma.teamMembers.findMany({
       where: { teamId },
-      include: { user: true },
+      include: {
+        user: {
+          include: {
+            profile: true,
+            educations: true,
+            experience: true,
+            payroll: true,
+            projects: true,
+            shift: true,
+            defaultShifts: true,
+          },
+        }
+      },
     });
 
     return successResponse(teamMembers, 'Team members found successfully');
