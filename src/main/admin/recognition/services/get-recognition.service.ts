@@ -2,13 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetRecognitionDto } from '../dto/recognition.dto';
 
 @Injectable()
 export class GetRecognitionService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError("Can't get recognitions")
   async getRecognitions(dto: GetRecognitionDto) {
@@ -78,8 +81,8 @@ export class GetRecognitionService {
             user: {
               include: {
                 profile: true,
-              }
-            }
+              },
+            },
           },
         },
       },

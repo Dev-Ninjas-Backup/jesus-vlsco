@@ -1,17 +1,19 @@
 import { Module } from '@nestjs/common';
-import { AddBadgeService } from './services/add-badge.service';
-import { AddBadgeController } from './controller/add-badge.controller';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { GetAllBadgeController } from './controller/get-all-badge.controller';
-import { GetAllBadgeService } from './services/get-all-badge.service';
-import { AddRecognitionService } from './services/add-recognition.service';
+import { AddBadgeController } from './controller/add-badge.controller';
 import { AddRecognitionController } from './controller/add-recognition.controller';
-import { UpdateBadgeService } from './services/update-badge.service';
+import { GetAllBadgeController } from './controller/get-all-badge.controller';
+import { GetRecognitionController } from './controller/get-recognition.controller';
+import { RecognitionLikeCommentController } from './controller/recognition-like-comment.controller';
 import { UpdateBadgeController } from './controller/update-badge.controller';
 import { UpdateRecognitionController } from './controller/update-recognition.controller';
-import { UpdateRecognitionService } from './services/update-recognition.service';
-import { GetRecognitionController } from './controller/get-recognition.controller';
+import { AddBadgeService } from './services/add-badge.service';
+import { AddRecognitionService } from './services/add-recognition.service';
+import { GetAllBadgeService } from './services/get-all-badge.service';
 import { GetRecognitionService } from './services/get-recognition.service';
+import { RecognitionLikeCommentService } from './services/recognition-like-comment.service';
+import { UpdateBadgeService } from './services/update-badge.service';
+import { UpdateRecognitionService } from './services/update-recognition.service';
 
 @Module({
   providers: [
@@ -22,6 +24,7 @@ import { GetRecognitionService } from './services/get-recognition.service';
     UpdateBadgeService,
     UpdateRecognitionService,
     GetRecognitionService,
+    RecognitionLikeCommentService,
   ],
   controllers: [
     AddBadgeController,
@@ -30,6 +33,7 @@ import { GetRecognitionService } from './services/get-recognition.service';
     UpdateBadgeController,
     UpdateRecognitionController,
     GetRecognitionController,
+    RecognitionLikeCommentController,
   ],
 })
 export class RecognitionModule {}

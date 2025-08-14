@@ -10,7 +10,7 @@ import { GetRecognitionService } from '../services/get-recognition.service';
 @ApiBearerAuth()
 @Injectable()
 export class GetRecognitionController {
-  constructor(private readonly recognitionService: GetRecognitionService) { }
+  constructor(private readonly recognitionService: GetRecognitionService) {}
 
   @Get()
   async getRecognitions(@Query() dto: GetRecognitionDto) {
