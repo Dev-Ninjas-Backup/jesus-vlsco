@@ -14,7 +14,7 @@ export class TeamService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
-  ) { }
+  ) {}
 
   // ================ Team CRUD ================
   @HandleError('Failed to create team')
@@ -190,7 +190,7 @@ export class TeamService {
             shift: true,
             defaultShifts: true,
           },
-        }
+        },
       },
     });
 
