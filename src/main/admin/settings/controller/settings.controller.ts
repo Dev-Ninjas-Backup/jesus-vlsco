@@ -13,11 +13,13 @@ import { addBranchSwagger } from '../dto/add-branch-in-company.swagger';
 import { CreateCompanyWithBranchDto } from '../dto/createCompany.dto';
 import { createCompanyWithBranchSwaggerSchema } from '../dto/createCompany.swagger';
 import { CreateCompanyBranchNestedDto } from '../dto/createCompanyBranch.dto';
+import { ManageProjectDto } from '../dto/manage-project.dto';
 import { UpdateCompanyWithBranchesDto } from '../dto/updateCompany.dto';
 import { updateCompanyWithBranchesSwagger } from '../dto/updateCompanyWithBranch.swagger';
 import { AddBranchService } from '../services/add-branch.service';
 import { CreateCompanyService } from '../services/create-company.service';
 import { DeleteCompanyBranchService } from '../services/delete-company-branch.service';
+import { ManageProjectsService } from '../services/manage-projects.service';
 import { SettingsService } from '../services/settings.service';
 import { UpdateCompanyService } from '../services/update-company.service';
 
@@ -32,7 +34,8 @@ export class SettingsController {
     private readonly getCompanyService: SettingsService,
     private readonly addBranchService: AddBranchService,
     private readonly deleteCompanyBranchService: DeleteCompanyBranchService,
-  ) {}
+    private readonly manageProjectsService: ManageProjectsService,
+  ) { }
 
   // Get all companies with branches
   @Get('get-companies')
@@ -43,7 +46,7 @@ export class SettingsController {
   // create and update company and branches
   @Post('create-company')
   @ApiBody({
-    description: 'Comapny creation with branches',
+    description: 'Company creation with branches',
     schema: {
       type: 'object',
       properties: {
@@ -85,15 +88,7 @@ export class SettingsController {
   async addBranch(
     @Param('companyId') companyId: string,
     @Body() dto: CreateCompanyBranchNestedDto,
-    // @UploadedFile() file: Express.Multer.File,
   ) {
-    // let uploadedUrl;
-    // if (file) {
-    //     uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-    //         file.buffer,
-    //         file.originalname,
-    //     );
-    // }
     return this.addBranchService.addBranchToCompany(companyId, dto);
   }
 
@@ -124,5 +119,11 @@ export class SettingsController {
   @Get('projects/all')
   async getProjectsWithManagers() {
     return this.getCompanyService.getProjectsWithManagers();
+  }
+
+  // Manage projects
+  @Patch('projects/manage')
+  async manageProjects(@Body() dto: ManageProjectDto) {
+    return this.manageProjectsService.manageProjects(dto);
   }
 }

@@ -32,6 +32,8 @@ export function simplifyError(
         throw new BadRequestException(error.message);
       case 401:
         throw new UnauthorizedException(error.message);
+      case 403:
+        throw new UnauthorizedException(error.message);
       case 404:
         throw new NotFoundException(error.message);
       case 409:

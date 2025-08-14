@@ -5,6 +5,7 @@ import { UpdateCompanyService } from './services/update-company.service';
 import { SettingsService } from './services/settings.service';
 import { AddBranchService } from './services/add-branch.service';
 import { DeleteCompanyBranchService } from './services/delete-company-branch.service';
+import { ManageProjectsService } from './services/manage-projects.service';
 
 @Module({
   providers: [
@@ -13,6 +14,7 @@ import { DeleteCompanyBranchService } from './services/delete-company-branch.ser
     UpdateCompanyService,
     AddBranchService,
     DeleteCompanyBranchService,
+    ManageProjectsService,
   ],
   controllers: [SettingsController],
 })
