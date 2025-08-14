@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'; 
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ShiftType } from '@prisma/client';
 import { CreateShiftDto } from '../dto/create-shift.dto';

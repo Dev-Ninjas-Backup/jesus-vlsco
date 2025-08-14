@@ -20,8 +20,22 @@ export class ProjectService {
   // ========== CREATE ==========
   @HandleError('Failed to create project')
   async createProject(dto: CreateProjectDto): Promise<TResponse<any>> {
+    const team = await this.prisma.team.findUnique({
+      where: { id: dto.teamId },
+      include: { members: true },
+    });
+
+    if (!team) throw new AppError(404, 'Team not found');
+
     const project = await this.prisma.project.create({
       data: { ...dto },
+    });
+
+    await this.prisma.projectUser.createMany({
+      data: team.members.map((member) => ({
+        projectId: project.id,
+        userId: member.id,
+      })),
     });
 
     return successResponse(project, 'Project added successfully');
@@ -156,7 +170,16 @@ export class ProjectService {
         team: true,
         manager: true,
         projectUsers: {
-          include: { user: true },
+          include: {
+            user: {
+              include: {
+                profile: true,
+                payroll: true,
+                shift: true,
+                taskUsers: true,
+              },
+            },
+          },
         },
         tasks: {
           include: { tasksUsers: { include: { user: true } } },

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -7,8 +7,7 @@ export class CreateProjectDto {
     description: 'Team ID',
   })
   @IsUUID()
-  @IsOptional()
-  teamId?: string;
+  teamId: string;
 
   @ApiProperty({
     example: 'e3436c4a-dc2b-44af-8b3e-9fc7b9a9e299',
