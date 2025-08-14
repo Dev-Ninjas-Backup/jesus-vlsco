@@ -71,6 +71,7 @@ export class PrismaUserQueryBuilder {
       if (key === 'assigned') {
         if (value === true || value === 'true') {
           this.where.projects = { some: {} };
+          this.where.shift = { some: {} };
         } else {
           this.where.projects = { none: {} };
         }

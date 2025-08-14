@@ -21,11 +21,11 @@ model RecognitionLikeComment {
   recognition   Recognition @relation(fields: [recognitionId], references: [id], onDelete: Cascade)
 
   recognitionUserId String // who made the comment/reaction
-  recognitionUser   RecognitionUser @relation(fields: [recognitionId, recognitionUserId], references: [recognitionId, userId])
+  recognitionUser   RecognitionUser @relation(fields: [recognitionId, recognitionUserId], references: [recognitionId, userId], onDelete: Cascade)
 
   // 👇 for replies
   parentCommentId String?
-  parentComment   RecognitionLikeComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  parentComment   RecognitionLikeComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
   replies         RecognitionLikeComment[] @relation("CommentReplies")
 
   createdAt DateTime @default(now())
