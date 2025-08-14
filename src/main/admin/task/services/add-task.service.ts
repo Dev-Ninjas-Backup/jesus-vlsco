@@ -9,13 +9,12 @@ import { AddTaskDto } from '../dto/add-task.dto';
 
 @Injectable()
 export class AddTaskService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to create task')
   async createTask(
     dto: AddTaskDto,
     fileUrl: string | null,
-    projectId: string,
   ): Promise<TResponse<any>> {
     const task = await this.prisma.task.create({
       data: {
@@ -26,10 +25,31 @@ export class AddTaskService {
         endTime: dto.endTime,
         location: dto.location,
         labels: dto.labels,
+        status: dto.status,
         project: {
           connect: {
-            id: projectId,
+            id: dto.projectId,
           },
+        },
+        tasksUsers: {
+          create: {
+            user: {
+              connect: {
+                id: dto.assignUserId,
+              },
+            },
+          },
+        },
+      },
+      include: {
+        tasksUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+              },
+            }
+          }
         },
       },
     });

@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Param,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -30,7 +29,7 @@ export class AddTaskController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  @Post(':projectId')
+  @Post()
   @ApiOperation({ summary: 'Create a new task with document attachment' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -50,7 +49,6 @@ export class AddTaskController {
   async createTask(
     @Body() dto: AddTaskDto,
     @UploadedFile() file: Express.Multer.File,
-    @Param('projectId') projectId: string,
   ) {
     let uploadedUrl = null;
 
@@ -61,10 +59,6 @@ export class AddTaskController {
       );
     }
 
-    return this.addTaskService.createTask(
-      dto,
-      uploadedUrl?.url || null,
-      projectId,
-    );
+    return this.addTaskService.createTask(dto, uploadedUrl?.url || null);
   }
 }

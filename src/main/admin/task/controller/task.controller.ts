@@ -1,20 +1,8 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Query,
-} from '@nestjs/common';
+import { Controller, Delete, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetTasksDto } from '../dto/get-tasks.dto';
-import {
-  AssignEmployeesToTaskDto,
-  DeleteTasksDto,
-  UpdateTaskStatusDto,
-} from '../dto/task.dto';
+import { UpdateTaskStatusDto } from '../dto/task.dto';
 import { GetAllTasksService } from '../services/get-all-tasks.service';
 import { TaskService } from '../services/task.service';
 
@@ -34,12 +22,6 @@ export class TaskController {
     return this.getAllTasksService.getAllTasks(query);
   }
 
-  @ApiOperation({ summary: 'Get all unassigned tasks by userId' })
-  @Get('unassigned/:userId')
-  async getAllUnassignedTasks(@Param('userId') userId: string) {
-    return this.getAllTasksService.getAllUnassignedTasks(userId);
-  }
-
   @ApiOperation({ summary: 'Get task by id' })
   @Get(':taskId')
   getTaskById(@Param('taskId') taskId: string) {
@@ -52,48 +34,6 @@ export class TaskController {
     return this.taskService.deleteTask(taskId);
   }
 
-  @ApiOperation({ summary: 'Delete multiple tasks' })
-  @Delete()
-  deleteMultipleTasks(@Body() dto: DeleteTasksDto) {
-    return this.taskService.deleteMultipleTasks(dto.tasks);
-  }
-
-  @ApiOperation({ summary: 'Assign employee to task' })
-  @Patch(':taskId/assign/:userId')
-  assignEmployeeToTask(
-    @Param('taskId') taskId: string,
-    @Param('userId') userId: string,
-  ) {
-    return this.taskService.assignEmployeeToTask(taskId, userId);
-  }
-
-  @ApiOperation({ summary: 'Assign employees to task' })
-  @Patch(':taskId/assign-employees')
-  assignEmployeesToTask(
-    @Param('taskId') taskId: string,
-    @Body() dto: AssignEmployeesToTaskDto,
-  ) {
-    return this.taskService.assignEmployeesToTask(taskId, dto);
-  }
-
-  @ApiOperation({ summary: 'Unassign employee from task' })
-  @Patch(':taskId/unassign/:userId')
-  unassignEmployeeFromTask(
-    @Param('taskId') taskId: string,
-    @Param('userId') userId: string,
-  ) {
-    return this.taskService.unassignEmployeeFromTask(taskId, userId);
-  }
-
-  @ApiOperation({ summary: 'Update project of task' })
-  @Patch(':taskId/project/:projectId')
-  updateProjectOfTask(
-    @Param('taskId') taskId: string,
-    @Param('projectId') projectId: string,
-  ) {
-    return this.taskService.updateProjectOfTask(taskId, projectId);
-  }
-
   @ApiOperation({ summary: 'Update status of task' })
   @Patch(':taskId/status')
   updateStatus(
@@ -102,4 +42,52 @@ export class TaskController {
   ) {
     return this.taskService.updateStatus(taskId, dto.status);
   }
+
+  // @ApiOperation({ summary: 'Get all unassigned tasks by userId' })
+  // @Get('unassigned/:userId')
+  // async getAllUnassignedTasks(@Param('userId') userId: string) {
+  //   return this.getAllTasksService.getAllUnassignedTasks(userId);
+  // }
+
+  // @ApiOperation({ summary: 'Delete multiple tasks' })
+  // @Delete()
+  // deleteMultipleTasks(@Body() dto: DeleteTasksDto) {
+  //   return this.taskService.deleteMultipleTasks(dto.tasks);
+  // }
+
+  // @ApiOperation({ summary: 'Assign employee to task' })
+  // @Patch(':taskId/assign/:userId')
+  // assignEmployeeToTask(
+  //   @Param('taskId') taskId: string,
+  //   @Param('userId') userId: string,
+  // ) {
+  //   return this.taskService.assignEmployeeToTask(taskId, userId);
+  // }
+
+  // @ApiOperation({ summary: 'Assign employees to task' })
+  // @Patch(':taskId/assign-employees')
+  // assignEmployeesToTask(
+  //   @Param('taskId') taskId: string,
+  //   @Body() dto: AssignEmployeesToTaskDto,
+  // ) {
+  //   return this.taskService.assignEmployeesToTask(taskId, dto);
+  // }
+
+  // @ApiOperation({ summary: 'Unassign employee from task' })
+  // @Patch(':taskId/unassign/:userId')
+  // unassignEmployeeFromTask(
+  //   @Param('taskId') taskId: string,
+  //   @Param('userId') userId: string,
+  // ) {
+  //   return this.taskService.unassignEmployeeFromTask(taskId, userId);
+  // }
+
+  // @ApiOperation({ summary: 'Update project of task' })
+  // @Patch(':taskId/project/:projectId')
+  // updateProjectOfTask(
+  //   @Param('taskId') taskId: string,
+  //   @Param('projectId') projectId: string,
+  // ) {
+  //   return this.taskService.updateProjectOfTask(taskId, projectId);
+  // }
 }

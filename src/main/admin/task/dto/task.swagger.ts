@@ -1,10 +1,23 @@
-import { Labels } from '@prisma/client';
+import { Labels, TaskStatus } from '@prisma/client';
 
 export const addTaskSwaggerSchema = {
   type: 'object',
   properties: {
+    projectId: {
+      type: 'string',
+      format: 'uuid',
+      example: '123e4567-e89b-12d3-a456-426655440000',
+    },
+    assignUserId: {
+      type: 'string',
+      format: 'uuid',
+      example: '123e4567-e89b-12d3-a456-426655440000',
+    },
     title: { type: 'string', example: 'Design Homepage' },
-    description: { type: 'string', example: 'Design the main landing page UI' },
+    description: {
+      type: 'string',
+      example: 'Design the main landing page UI',
+    },
     startTime: {
       type: 'string',
       format: 'date-time',
@@ -22,14 +35,33 @@ export const addTaskSwaggerSchema = {
       example: Labels.LOW,
       description: 'Task priority label',
     },
+    status: {
+      type: 'string',
+      enum: Object.values(TaskStatus),
+      example: TaskStatus.OPEN,
+      description: 'Task status',
+    },
   },
 };
 
 export const updateTaskSwaggerSchema = {
   type: 'object',
   properties: {
+    projectId: {
+      type: 'string',
+      format: 'uuid',
+      example: '123e4567-e89b-12d3-a456-426655440000',
+    },
+    assignUserId: {
+      type: 'string',
+      format: 'uuid',
+      example: '123e4567-e89b-12d3-a456-426655440000',
+    },
     title: { type: 'string', example: 'Design Homepage v2' },
-    description: { type: 'string', example: 'Revised UI for landing page' },
+    description: {
+      type: 'string',
+      example: 'Revised UI for landing page',
+    },
     startTime: {
       type: 'string',
       format: 'date-time',
@@ -46,6 +78,12 @@ export const updateTaskSwaggerSchema = {
       enum: Object.values(Labels),
       example: Labels.LOW,
       description: 'Task priority label',
+    },
+    status: {
+      type: 'string',
+      enum: Object.values(TaskStatus),
+      example: TaskStatus.DONE,
+      description: 'Task status',
     },
     attachment: { type: 'string', format: 'binary' },
   },

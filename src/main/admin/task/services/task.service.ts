@@ -19,7 +19,33 @@ export class TaskService {
 
   @HandleError('Error getting task by id')
   async getTaskById(id: string): Promise<TResponse<any>> {
-    const task = await this.utils.ensureTaskExists(id);
+    const task = await this.prisma.task.findUnique({
+      where: { id },
+      include: {
+        tasksUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
+        taskComments: {
+          include: {
+            commentar: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      throw new AppError(404, 'Task not found');
+    }
 
     return successResponse(task, 'Task found successfully');
   }

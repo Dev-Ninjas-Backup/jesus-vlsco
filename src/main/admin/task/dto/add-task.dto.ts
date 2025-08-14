@@ -1,9 +1,26 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Labels } from '@prisma/client';
+import { Labels, TaskStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsDate, IsIn, IsOptional, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class AddTaskDto {
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426655440000' })
+  @IsUUID()
+  @IsNotEmpty()
+  projectId: string;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426655440000' })
+  @IsUUID()
+  @IsNotEmpty()
+  assignUserId: string;
+
   @ApiProperty({ example: 'Design Homepage' })
   @IsString()
   title: string;
@@ -27,21 +44,6 @@ export class AddTaskDto {
   @IsString()
   location?: string;
 
-  // @ApiPropertyOptional({ example: ['UI', 'High Priority'] })
-  // @Transform(({ value }) => {
-  //   if (typeof value === 'string') {
-  //     try {
-  //       return JSON.parse(value);
-  //     } catch (err) {
-  //       console.info(err);
-  //       return [value];
-  //     }
-  //   }
-  //   return value;
-  // })
-  // @IsArray()
-  // @IsString({ each: true })
-  // labels: any;
   @ApiPropertyOptional({
     description: 'Group by field',
     enum: [Labels],
@@ -49,4 +51,12 @@ export class AddTaskDto {
   @IsOptional()
   @IsIn([Labels.HIGH, Labels.LOW, Labels.MEDIUM])
   labels: Labels;
+
+  @ApiPropertyOptional({
+    description: 'Task status',
+    enum: [TaskStatus],
+  })
+  @IsOptional()
+  @IsIn([TaskStatus.DAFT, TaskStatus.OPEN, TaskStatus.DONE, TaskStatus.OVERDUE])
+  status: TaskStatus;
 }
