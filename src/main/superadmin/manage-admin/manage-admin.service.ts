@@ -7,8 +7,9 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
 import { UtilsService } from '@project/lib/utils/utils.service';
+import { CreateAdminDto } from './dto/create-admin.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class ManageAdminService {
@@ -119,5 +120,51 @@ export class ManageAdminService {
     });
 
     return successResponse(admin, 'Admin deleted successfully');
+  }
+
+  @HandleError('Failed to update password', 'Admin')
+  async updatePassword(
+    userid: string,
+    dto: UpdatePasswordDto,
+  ): Promise<TResponse<any>> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userid },
+      select: { password: true },
+    });
+
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    // If admin has no password set
+    if (!user.password) {
+      const hashedPassword = await this.utils.hash(dto.newPassword);
+      await this.prisma.user.update({
+        where: { id: userid },
+        data: { password: hashedPassword },
+      });
+      return successResponse(null, 'Password set successfully');
+    }
+
+    // If admin has password
+    if (!dto.currentPassword) {
+      throw new AppError(400, 'Current password is required');
+    }
+
+    const isPasswordValid = await this.utils.compare(
+      dto.currentPassword,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new AppError(400, 'Invalid current password');
+    }
+
+    const hashedPassword = await this.utils.hash(dto.newPassword);
+    await this.prisma.user.update({
+      where: { id: userid },
+      data: { password: hashedPassword },
+    });
+
+    return successResponse(null, 'Password updated successfully');
   }
 }

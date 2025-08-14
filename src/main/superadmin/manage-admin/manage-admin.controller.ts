@@ -9,6 +9,7 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -16,17 +17,17 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { ValidateSuperAdmin } from '@project/common/jwt/jwt.decorator';
-import { TResponse } from '@project/common/utils/response.util';
-import { CreateAdminDto } from './dto/create-admin.dto';
-import { ManageAdminService } from './manage-admin.service';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
-import { createAdminSwagger } from './dto/create-admin-swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { TResponse } from '@project/common/utils/response.util';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { createAdminSwagger } from './dto/create-admin-swagger';
+import { CreateAdminDto } from './dto/create-admin.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
+import { ManageAdminService } from './manage-admin.service';
 
 @ApiTags('Superadmin -- Manage Admin')
-@ValidateSuperAdmin()
+@ValidateAdmin()
 @ApiBearerAuth()
 @Controller('superadmin/manage-admin')
 export class ManageAdminController {
@@ -85,5 +86,14 @@ export class ManageAdminController {
     @Param('adminId') adminId: string,
   ): Promise<TResponse<any>> {
     return await this.manageAdminService.deleteAdmin(adminId);
+  }
+
+  @ApiOperation({ summary: 'Update user password' })
+  @Post('me/update-password')
+  async getProfile(
+    @GetUser('userId') userId: string,
+    @Body() body: UpdatePasswordDto,
+  ) {
+    return this.manageAdminService.updatePassword(userId, body);
   }
 }
