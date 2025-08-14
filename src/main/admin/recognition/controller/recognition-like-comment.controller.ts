@@ -64,4 +64,9 @@ export class RecognitionLikeCommentController {
   ) {
     return this.service.delete({ commentId, userId });
   }
+
+  @Delete('reactions/:recognitionId')
+  async deleteAllReactions(@Param('recognitionId') recognitionId: string) {
+    return this.service.deleteAllReactions(recognitionId);
+  }
 }

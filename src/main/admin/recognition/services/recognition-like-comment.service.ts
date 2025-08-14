@@ -120,6 +120,14 @@ export class RecognitionLikeCommentService {
     return successResponse(comment, 'Comment deleted successfully');
   }
 
+  @HandleError('Failed to delete all reactions')
+  async deleteAllReactions(recognitionId: string): Promise<TResponse<any>> {
+    const comments = await this.prisma.recognitionLikeComment.deleteMany({
+      where: { recognitionId },
+    });
+    return successResponse(comments, 'All reactions deleted successfully');
+  }
+
   @HandleError('Failed to get comments')
   async getThreadedComments(
     recognitionId: string,

@@ -35,7 +35,7 @@ export class SettingsController {
     private readonly addBranchService: AddBranchService,
     private readonly deleteCompanyBranchService: DeleteCompanyBranchService,
     private readonly manageProjectsService: ManageProjectsService,
-  ) { }
+  ) {}
 
   // Get all companies with branches
   @Get('get-companies')
