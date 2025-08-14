@@ -50,12 +50,13 @@ export class CreateRecognitionLikeDto {
   @IsEnum(Reaction)
   reaction?: Reaction;
 
-  @ApiPropertyOptional({ description: 'ID of the parent comment (if this is a reply)' })
+  @ApiPropertyOptional({
+    description: 'ID of the parent comment (if this is a reply)',
+  })
   @IsOptional()
   @IsUUID()
   parentCommentId?: string;
 }
-
 
 export class UpdateRecognitionLikeDto {
   @ApiPropertyOptional({ description: 'Optional comment text' })

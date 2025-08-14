@@ -7,41 +7,33 @@ import {
   Param,
   Patch,
   Post,
-  Query,
 } from '@nestjs/common';
-
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { CreateRecognitionLikeDto, UpdateRecognitionLikeDto } from '../dto/recognition.dto';
+import {
+  CreateRecognitionLikeDto,
+  UpdateRecognitionLikeDto,
+} from '../dto/recognition.dto';
 import { RecognitionLikeCommentService } from '../services/recognition-like-comment.service';
 
 @ApiTags('Recognition Like Comment')
-@Controller('recognition/:recognitionId/comments')
+@Controller('recognition/comments')
 @ApiBearerAuth()
 @ValidateAuth()
 export class RecognitionLikeCommentController {
-  constructor(private readonly service: RecognitionLikeCommentService) { }
+  constructor(private readonly service: RecognitionLikeCommentService) {}
 
-  @Get()
-  async list(
-    @Param('recognitionId') recognitionId: string,
-    @Query('sort') sort: 'asc' | 'desc' = 'asc',
-    @Query('depth') depth?: string,
-  ) {
-    const depthLimit = depth !== undefined ? Number(depth) : undefined;
-    return this.service.getThreadedComments(recognitionId, sort, depthLimit);
+  @Get('list/:recognitionId')
+  async list(@Param('recognitionId') recognitionId: string) {
+    return this.service.getThreadedComments(recognitionId);
   }
 
-  @Get('thread/:rootId')
-  async threadByRoot(
-    @Param('recognitionId') recognitionId: string,
-    @Param('rootId') rootId: string,
-    @Query('sort') sort: 'asc' | 'desc' = 'asc',
-  ) {
-    return await this.service.getThreadByRoot(rootId, sort);
+  @Get('thread/:rootCommentId')
+  async threadByRoot(@Param('rootCommentId') rootCommentId: string) {
+    return await this.service.getThreadByRoot(rootCommentId);
   }
 
-  @Post()
+  @Post(':recognitionId')
   async create(
     @Param('recognitionId') recognitionId: string,
     @GetUser('userId') userId: string,

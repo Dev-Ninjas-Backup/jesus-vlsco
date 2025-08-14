@@ -17,7 +17,7 @@ export class GetRecognitionController {
     return this.recognitionService.getRecognitions(dto);
   }
 
-  @Get('single/:recognitionId')
+  @Get(':recognitionId/single-recognition')
   async getSingleRecognition(@Param('recognitionId') id: string) {
     return this.recognitionService.getSingleRecognition(id);
   }

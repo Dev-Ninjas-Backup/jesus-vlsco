@@ -45,8 +45,7 @@ export class GetRecognitionService {
           recognitionUsers: {
             include: {
               user: {
-                select: {
-                  id: true,
+                include: {
                   profile: true,
                 },
               },
@@ -85,6 +84,7 @@ export class GetRecognitionService {
             },
           },
         },
+        RecognitionComment: true,
       },
     });
 
