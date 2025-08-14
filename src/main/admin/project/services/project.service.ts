@@ -19,6 +19,7 @@ export class ProjectService {
 
   // ========== CREATE ==========
   @HandleError('Failed to create project')
+  @HandleError('Failed to create project')
   async createProject(dto: CreateProjectDto): Promise<TResponse<any>> {
     const team = await this.prisma.team.findUnique({
       where: { id: dto.teamId },
@@ -27,14 +28,24 @@ export class ProjectService {
 
     if (!team) throw new AppError(404, 'Team not found');
 
+    // Filter out invalid members that are not in the User table
+    const validUsers = await this.prisma.user.findMany({
+      where: { id: { in: team.members.map((m) => m.userId) } },
+      select: { id: true },
+    });
+
+    if (!validUsers.length) {
+      throw new AppError(400, 'No valid users found in team');
+    }
+
     const project = await this.prisma.project.create({
       data: { ...dto },
     });
 
     await this.prisma.projectUser.createMany({
-      data: team.members.map((member) => ({
+      data: validUsers.map((user) => ({
         projectId: project.id,
-        userId: member.id,
+        userId: user.id,
       })),
     });
 
