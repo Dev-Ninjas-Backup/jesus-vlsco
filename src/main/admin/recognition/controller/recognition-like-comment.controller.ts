@@ -41,7 +41,7 @@ export class RecognitionLikeCommentController {
   ) {
     return this.service.create({
       recognitionId,
-      recognitionUserId: userId,
+      userId,
       comment: body.comment,
       reaction: body.reaction,
       parentCommentId: body.parentCommentId,

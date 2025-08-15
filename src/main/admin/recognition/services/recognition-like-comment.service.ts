@@ -1,4 +1,3 @@
-// recognition-like-comment.service.ts
 import {
   ForbiddenException,
   Injectable,
@@ -32,26 +31,21 @@ export class RecognitionLikeCommentService {
   @HandleError('Failed to create comment')
   async create({
     recognitionId,
-    recognitionUserId,
+    userId,
     comment,
     reaction,
     parentCommentId,
   }: {
     recognitionId: string;
-    recognitionUserId: string;
+    userId: string;
     comment?: string;
     reaction?: Reaction;
     parentCommentId?: string;
   }): Promise<TResponse<any>> {
     const recognition = await this.prisma.recognition.findUnique({
-      where: {
-        id: recognitionId,
-      },
+      where: { id: recognitionId },
     });
-
-    if (!recognition) {
-      throw new AppError(404, 'Recognition not found');
-    }
+    if (!recognition) throw new AppError(404, 'Recognition not found');
 
     if (parentCommentId) {
       const parent = await this.prisma.recognitionLikeComment.findUnique({
@@ -66,17 +60,31 @@ export class RecognitionLikeCommentService {
       }
     }
 
-    const commentId = await this.prisma.recognitionLikeComment.create({
-      data: {
-        recognitionId,
-        recognitionUserId,
-        comment,
-        reaction,
-        parentCommentId,
+    // Check if user is part of RecognitionUser
+    const recognitionUser = await this.prisma.recognitionUser.findUnique({
+      where: {
+        recognitionId_userId: { recognitionId, userId },
       },
     });
 
-    return successResponse(commentId, 'Comment created successfully');
+    const data: any = {
+      recognitionId,
+      comment,
+      reaction,
+      parentCommentId,
+    };
+
+    if (recognitionUser) {
+      data.recognitionUserId = userId;
+    } else {
+      data.commenterId = userId;
+    }
+
+    const newComment = await this.prisma.recognitionLikeComment.create({
+      data,
+    });
+
+    return successResponse(newComment, 'Comment created successfully');
   }
 
   @HandleError('Failed to update comment')
@@ -89,15 +97,21 @@ export class RecognitionLikeCommentService {
       where: { id: commentId },
     });
     if (!existing) throw new AppError(404, 'Comment not found');
-    if (existing.recognitionUserId !== userId)
-      throw new AppError(403, 'Not your comment');
 
-    const comment = await this.prisma.recognitionLikeComment.update({
+    // Author check for both flows
+    if (
+      existing.recognitionUserId !== userId &&
+      existing.commenterId !== userId
+    ) {
+      throw new AppError(403, 'Not your comment');
+    }
+
+    const updated = await this.prisma.recognitionLikeComment.update({
       where: { id: commentId },
       data,
     });
 
-    return successResponse(comment, 'Comment updated successfully');
+    return successResponse(updated, 'Comment updated successfully');
   }
 
   @HandleError('Failed to delete comment')
@@ -112,14 +126,19 @@ export class RecognitionLikeCommentService {
       where: { id: commentId },
     });
     if (!existing) throw new NotFoundException('Comment not found');
-    if (existing.recognitionUserId !== userId)
-      throw new ForbiddenException('Not your comment');
 
-    const comment = await this.prisma.recognitionLikeComment.delete({
+    if (
+      existing.recognitionUserId !== userId &&
+      existing.commenterId !== userId
+    ) {
+      throw new ForbiddenException('Not your comment');
+    }
+
+    const deleted = await this.prisma.recognitionLikeComment.delete({
       where: { id: commentId },
     });
 
-    return successResponse(comment, 'Comment deleted successfully');
+    return successResponse(deleted, 'Comment deleted successfully');
   }
 
   @HandleError('Failed to delete all reactions')
@@ -148,6 +167,9 @@ export class RecognitionLikeCommentService {
             },
           },
         },
+        commenterOfRecognition: {
+          include: { profile: true },
+        },
       },
     });
 
@@ -162,7 +184,7 @@ export class RecognitionLikeCommentService {
         comment: c.comment ?? null,
         reaction: c.reaction ?? null,
         recognitionId: c.recognitionId,
-        recognitionUserId: c.recognitionUserId,
+        recognitionUserId: c.recognitionUserId ?? c.commenterId ?? '',
         parentCommentId: c.parentCommentId ?? null,
         createdAt: c.createdAt,
         updatedAt: c.updatedAt,
