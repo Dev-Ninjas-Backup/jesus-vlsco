@@ -67,15 +67,11 @@ export class GetAllTasksService {
       skip,
       take,
       include: {
-        project: true,
         tasksUsers: {
           include: {
             user: {
               include: {
                 profile: true,
-                payroll: true,
-                shift: true,
-                taskUsers: true,
               },
             },
           },
@@ -151,15 +147,11 @@ export class GetAllTasksService {
         status: { not: 'DONE' },
       },
       include: {
-        project: true,
         tasksUsers: {
           include: {
             user: {
               include: {
                 profile: true,
-                payroll: true,
-                shift: true,
-                taskUsers: true,
               },
             },
           },
@@ -172,7 +164,6 @@ export class GetAllTasksService {
     // Return response with grouped data
     return successResponse(
       {
-        data: tasks,
         analytics: {
           total,
           done: totalDone,

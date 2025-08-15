@@ -37,6 +37,7 @@ export class RecognitionLikeCommentService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to create comment')
+  @HandleError('Failed to create comment')
   async create({
     recognitionId,
     userId,
@@ -55,6 +56,11 @@ export class RecognitionLikeCommentService {
     });
     if (!recognition) throw new AppError(404, 'Recognition not found');
 
+    // 🚨 Validation: cannot create both comment and reaction at the same time
+    if (comment && reaction) {
+      throw new AppError(400, 'Cannot create both a comment and a reaction');
+    }
+
     if (parentCommentId) {
       const parent = await this.prisma.recognitionLikeComment.findUnique({
         where: { id: parentCommentId },
@@ -65,6 +71,11 @@ export class RecognitionLikeCommentService {
           401,
           'Parent comment belongs to a different recognition',
         );
+      }
+
+      // 🚨 Validation: parent must be a comment, not a reaction
+      if (!parent.comment) {
+        throw new AppError(400, 'Cannot reply to a reaction');
       }
     }
 
@@ -157,34 +168,26 @@ export class RecognitionLikeCommentService {
     return successResponse(comments, 'All reactions deleted successfully');
   }
 
-  @HandleError('Failed to get comments')
+  @HandleError('Failed to get comments and reactions')
   async getThreadedComments(
     recognitionId: string,
-  ): Promise<TResponse<ThreadNode[]>> {
+  ): Promise<TResponse<{ comments: ThreadNode[]; reactions: ThreadNode[] }>> {
     const all = await this.prisma.recognitionLikeComment.findMany({
       where: { recognitionId },
       orderBy: { createdAt: 'desc' },
       include: {
         recognitionUser: {
-          include: {
-            user: {
-              include: {
-                profile: true,
-              },
-            },
-          },
+          include: { user: { include: { profile: true } } },
         },
-        commenterOfRecognition: {
-          include: { profile: true },
-        },
+        commenterOfRecognition: { include: { profile: true } },
       },
     });
 
     const byId = new Map<string, ThreadNode>();
-    const roots: ThreadNode[] = [];
+    const rootComments: ThreadNode[] = [];
+    const rootReactions: ThreadNode[] = [];
 
     for (const c of all) {
-      // Pick the right user (either recognitionUser or commenterOfRecognition)
       const userProfile =
         c.recognitionUser?.user?.profile ??
         c.commenterOfRecognition?.profile ??
@@ -209,29 +212,31 @@ export class RecognitionLikeCommentService {
             }
           : null,
         replies: [],
-        reactions: [], // new separate array
+        reactions: [],
       });
     }
 
-    // Link children to parents
     for (const node of byId.values()) {
       if (node.parentCommentId) {
         const parent = byId.get(node.parentCommentId);
-        if (parent) {
-          if (node.comment) {
-            parent.replies.push(node); // text reply
-          } else if (node.reaction) {
-            parent.reactions.push(node); // emoji/like
-          }
-        } else {
-          roots.push(node);
+        if (!parent) continue;
+
+        if (node.comment) {
+          parent.replies.push(node); // only comments can be replies
+        } else if (node.reaction) {
+          parent.reactions.push(node); // reactions attach to comment parent
         }
       } else {
-        roots.push(node);
+        // root node
+        if (node.comment) rootComments.push(node);
+        else if (node.reaction) rootReactions.push(node);
       }
     }
 
-    return successResponse(roots, 'Comments fetched successfully');
+    return successResponse(
+      { comments: rootComments, reactions: rootReactions },
+      'Comments and reactions fetched successfully',
+    );
   }
 
   @HandleError('Failed to get thread by root')
@@ -242,13 +247,10 @@ export class RecognitionLikeCommentService {
     if (!root) throw new AppError(404, 'Comment not found');
 
     const forest = await this.getThreadedComments(root.recognitionId);
-    const stack = [...forest.data];
-    while (stack.length) {
-      const node = stack.pop()!;
-      if (node.id === rootCommentId) {
-        stack.push(...node.replies);
-        return successResponse(node, 'Root comment found');
-      }
+
+    const thread = forest.data.comments.find((c) => c.id === rootCommentId);
+    if (thread) {
+      return successResponse(thread, 'Thread fetched successfully');
     }
 
     throw new AppError(400, 'Root thread not found');
