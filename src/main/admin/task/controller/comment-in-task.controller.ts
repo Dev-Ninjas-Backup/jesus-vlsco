@@ -4,8 +4,8 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { AddTaskCommentDto } from '../dto/add-comment-in-task.dto';
 
-@ApiTags('Comment In Task')
-@Controller('comment-in-task')
+@ApiTags('Admin -- Task')
+@Controller('admin/comment-in-task')
 @ApiBearerAuth()
 @ValidateAuth()
 export class CommentInTaskController {

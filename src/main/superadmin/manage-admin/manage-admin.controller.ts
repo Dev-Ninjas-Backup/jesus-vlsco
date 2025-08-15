@@ -6,10 +6,10 @@ import { TResponse } from '@project/common/utils/response.util';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { ManageAdminService } from './manage-admin.service';
 
-@ApiTags('Superadmin -- Manage Admin')
+@ApiTags('Admin -- Manage Admin')
 @ValidateAdmin()
 @ApiBearerAuth()
-@Controller('superadmin/manage-admin')
+@Controller('admin/manage-admin')
 export class ManageAdminController {
   constructor(private readonly manageAdminService: ManageAdminService) {}
 

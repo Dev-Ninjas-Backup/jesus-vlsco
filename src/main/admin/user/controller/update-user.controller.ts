@@ -20,7 +20,7 @@ import { updateUserSwaggerSchema } from '../dto/add-user.swagger';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import { UpdateUserService } from '../services/update-user.service';
 
-@ApiTags('Admin -- Update User')
+@ApiTags('Admin -- User')
 @Controller('admin/user')
 @ValidateAdmin()
 @ApiBearerAuth()

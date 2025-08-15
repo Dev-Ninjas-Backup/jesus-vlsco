@@ -16,7 +16,7 @@ import {
 } from '../dto/recognition.dto';
 import { RecognitionLikeCommentService } from '../services/recognition-like-comment.service';
 
-@ApiTags('Recognition Like Comment')
+@ApiTags('Admin -- Recognition Reactions & Comments')
 @Controller('recognition/comments')
 @ApiBearerAuth()
 @ValidateAuth()

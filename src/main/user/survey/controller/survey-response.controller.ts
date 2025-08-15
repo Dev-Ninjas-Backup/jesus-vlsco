@@ -5,7 +5,7 @@ import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { SubmitSurveyResponseDto } from '../dto/survey-response.dto';
 import { SurveyResponseService } from '../services/survey-response.service';
 
-@ApiTags('Employee -- Survey')
+@ApiTags('Employee -- Survey & Pool')
 @Controller('employee/survey')
 @ValidateEmployee()
 @ApiBearerAuth()

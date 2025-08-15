@@ -20,7 +20,7 @@ import { updateTaskSwaggerSchema } from '../dto/task.swagger';
 import { UpdateTaskDto } from '../dto/update-task.dto';
 import { UpdateTaskService } from '../services/update-task.service';
 
-@ApiTags('Admin -- Update Task')
+@ApiTags('Admin -- Task')
 @Controller('admin/task')
 @ValidateAdmin()
 @ApiBearerAuth()

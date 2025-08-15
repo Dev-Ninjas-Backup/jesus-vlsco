@@ -21,7 +21,7 @@ import { AddUserDto } from '../dto/add-user.dto';
 import { swaggerSchema } from '../dto/add-user.swagger';
 import { AddUserService } from '../services/add-user.service';
 
-@ApiTags('Admin -- Add & Delete User')
+@ApiTags('Admin -- User')
 @Controller('admin/user')
 @ValidateAdmin()
 @ApiBearerAuth()

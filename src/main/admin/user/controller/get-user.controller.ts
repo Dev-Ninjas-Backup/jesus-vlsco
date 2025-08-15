@@ -4,7 +4,7 @@ import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetUserService } from '../services/get-user.service';
 import { GetUsersDto } from '../dto/get-users.dto';
 
-@ApiTags('Admin -- Get User')
+@ApiTags('Admin -- User')
 @ValidateAdmin()
 @ApiBearerAuth()
 @Controller('admin/user')
@@ -32,17 +32,17 @@ export class GetUserController {
     return this.getUserService.getUserByEmail(email);
   }
 
-  // Single User get by phone number (employee)
-  @Get('phone/:phone')
-  async getUserByPhone(@Param('phone') phone: string) {
-    return this.getUserService.getUserByPhone(phone);
-  }
+  // // Single User get by phone number (employee)
+  // @Get('phone/:phone')
+  // async getUserByPhone(@Param('phone') phone: string) {
+  //   return this.getUserService.getUserByPhone(phone);
+  // }
 
-  // Single User get by employeeID (employee)
-  @Get('employeeID/:employeeID')
-  async getUserByEmployeeID(@Param('employeeID') employeeID: number) {
-    return this.getUserService.getUserByEmployeeID(employeeID);
-  }
+  // // Single User get by employeeID (employee)
+  // @Get('employeeID/:employeeID')
+  // async getUserByEmployeeID(@Param('employeeID') employeeID: number) {
+  //   return this.getUserService.getUserByEmployeeID(employeeID);
+  // }
 
   @Get('me/profile')
   async getMe(@GetUser('userId') userId: string) {

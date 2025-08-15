@@ -5,7 +5,7 @@ import { AdminRequestOffDayService } from './services/admin-request-off-day.serv
 import { OffDayRequestService } from './services/off-day-request.service';
 
 @Module({
-  controllers: [TimeoffRequestController, AdminRequestOffDayController],
-  providers: [OffDayRequestService, AdminRequestOffDayService],
+  controllers: [AdminRequestOffDayController, TimeoffRequestController],
+  providers: [AdminRequestOffDayService, OffDayRequestService],
 })
 export class TimeoffRequestModule {}

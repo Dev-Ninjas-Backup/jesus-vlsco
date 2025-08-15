@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { SurveyAssignController } from './controller/survey-assign.controller';
-import { SurveyQuestionController } from './controller/survey-question.controller';
 import { SurveyResponseController } from './controller/survey-response.controller';
 import { SurveyTemplateController } from './controller/survey-template.controller';
 import { SurveyController } from './controller/survey.controller';
@@ -15,8 +13,8 @@ import { SurveyService } from './services/survey.service';
   controllers: [
     SurveyTemplateController,
     SurveyController,
-    SurveyQuestionController,
-    SurveyAssignController,
+    // SurveyQuestionController,
+    // SurveyAssignController,
     SurveyResponseController,
   ],
   providers: [
