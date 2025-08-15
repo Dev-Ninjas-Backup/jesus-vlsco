@@ -90,18 +90,36 @@ export class GetAllTasksService {
         tasks.forEach((task) => {
           if (task.tasksUsers?.length) {
             task.tasksUsers.forEach((tu) => {
-              const key =
-                tu.user.profile?.firstName || tu.user.profile?.lastName
-                  ? `${tu.user.profile?.firstName} ${tu.user.profile?.lastName}#${tu.user.profile?.profileUrl}`
-                  : 'UNNAMED';
+              const firstName = tu.user.profile?.firstName;
+              const lastName = tu.user.profile?.lastName;
+              const profileUrl = tu.user.profile?.profileUrl;
+
+              // Determine the display name
+              let fullName = '';
+              if (firstName && lastName) {
+                fullName = `${firstName} ${lastName}`;
+              } else if (firstName) {
+                fullName = firstName;
+              } else if (lastName) {
+                fullName = lastName;
+              } else {
+                fullName = 'UNNAMED';
+              }
+
+              // Determine the key
+              const key = profileUrl
+                ? `${fullName}#${profileUrl}`
+                : `${fullName}#https://avatar.iran.liara.run/username?username=${encodeURIComponent(fullName)}&bold=false&length=1`;
+
               if (!grouped[key]) grouped[key] = [];
               grouped[key].push(task);
             });
-          } else {
-            const key = 'UNASSIGNED';
-            if (!grouped[key]) grouped[key] = [];
-            grouped[key].push(task);
           }
+          // else {
+          //   const key = 'UNASSIGNED';
+          //   if (!grouped[key]) grouped[key] = [];
+          //   grouped[key].push(task);
+          // }
         });
         break;
 

@@ -7,6 +7,7 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetAssignedSurveyDto } from '../dto/get-assigned-survey.dto';
+import { PoolResponseDto } from '../dto/pool-response.dto';
 
 @Injectable()
 export class PoolService {
@@ -72,5 +73,18 @@ export class PoolService {
     }
 
     return successResponse(pool, 'Pool retrieved successfully');
+  }
+
+  @HandleError('Error submitting response')
+  async responseToAPool(
+    userId: string,
+    poolId: string,
+    dto: PoolResponseDto,
+  ): Promise<TResponse<any>> {
+    const response = await this.prisma.poolResponse.create({
+      data: { optionId: dto.optionId, poolId, userId },
+    });
+
+    return successResponse(response, 'Response submitted successfully');
   }
 }
