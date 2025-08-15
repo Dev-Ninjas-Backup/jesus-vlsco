@@ -21,7 +21,15 @@ export type ThreadNode = {
   parentCommentId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string | null;
+    profileUrl: string | null;
+    jobTitle: string;
+  } | null;
   replies: ThreadNode[];
+  reactions: ThreadNode[];
 };
 
 @Injectable()
@@ -153,10 +161,9 @@ export class RecognitionLikeCommentService {
   async getThreadedComments(
     recognitionId: string,
   ): Promise<TResponse<ThreadNode[]>> {
-    // Fetch all comments for a recognition in one query
     const all = await this.prisma.recognitionLikeComment.findMany({
       where: { recognitionId },
-      orderBy: { createdAt: 'desc' }, // Sort latest first
+      orderBy: { createdAt: 'desc' },
       include: {
         recognitionUser: {
           include: {
@@ -173,12 +180,16 @@ export class RecognitionLikeCommentService {
       },
     });
 
-    // Build an index
     const byId = new Map<string, ThreadNode>();
     const roots: ThreadNode[] = [];
 
-    // Prime nodes
     for (const c of all) {
+      // Pick the right user (either recognitionUser or commenterOfRecognition)
+      const userProfile =
+        c.recognitionUser?.user?.profile ??
+        c.commenterOfRecognition?.profile ??
+        null;
+
       byId.set(c.id, {
         id: c.id,
         comment: c.comment ?? null,
@@ -188,7 +199,17 @@ export class RecognitionLikeCommentService {
         parentCommentId: c.parentCommentId ?? null,
         createdAt: c.createdAt,
         updatedAt: c.updatedAt,
+        user: userProfile
+          ? {
+              id: userProfile.userId,
+              firstName: userProfile.firstName,
+              lastName: userProfile.lastName,
+              profileUrl: userProfile.profileUrl,
+              jobTitle: userProfile.jobTitle,
+            }
+          : null,
         replies: [],
+        reactions: [], // new separate array
       });
     }
 
@@ -196,8 +217,15 @@ export class RecognitionLikeCommentService {
     for (const node of byId.values()) {
       if (node.parentCommentId) {
         const parent = byId.get(node.parentCommentId);
-        if (parent) parent.replies.push(node);
-        else roots.push(node); // orphan safety: treat as root if parent missing
+        if (parent) {
+          if (node.comment) {
+            parent.replies.push(node); // text reply
+          } else if (node.reaction) {
+            parent.reactions.push(node); // emoji/like
+          }
+        } else {
+          roots.push(node);
+        }
       } else {
         roots.push(node);
       }
