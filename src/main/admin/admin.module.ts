@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AnnouncementModule } from './announcement/announcement.module';
+import { ManageAdminModule } from './manage-admin/manage-admin.module';
 import { PoolModule } from './pool/pool.module';
 import { ProjectModule } from './project/project.module';
 import { RecognitionModule } from './recognition/recognition.module';
@@ -12,6 +13,7 @@ import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
+    ManageAdminModule,
     UserModule,
     SettingsModule,
     RecognitionModule,
