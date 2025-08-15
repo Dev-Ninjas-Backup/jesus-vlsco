@@ -43,13 +43,15 @@ export class RecognitionLikeCommentService {
     reaction?: Reaction;
     parentCommentId?: string;
   }): Promise<TResponse<any>> {
-    const recognitionUser = await this.prisma.recognitionUser.findUnique({
+    const recognition = await this.prisma.recognition.findUnique({
       where: {
-        recognitionId_userId: { recognitionId, userId: recognitionUserId },
+        id: recognitionId,
       },
     });
-    if (!recognitionUser)
-      throw new AppError(403, 'User is not part of this recognition');
+
+    if (!recognition) {
+      throw new AppError(404, 'Recognition not found');
+    }
 
     if (parentCommentId) {
       const parent = await this.prisma.recognitionLikeComment.findUnique({
