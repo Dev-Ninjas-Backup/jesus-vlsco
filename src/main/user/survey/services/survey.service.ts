@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -54,5 +55,25 @@ export class SurveyService {
     });
 
     return successResponse(surveys, 'Assigned Surveys found successfully');
+  }
+
+  @HandleError('Failed to get single survey')
+  async getSingleSurvey(id: string): Promise<TResponse<any>> {
+    const survey = await this.prisma.survey.findUnique({
+      where: { id, surveyUsers: { some: { isResponded: false } } },
+      include: {
+        questions: {
+          include: {
+            options: true,
+          },
+        },
+      },
+    });
+
+    if (!survey) {
+      throw new AppError(403, 'Survey not found or already responded');
+    }
+
+    return successResponse(survey, 'Survey found successfully');
   }
 }

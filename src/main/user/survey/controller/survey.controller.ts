@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { GetAssignedSurveyDto } from '../dto/get-assigned-survey.dto';
@@ -17,5 +17,10 @@ export class SurveyController {
     @Query() query: GetAssignedSurveyDto,
   ) {
     return await this.surveyService.getAllAssignedSurveys(userId, query);
+  }
+
+  @Get(':id/assigned')
+  async getSingleSurvey(@Param('id') id: string) {
+    return await this.surveyService.getSingleSurvey(id);
   }
 }
