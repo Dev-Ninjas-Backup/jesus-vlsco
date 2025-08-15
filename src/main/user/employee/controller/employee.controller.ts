@@ -1,9 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
   Patch,
-  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -17,33 +15,27 @@ import {
 } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { GetUsersDto } from '@project/main/admin/user/dto/get-users.dto';
-import { GetUserService } from '@project/main/admin/user/services/get-user.service';
+import { updateUserSwaggerSchema } from '@project/main/admin/user/dto/add-user.swagger';
+import { UpdateUserService } from '@project/main/admin/user/services/update-user.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
-import { updateProfileSwaggerSchema } from '../dto/update-profile.swagger';
-import { EmployeeService } from '../services/employee.service';
 
-@ApiTags('Employee -- Update employee profile')
+@ApiTags('Employee -- Settings')
 @Controller('employee/user')
 @ValidateEmployee()
 @ApiBearerAuth()
 export class EmployeeController {
   constructor(
-    private readonly employeeService: EmployeeService,
     private readonly cloudinaryService: CloudinaryService,
-    private readonly getUserService: GetUserService,
+    private readonly updateUserService: UpdateUserService,
   ) {}
 
-  @Patch()
+  @Patch('profile')
   @ApiOperation({
     summary: 'Update employee profile by employee',
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: updateProfileSwaggerSchema.properties,
-    },
+    schema: { type: 'object', properties: updateUserSwaggerSchema.properties },
   })
   @UseInterceptors(FileInterceptor('profileUrl'))
   async updateUser(
@@ -60,14 +52,6 @@ export class EmployeeController {
         )
       ).url;
     }
-    return this.employeeService.updateProfile(userId, dto, uploadedUrl);
-  }
-
-  @Get()
-  @ApiOperation({
-    summary: 'Get all users with optional filters, search, and pagination',
-  })
-  async getAllUsers(@Query() query: GetUsersDto) {
-    return await this.getUserService.getAllUsers(query);
+    return this.updateUserService.updateUser(userId, dto, uploadedUrl);
   }
 }

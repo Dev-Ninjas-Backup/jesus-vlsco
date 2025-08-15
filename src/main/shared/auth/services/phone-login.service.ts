@@ -54,9 +54,9 @@ export class PhoneLoginService {
         from: this.fromPhone,
         to: dto.phoneNumber,
       });
-      console.log(message);
+      console.info(message);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new AppError(500, 'Failed to send OTP');
     }
 

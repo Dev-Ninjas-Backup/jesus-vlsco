@@ -5,8 +5,8 @@ import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { SubmitSurveyResponseDto } from '../dto/survey-response.dto';
 import { SurveyResponseService } from '../services/survey-response.service';
 
-@ApiTags('Employee -- Survey Response')
-@Controller('employee/survey-response')
+@ApiTags('Employee -- Survey')
+@Controller('employee/survey')
 @ValidateEmployee()
 @ApiBearerAuth()
 export class SurveyResponseController {
@@ -25,7 +25,7 @@ export class SurveyResponseController {
     );
   }
 
-  @Get('all')
+  @Get('responses')
   async getAllResponsesByAEmployee(
     @GetUser('userId') userId: string,
     @Query() query: PaginationDto,
@@ -33,7 +33,7 @@ export class SurveyResponseController {
     return this.surveyResponseService.getAllResponsesByAEmployee(userId, query);
   }
 
-  @Get(':id')
+  @Get('response/:id')
   async getSingleResponse(
     @GetUser('userId') userId: string,
     @Param('id') id: string,
