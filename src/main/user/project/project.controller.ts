@@ -21,7 +21,7 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { ProjectService } from './services/project.service';
 import { SubmitTaskService } from './services/submit-task.service';
 
-@ApiTags('Employee -- Project')
+@ApiTags('Employee -- Project & Task')
 @Controller('employee/project')
 @ValidateEmployee()
 @ApiBearerAuth()

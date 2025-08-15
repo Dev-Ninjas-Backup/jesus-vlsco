@@ -90,7 +90,10 @@ export class GetAllTasksService {
         tasks.forEach((task) => {
           if (task.tasksUsers?.length) {
             task.tasksUsers.forEach((tu) => {
-              const key = tu.user.email;
+              const key =
+                tu.user.profile?.firstName || tu.user.profile?.lastName
+                  ? `${tu.user.profile?.firstName} ${tu.user.profile?.lastName}#${tu.user.profile?.profileUrl}`
+                  : 'UNNAMED';
               if (!grouped[key]) grouped[key] = [];
               grouped[key].push(task);
             });
@@ -113,7 +116,7 @@ export class GetAllTasksService {
       case 'title':
       default:
         tasks.forEach((task) => {
-          const key = `${task.title}#${task.projectId}`;
+          const key = task.title ?? 'UNTITLED';
           if (!grouped[key]) grouped[key] = [];
           grouped[key].push(task);
         });
