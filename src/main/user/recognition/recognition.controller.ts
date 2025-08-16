@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { CreateRecognitionLikeDto } from '@project/main/admin/recognition/dto/recognition.dto';
-import { RecognitionLikeCommentService } from '@project/main/admin/recognition/services/recognition-like-comment.service';
+import { CreateUpdateCommentsService } from '@project/main/admin/recognition/services/create-update-comments.service';
 import { GetRecognitionFeed } from './dto/get-feed.dto';
 import { RecognitionService } from './recognition.service';
 
@@ -13,7 +13,7 @@ import { RecognitionService } from './recognition.service';
 export class RecognitionController {
   constructor(
     private readonly recognitionService: RecognitionService,
-    private readonly recognitionLikeCommentService: RecognitionLikeCommentService,
+    private readonly createUpdateCommentsService: CreateUpdateCommentsService,
   ) {}
 
   @Get('feed')
@@ -30,11 +30,12 @@ export class RecognitionController {
     @GetUser('userId') userId: string,
     @Body() body: CreateRecognitionLikeDto,
   ) {
-    return this.recognitionLikeCommentService.create({
+    return this.createUpdateCommentsService.createOrUpdate({
       recognitionId,
       userId,
       comment: body.comment,
       reaction: body.reaction,
+      commentId: body.commentId,
       parentCommentId: body.parentCommentId,
     });
   }

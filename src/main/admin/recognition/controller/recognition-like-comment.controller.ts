@@ -1,19 +1,8 @@
 // recognition-like-comment.controller.ts
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import {
-  CreateRecognitionLikeDto,
-  UpdateRecognitionLikeDto,
-} from '../dto/recognition.dto';
+import { CreateRecognitionLikeDto } from '../dto/recognition.dto';
 import { CreateUpdateCommentsService } from '../services/create-update-comments.service';
 import { RecognitionLikeCommentService } from '../services/recognition-like-comment.service';
 
@@ -53,14 +42,14 @@ export class RecognitionLikeCommentController {
     });
   }
 
-  @Patch(':commentId')
-  async update(
-    @Param('commentId') commentId: string,
-    @GetUser('userId') userId: string,
-    @Body() body: UpdateRecognitionLikeDto,
-  ) {
-    return this.service.update(commentId, userId, body);
-  }
+  // @Patch(':commentId')
+  // async update(
+  //   @Param('commentId') commentId: string,
+  //   @GetUser('userId') userId: string,
+  //   @Body() body: UpdateRecognitionLikeDto,
+  // ) {
+  //   return this.service.update(commentId, userId, body);
+  // }
 
   @Delete(':commentId')
   async delete(

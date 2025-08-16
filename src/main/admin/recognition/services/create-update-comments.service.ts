@@ -63,23 +63,71 @@ export class CreateUpdateCommentsService {
       },
     });
 
-    const data: any = {
-      recognitionId,
-      comment,
-      reaction,
-      parentCommentId,
-    };
+    //  CASE 1: Handle reaction (always upsert)
+    if (reaction) {
+      // Determine the filter based on recognitionUser or commenter
+      const filter: any = {
+        recognitionId,
+        parentCommentId: parentCommentId ?? null,
+      };
+      if (recognitionUser) {
+        filter.recognitionUserId = userId;
+      } else {
+        filter.commenterId = userId;
+      }
 
-    if (recognitionUser) {
-      data.recognitionUserId = userId;
-    } else {
-      data.commenterId = userId;
+      // Check if reaction exists
+      const existingReaction =
+        await this.prisma.recognitionLikeComment.findFirst({
+          where: {
+            ...filter,
+            reaction: { not: null },
+          },
+        });
+
+      let newReaction;
+      if (existingReaction) {
+        // Update existing reaction
+        newReaction = await this.prisma.recognitionLikeComment.update({
+          where: { id: existingReaction.id },
+          data: { reaction },
+        });
+      } else {
+        // Create new reaction
+        newReaction = await this.prisma.recognitionLikeComment.create({
+          data: {
+            ...filter,
+            reaction,
+          },
+        });
+      }
+
+      return successResponse(newReaction, 'Reaction saved successfully');
     }
 
-    const newComment = await this.prisma.recognitionLikeComment.create({
-      data,
-    });
+    // CASE 2: Handle comment (update if commentId provided else create)
+    if (commentId) {
+      const updatedComment = await this.prisma.recognitionLikeComment.update({
+        where: { id: commentId },
+        data: { comment },
+      });
 
-    return successResponse(newComment, 'Comment created successfully');
+      return successResponse(updatedComment, 'Comment updated successfully');
+    } else if (comment) {
+      const newComment = await this.prisma.recognitionLikeComment.create({
+        data: {
+          recognitionId,
+          comment,
+          parentCommentId,
+          ...(recognitionUser
+            ? { recognitionUserId: userId }
+            : { commenterId: userId }),
+        },
+      });
+
+      return successResponse(newComment, 'Comment created successfully');
+    }
+
+    throw new AppError(400, 'Either comment or reaction must be provided');
   }
 }
