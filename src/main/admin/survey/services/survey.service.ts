@@ -158,9 +158,15 @@ export class SurveyService {
           createdAt: orderBy,
         },
         include: {
-          questions: {
+          // questions: {
+          //   include: {
+          //     options: true,
+          //   },
+          // },
+          surveyUsers: true,
+          user: {
             include: {
-              options: true,
+              profile: true,
             },
           },
         },
@@ -172,8 +178,25 @@ export class SurveyService {
       }),
     ]);
 
+    // get total users for assignedTo if needed
+    const totalUsersCount = await this.prisma.user.count();
+
+    // map to add custom fields
+    const formattedSurveys = surveys.map((survey) => {
+      // assignedTo calculation
+      const assignedTo = survey.isForAll
+        ? totalUsersCount
+        : survey.surveyUsers.length;
+
+      return {
+        ...survey,
+        createdBY: survey.user?.profile?.jobTitle,
+        assignedTo,
+      };
+    });
+
     return successPaginatedResponse(
-      surveys,
+      formattedSurveys,
       { page, limit, total: totalCount },
       'Surveys retrieved successfully',
     );
