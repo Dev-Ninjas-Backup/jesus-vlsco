@@ -42,6 +42,17 @@ export class RecognitionLikeCommentController {
     });
   }
 
+  @Post('like/:recognitionId')
+  async updateLikeStatus(
+    @Param('recognitionId') recognitionId: string,
+    @GetUser('userId') userId: string,
+  ) {
+    return this.createUpdateCommentsService.likeUnLikeARootReaction(
+      recognitionId,
+      userId,
+    );
+  }
+
   // @Patch(':commentId')
   // async update(
   //   @Param('commentId') commentId: string,

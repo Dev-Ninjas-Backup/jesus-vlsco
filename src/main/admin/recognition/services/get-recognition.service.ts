@@ -14,7 +14,7 @@ export class GetRecognitionService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError("Can't get recognitions")
-  async getRecognitions(dto: GetRecognitionDto) {
+  async getRecognitions(dto: GetRecognitionDto, userId: string) {
     const { search, startDate, endDate, page = 1, limit = 10 } = dto;
 
     const where: Prisma.RecognitionWhereInput = {};
@@ -51,13 +51,28 @@ export class GetRecognitionService {
               },
             },
           },
+          // 👇 also pull root-level reactions for this recognition
+          RecognitionComment: {
+            where: {
+              parentCommentId: null,
+              reaction: { not: null },
+              OR: [{ recognitionUserId: userId }, { commenterId: userId }],
+            },
+            select: { id: true }, // just need existence
+          },
         },
       }),
     ]);
 
+    // Map data to inject isLiked
+    const dataWithIsLiked = data.map((recog) => ({
+      ...recog,
+      isLiked: recog.RecognitionComment.length > 0,
+    }));
+
     return successResponse(
       {
-        data,
+        data: dataWithIsLiked,
         meta: {
           total,
           page,
