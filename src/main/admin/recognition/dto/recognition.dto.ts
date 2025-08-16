@@ -1,7 +1,8 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Reaction } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsDateString,
   IsEnum,
   IsOptional,
@@ -76,4 +77,16 @@ export class UpdateRecognitionLikeDto {
   @IsOptional()
   @IsEnum(Reaction)
   reaction?: Reaction;
+}
+
+export class LikeUnlikeRecognitionDto {
+  @ApiProperty({ description: 'isLike' })
+  @Transform(({ value }) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    return value;
+  })
+  @Type(() => Boolean)
+  @IsBoolean()
+  isLike: boolean;
 }

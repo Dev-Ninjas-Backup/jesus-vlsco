@@ -130,4 +130,63 @@ export class CreateUpdateCommentsService {
 
     throw new AppError(400, 'Either comment or reaction must be provided');
   }
+
+  @HandleError('Failed to update like or unlike a root reaction')
+  async likeUnLikeARootReaction(
+    recognitionId: string,
+    userId: string,
+  ): Promise<TResponse<any>> {
+    // Make sure recognition exists
+    const recognition = await this.prisma.recognition.findUnique({
+      where: { id: recognitionId },
+    });
+    if (!recognition) throw new AppError(404, 'Recognition not found');
+
+    // Check if user is part of RecognitionUser
+    const recognitionUser = await this.prisma.recognitionUser.findUnique({
+      where: {
+        recognitionId_userId: { recognitionId, userId },
+      },
+    });
+
+    // Build filter for root reaction
+    const filter: any = {
+      recognitionId,
+      parentCommentId: null, // root level only
+    };
+    if (recognitionUser) {
+      filter.recognitionUserId = userId;
+    } else {
+      filter.commenterId = userId;
+    }
+
+    // Check if reaction exists
+    const existingReaction = await this.prisma.recognitionLikeComment.findFirst(
+      {
+        where: {
+          ...filter,
+          reaction: { not: null },
+        },
+      },
+    );
+
+    let result;
+    if (existingReaction) {
+      // 🚨 If reaction exists → remove it (unlike)
+      await this.prisma.recognitionLikeComment.delete({
+        where: { id: existingReaction.id },
+      });
+      result = { unliked: true };
+    } else {
+      // 🚨 If no reaction exists → create LIKE reaction
+      result = await this.prisma.recognitionLikeComment.create({
+        data: {
+          ...filter,
+          reaction: Reaction.LIKE, // like
+        },
+      });
+    }
+
+    return successResponse(result, 'Reaction saved successfully');
+  }
 }

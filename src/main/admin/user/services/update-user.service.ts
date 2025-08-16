@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { UserEnum } from '@prisma/client';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -121,5 +122,17 @@ export class UpdateUserService {
     });
 
     return successResponse(updated, 'User updated successfully');
+  }
+
+  @HandleError('Failed to change user role')
+  async changeUserRole(
+    userId: string,
+    role: UserEnum,
+  ): Promise<TResponse<any>> {
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { role },
+    });
+    return successResponse(updated, 'User role updated successfully');
   }
 }

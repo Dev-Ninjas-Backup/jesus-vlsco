@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import { IsEmail, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
@@ -108,4 +108,10 @@ export class UpdateProfileDto {
   @IsString()
   @EmptyToUndefined()
   nationality?: string;
+}
+
+export class UpdateRoleDto {
+  @ApiProperty({ enum: UserEnum, example: UserEnum.EMPLOYEE })
+  @IsEnum(UserEnum)
+  role: UserEnum;
 }

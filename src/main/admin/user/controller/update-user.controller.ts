@@ -17,7 +17,7 @@ import {
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { updateUserSwaggerSchema } from '../dto/add-user.swagger';
-import { UpdateProfileDto } from '../dto/update-profile.dto';
+import { UpdateProfileDto, UpdateRoleDto } from '../dto/update-profile.dto';
 import { UpdateUserService } from '../services/update-user.service';
 
 @ApiTags('Admin -- User')
@@ -54,5 +54,13 @@ export class UpdateUserController {
       ).url;
     }
     return this.updateUserService.updateUser(userId, dto, uploadedUrl);
+  }
+
+  @Patch(':userId/role')
+  async changeUserRole(
+    @Param('userId') userId: string,
+    @Body() dto: UpdateRoleDto,
+  ) {
+    return this.updateUserService.changeUserRole(userId, dto.role);
   }
 }
