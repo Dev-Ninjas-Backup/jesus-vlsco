@@ -14,6 +14,7 @@ import { GetRecognitionService } from './services/get-recognition.service';
 import { RecognitionLikeCommentService } from './services/recognition-like-comment.service';
 import { UpdateBadgeService } from './services/update-badge.service';
 import { UpdateRecognitionService } from './services/update-recognition.service';
+import { CreateUpdateCommentsService } from './services/create-update-comments.service';
 
 @Module({
   providers: [
@@ -25,6 +26,7 @@ import { UpdateRecognitionService } from './services/update-recognition.service'
     UpdateRecognitionService,
     GetRecognitionService,
     RecognitionLikeCommentService,
+    CreateUpdateCommentsService,
   ],
   controllers: [
     AddBadgeController,

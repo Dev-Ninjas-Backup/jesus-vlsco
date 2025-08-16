@@ -51,6 +51,14 @@ export class CreateRecognitionLikeDto {
   reaction?: Reaction;
 
   @ApiPropertyOptional({
+    description:
+      'ID of the comment (if this is a update to an existing comment)',
+  })
+  @IsOptional()
+  @IsUUID()
+  commentId?: string;
+
+  @ApiPropertyOptional({
     description: 'ID of the parent comment (if this is a reply)',
   })
   @IsOptional()

@@ -37,7 +37,6 @@ export class RecognitionLikeCommentService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to create comment')
-  @HandleError('Failed to create comment')
   async create({
     recognitionId,
     userId,

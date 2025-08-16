@@ -14,6 +14,7 @@ import {
   CreateRecognitionLikeDto,
   UpdateRecognitionLikeDto,
 } from '../dto/recognition.dto';
+import { CreateUpdateCommentsService } from '../services/create-update-comments.service';
 import { RecognitionLikeCommentService } from '../services/recognition-like-comment.service';
 
 @ApiTags('Admin -- Recognition Reactions & Comments')
@@ -21,7 +22,10 @@ import { RecognitionLikeCommentService } from '../services/recognition-like-comm
 @ApiBearerAuth()
 @ValidateAuth()
 export class RecognitionLikeCommentController {
-  constructor(private readonly service: RecognitionLikeCommentService) {}
+  constructor(
+    private readonly service: RecognitionLikeCommentService,
+    private readonly createUpdateCommentsService: CreateUpdateCommentsService,
+  ) {}
 
   @Get('list/:recognitionId')
   async list(@Param('recognitionId') recognitionId: string) {
@@ -39,11 +43,12 @@ export class RecognitionLikeCommentController {
     @GetUser('userId') userId: string,
     @Body() body: CreateRecognitionLikeDto,
   ) {
-    return this.service.create({
+    return this.createUpdateCommentsService.createOrUpdate({
       recognitionId,
       userId,
       comment: body.comment,
       reaction: body.reaction,
+      commentId: body.commentId,
       parentCommentId: body.parentCommentId,
     });
   }
