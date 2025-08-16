@@ -16,7 +16,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { SendTeamMessageDto } from './dto/send-team-message.dto';
 import { sendTeamMessageSwaggerSchema } from './dto/send-team-message.swagger';
 import { TeamchatService } from './teamchat.service';
@@ -24,7 +24,7 @@ import { TeamGateway } from './teamGateway/teamgeteway';
 
 @ApiTags('Team Chat')
 @Controller('teams')
-@ValidateEmployee()
+@ValidateAuth()
 @ApiBearerAuth()
 export class TeamController {
   constructor(
