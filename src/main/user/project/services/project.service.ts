@@ -53,7 +53,11 @@ export class ProjectService {
       include: {
         tasksUsers: {
           include: {
-            user: true,
+            user: {
+              include: {
+                profile: true,
+              },
+            },
           },
         },
       },
@@ -72,7 +76,7 @@ export class ProjectService {
 
     await this.prisma.task.update({
       where: { id: taskId },
-      data: { status: 'OPEN' },
+      data: { status: 'STARTED' },
     });
 
     return successResponse(null, 'Task started successfully');

@@ -15,9 +15,10 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { GetTasksDto } from '@project/main/admin/task/dto/get-tasks.dto';
+import { GetAllTasksService } from '@project/main/admin/task/services/get-all-tasks.service';
 import { ProjectService } from './services/project.service';
 import { SubmitTaskService } from './services/submit-task.service';
 
@@ -28,13 +29,16 @@ import { SubmitTaskService } from './services/submit-task.service';
 export class ProjectController {
   constructor(
     private readonly projectService: ProjectService,
+    private readonly getAllTasksService: GetAllTasksService,
     private readonly submitTaskService: SubmitTaskService,
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
   @Get('all')
-  getAllProject(@Query() dto: PaginationDto) {
-    return this.projectService.getAllProjectWithItsTasks(dto);
+  getAllProject(@Query() dto: GetTasksDto, @GetUser('userId') userId: string) {
+    const dtoWithUser = { ...dto, userId };
+
+    return this.getAllTasksService.getAllTasks(dtoWithUser);
   }
 
   @Get('task/:taskId')

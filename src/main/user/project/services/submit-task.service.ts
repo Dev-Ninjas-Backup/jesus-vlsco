@@ -6,40 +6,52 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { UtilsService } from '@project/lib/utils/utils.service';
 
 @Injectable()
 export class SubmitTaskService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly utils: UtilsService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to submit task')
   async submitTask(
     taskId: string,
     attachmentUrl: string | null,
   ): Promise<TResponse<any>> {
-    if (!attachmentUrl) {
-      return successResponse(null, 'Task submitted successfully');
-    }
-
     // 1. Ensure task exists
     const existing = await this.prisma.task.findUnique({
       where: { id: taskId },
+      include: { tasksUsers: true },
     });
     if (!existing) {
       throw new AppError(404, 'Task not found');
+    }
+
+    if (
+      !existing.tasksUsers.some(
+        (tu) => tu.userId === existing.tasksUsers[0].userId,
+      )
+    ) {
+      throw new AppError(403, 'You are not assigned to this task');
     }
 
     // 2. Perform update
     const updated = await this.prisma.task.update({
       where: { id: taskId },
       data: {
-        attachment: attachmentUrl,
+        ...(existing && attachmentUrl && { attachmentUrl }),
         status: 'DONE',
       },
-      include: { tasksUsers: { include: { user: true } }, project: true },
+      include: {
+        tasksUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+              },
+            },
+          },
+        },
+        project: true,
+      },
     });
 
     return successResponse(updated, 'Task updated successfully');
