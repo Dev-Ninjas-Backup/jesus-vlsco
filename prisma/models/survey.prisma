@@ -34,8 +34,8 @@ model Survey {
   surveyUsers SurveyUser[]
   responses   SurveyResponse[]
 
-  createdBy String
-  user      User   @relation(fields: [createdBy], references: [id])
+  createdBy String?
+  user      User?  @relation(fields: [createdBy], references: [id], onDelete: SetNull)
 }
 
 enum SurveyType {

@@ -5,7 +5,7 @@ model Team {
   department  String
   image       String
   creatorId   String
-  creator     User    @relation(fields: [creatorId], references: [id])
+  creator     User    @relation(fields: [creatorId], references: [id], onDelete: NoAction)
 
   lastMessageId String? 
   lastMessage   TeamMessage? @relation("TeamLastMessage", fields: [lastMessageId], references: [id])

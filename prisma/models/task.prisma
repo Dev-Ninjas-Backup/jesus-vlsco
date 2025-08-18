@@ -43,7 +43,7 @@ model TaskUser {
 model TaskComment {
   id        String @id @default(uuid())
   commentBy String @unique
-  commentar User   @relation(fields: [commentBy], references: [id])
+  commentar User   @relation(fields: [commentBy], references: [id], onDelete: Cascade)
   comment   String
   taskId    String
   task      Task   @relation(fields: [taskId], references: [id])
