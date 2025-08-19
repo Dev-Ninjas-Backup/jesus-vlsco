@@ -140,7 +140,7 @@ export class AnnouncementService {
   async getAAnnouncementResponseAnalytics(
     announcementId: string,
     pg: PaginationDto,
-  ) {
+  ): Promise<TResponse<any>> {
     const page = pg.page || 1;
     const limit = pg.limit && pg.limit > 0 ? pg.limit : 10;
     const skip = (page - 1) * limit;
@@ -161,13 +161,18 @@ export class AnnouncementService {
     const isForAll = announcement.isForAllUsers;
     const assignTeams = announcement.teamAnnouncements;
 
-    // ✅ Get all assigned users (either all users or specific team members)
-    const assignedUsers = await this.utils.resolveRecipients(
+    // ✅ Get all assigned users (no pagination yet)
+    const allAssignedUsers = await this.utils.resolveRecipients(
       isForAll,
       assignTeams.map((t) => t.teamId),
     );
 
-    // ✅ Get users who reacted
+    const totalAssigned = allAssignedUsers.length;
+
+    // ✅ Paginate the assigned users
+    const paginatedAssignedUsers = allAssignedUsers.slice(skip, skip + limit);
+
+    // ✅ Get reacted users just once (not paginated)
     const reactedUsers = await this.prisma.announcementReactedUser.findMany({
       where: { announcementId },
       include: {
@@ -177,12 +182,10 @@ export class AnnouncementService {
           },
         },
       },
-      skip,
-      take: limit,
     });
 
-    // ✅ Build responses for all assigned users
-    const userResponses = assignedUsers.map((assigned) => {
+    // ✅ Build responses for only the paginated assigned users
+    const userResponses = paginatedAssignedUsers.map((assigned) => {
       const reaction = reactedUsers.find((r) => r.userId === assigned.id);
 
       const firstName = reaction?.user?.profile?.firstName;
@@ -203,10 +206,10 @@ export class AnnouncementService {
         fullName,
         email: assigned.email,
         profileURL,
-        like: reaction ? 1 : 0, // since your model doesn’t have a like flag
-        viewDate: reaction ? reaction.createdAt : null, // use createdAt as "view time"
+        like: reaction ? 1 : 0,
+        viewDate: reaction ? reaction.createdAt : null,
         status: reaction ? 'Viewed' : "Didn't Viewed",
-        confirmed: reaction ? 'Confirmed' : "Didn't Confirmed", // model has no field → assume any reaction = confirmed
+        confirmed: reaction ? 'Confirmed' : "Didn't Confirmed",
       };
     });
 
@@ -215,10 +218,15 @@ export class AnnouncementService {
         analytics: {
           totalLikes,
           totalViews,
-          totalAssigned: assignedUsers.length,
+          totalAssigned,
           totalResponded: reactedUsers.length,
         },
         responses: userResponses,
+        pagination: {
+          page,
+          limit,
+          total: totalAssigned,
+        },
       },
       'Announcement responses retrieved successfully',
     );

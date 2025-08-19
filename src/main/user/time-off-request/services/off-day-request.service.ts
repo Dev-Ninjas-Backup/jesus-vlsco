@@ -20,12 +20,14 @@ export class OffDayRequestService {
 
   @HandleError('Unable to create time off request')
   async createOffDayRequset(dto: CreateTimeOffRequestDto, userId: string) {
-    const { startDate, endDate, reason, isFullDayOff, totalDaysOff } = dto;
+    const { startDate, endDate, reason, type, isFullDayOff, totalDaysOff } =
+      dto;
 
     const result = await this.prisma.timeOffRequest.create({
       data: {
         startDate,
         endDate,
+        type,
         reason,
         isFullDayOff,
         totalDaysOff,

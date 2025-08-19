@@ -9,10 +9,16 @@ import {
   Min,
 } from 'class-validator';
 
-// <option value="sick-leave">Sick leave</option>
-//                   <option value="time-off">Time off</option>
-//                   <option value="casual-leave">Casual leave</option>
-//                   <option value="unpaid-leave">Unpaid leave</option>
+import { TimeOffRequestType } from '@prisma/client';
+import { Transform } from 'class-transformer';
+import { IsEnum } from 'class-validator';
+
+const typeMap: Record<string, TimeOffRequestType> = {
+  'sick-leave': TimeOffRequestType.SICK_LEAVE,
+  'time-off': TimeOffRequestType.TIME_OFF,
+  'casual-leave': TimeOffRequestType.CASUAL_LEAVE,
+  'unpaid-leave': TimeOffRequestType.UNPAID,
+};
 
 export class CreateTimeOffRequestDto {
   @ApiProperty({ description: 'Off Day Start', example: '2023-10-10' })
@@ -30,7 +36,14 @@ export class CreateTimeOffRequestDto {
   @MaxLength(200)
   reason: string;
 
-  // type:
+  @ApiProperty({
+    description: 'Type of leave',
+    enum: Object.keys(typeMap),
+    example: 'sick-leave',
+  })
+  @Transform(({ value }) => typeMap[value] ?? TimeOffRequestType.TIME_OFF)
+  @IsEnum(TimeOffRequestType)
+  type: TimeOffRequestType;
 
   @ApiProperty({ description: 'You want to take full day off' })
   @IsBoolean()
