@@ -51,6 +51,11 @@ export class SurveyService {
             options: true,
           },
         },
+        user: {
+          include: {
+            profile: true,
+          },
+        },
       },
     });
 
