@@ -165,7 +165,7 @@ export class GetAllTasksService {
     return successResponse(
       {
         analytics: {
-          total,
+          total: tasks.length,
           done: totalDone,
           open: total - totalDone,
         },
