@@ -25,6 +25,7 @@ import { CreateAnnouncementService } from './services/create-announcement.servic
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
 import { GetAnnouncementCategoryService } from './services/get-announcement-category.service';
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 
 @ApiTags('Admin -- Announcement')
 @ValidateAdmin()
@@ -140,7 +141,13 @@ export class AnnouncementController {
 
   // Get analytics for a specific announcement
   @Get('get-analytics/:announcementId')
-  async getAAnnouncementResponseAnalytics(@Param('announcementId') id: string) {
-    return await this.announcementService.getAAnnouncementResponseAnalytics(id);
+  async getAAnnouncementResponseAnalytics(
+    @Param('announcementId') id: string,
+    @Query() pg: PaginationDto,
+  ) {
+    return await this.announcementService.getAAnnouncementResponseAnalytics(
+      id,
+      pg,
+    );
   }
 }

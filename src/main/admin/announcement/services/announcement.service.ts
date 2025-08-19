@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -136,7 +137,14 @@ export class AnnouncementService {
   }
 
   @HandleError('Failed to get recipients of announcement')
-  async getAAnnouncementResponseAnalytics(announcementId: string) {
+  async getAAnnouncementResponseAnalytics(
+    announcementId: string,
+    pg: PaginationDto,
+  ) {
+    const page = pg.page || 1;
+    const limit = pg.limit && pg.limit > 0 ? pg.limit : 10;
+    const skip = (page - 1) * limit;
+
     const announcement = await this.prisma.announcement.findUnique({
       where: { id: announcementId },
       include: {
@@ -169,6 +177,8 @@ export class AnnouncementService {
           },
         },
       },
+      skip,
+      take: limit,
     });
 
     // ✅ Build responses for all assigned users
