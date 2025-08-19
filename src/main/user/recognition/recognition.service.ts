@@ -52,6 +52,7 @@ export class RecognitionService {
             user: { include: { profile: true } },
           },
         },
+        badge: true,
       },
     });
 
@@ -61,14 +62,42 @@ export class RecognitionService {
         const threadRes =
           await this.recognitionLikeCommentService.getThreadedComments(rec.id);
 
+        // 🔑 Format recognitionUsers
+        const recognitionUserData = rec.recognitionUsers.map((ru) => {
+          const firstName = ru.user.profile?.firstName ?? '';
+          const lastName = ru.user.profile?.lastName ?? '';
+          const name =
+            firstName || lastName
+              ? `${firstName} ${lastName}`.trim()
+              : 'UNNAMED';
+
+          const profileUrl =
+            ru.user.profile?.profileUrl ??
+            `https://avatar.iran.liara.run/username?username=${encodeURIComponent(
+              name,
+            )}&bold=false&length=1`;
+
+          const initial = `${firstName.charAt(0) || ''}${
+            lastName.charAt(0) || ''
+          }`.toUpperCase();
+
+          return {
+            id: ru.user.id,
+            name,
+            profileUrl,
+            initial,
+          };
+        });
+
         return {
           ...rec,
+          recognitionUsers: recognitionUserData,
           comments: threadRes.data.comments,
           reactions: threadRes.data.reactions,
         };
       }),
     );
 
-    return successResponse(enriched, 'Recognition feed retrieved successfully');
+    return successResponse(enriched, 'Recognition feed fetched successfully');
   }
 }
