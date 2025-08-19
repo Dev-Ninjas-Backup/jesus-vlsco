@@ -19,29 +19,29 @@ export class SurveyService {
   ): Promise<TResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit && query.limit >= 0 ? query.limit : 5;
-    const searchTerm = query.searchTerm?.trim();
+    // const searchTerm = query.searchTerm?.trim();
 
     const surveys = await this.prisma.survey.findMany({
       where: {
-        // surveyUsers: {
-        //   some: {
-        //     userId,
+        surveyUsers: {
+          some: {
+            userId,
+          },
+        },
+        // OR: [
+        //   {
+        //     title: {
+        //       contains: searchTerm,
+        //       mode: 'insensitive',
+        //     },
         //   },
-        // },
-        OR: [
-          {
-            title: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-          {
-            description: {
-              contains: searchTerm,
-              mode: 'insensitive',
-            },
-          },
-        ],
+        //   {
+        //     description: {
+        //       contains: searchTerm,
+        //       mode: 'insensitive',
+        //     },
+        //   },
+        // ],
       },
       skip: (page - 1) * limit,
       take: limit,
