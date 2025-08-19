@@ -44,6 +44,7 @@ export class PoolService {
         //   },
         // ],
       },
+      include: { options: true },
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
