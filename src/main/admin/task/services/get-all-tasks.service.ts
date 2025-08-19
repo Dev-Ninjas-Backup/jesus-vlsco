@@ -38,6 +38,7 @@ export class GetAllTasksService {
     if (status) where.status = status;
     if (startAfter || endBefore) {
       where.startTime = {};
+      where.endTime = {};
       if (startAfter) where.startTime.gte = new Date(startAfter);
       if (endBefore) where.endTime.lte = new Date(endBefore);
     }

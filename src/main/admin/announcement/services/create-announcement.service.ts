@@ -38,7 +38,7 @@ export class CreateAnnouncementService {
         enabledReadReceipt: data.enabledReadReceipt,
         categoryId: data.categoryId,
         publishedNow: data.publishedNow,
-        publishedAt: data.publishedAt,
+        publishedAt: data.publishedNow ? new Date() : data.publishedAt,
         isForAllUsers: data.isForAllUsers,
         attachments: {
           createMany: { data: urls.map((file) => ({ file })) },

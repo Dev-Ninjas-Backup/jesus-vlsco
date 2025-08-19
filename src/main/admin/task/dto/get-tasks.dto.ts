@@ -1,10 +1,10 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { TaskStatus } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
-  IsDateString,
+  IsDate,
   IsEnum,
   IsIn,
   IsNumber,
@@ -26,7 +26,16 @@ export class GetTasksDto {
   @IsUUID()
   userId?: string;
 
-  @ApiPropertyOptional({ description: 'Filter by task status' })
+  @ApiPropertyOptional({
+    description: 'Filter by task status',
+    example: TaskStatus.DONE,
+    enum: TaskStatus,
+  })
+  @Transform(({ value }) => {
+    // * if value is empty, return undefined
+    if (!value || value === '' || value.trim() === '') return undefined;
+    return value.toUpperCase();
+  })
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
@@ -40,17 +49,33 @@ export class GetTasksDto {
 
   @ApiPropertyOptional({
     description: 'Filter tasks starting after this date/time',
+    example: '2023-01-01T00:00:00Z',
   })
+  // @Transform(({ value }) => {
+  //   // * if value is empty, return undefined
+  //   if (!value) return undefined;
+  //   const date = new Date(value);
+  //   return isNaN(date.getTime()) ? undefined : date.toISOString();
+  // })
   @IsOptional()
-  @IsDateString()
-  startAfter?: string;
+  @Type(() => Date)
+  @IsDate()
+  startAfter?: Date;
 
   @ApiPropertyOptional({
     description: 'Filter tasks ending before this date/time',
+    example: '2023-01-01T00:00:00Z',
   })
+  // @Transform(({ value }) => {
+  //   // * if value is empty, return undefined
+  //   if (!value) return undefined;
+  //   const date = new Date(value);
+  //   return isNaN(date.getTime()) ? undefined : date.toISOString();
+  // })
   @IsOptional()
-  @IsDateString()
-  endBefore?: string;
+  @Type(() => Date)
+  @IsDate()
+  endBefore?: Date;
 
   @ApiPropertyOptional({
     description: 'Filter by labels (tasks containing all these labels)',

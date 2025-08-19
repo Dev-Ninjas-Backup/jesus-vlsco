@@ -34,6 +34,7 @@ export class CloudinaryService {
         {
           folder,
           public_id: originalNameWithoutExt,
+          resource_type: 'auto',
         },
         (error, result) => {
           if (error) return reject(error);
