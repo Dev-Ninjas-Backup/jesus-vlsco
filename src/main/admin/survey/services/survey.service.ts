@@ -142,8 +142,8 @@ export class SurveyService {
 
   @HandleError('Failed to get all surveys')
   async getAllSurveys(dto: GetAllSurveysDto): Promise<TPaginatedResponse<any>> {
-    const page = dto.page || 1;
-    const limit = dto.limit || 10;
+    const page = dto.page && dto.page > 0 ? dto.page : 1;
+    const limit = dto.limit && dto.limit > 0 ? dto.limit : 10;
     const status = dto.status;
     const orderBy = dto.orderBy || 'desc';
 
