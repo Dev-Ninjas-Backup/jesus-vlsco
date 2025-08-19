@@ -9,7 +9,7 @@ import { GetUserService } from '../services/get-user.service';
 @ApiBearerAuth()
 @Controller('admin/user')
 export class GetUserController {
-  constructor(private readonly getUserService: GetUserService) { }
+  constructor(private readonly getUserService: GetUserService) {}
 
   // All user get (employee)
   @Get()
