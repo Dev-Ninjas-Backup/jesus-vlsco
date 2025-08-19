@@ -60,8 +60,8 @@ export class GetAllTasksService {
     // Count total tasks
     const total = await this.prisma.task.count({ where });
 
-    // Fetch tasks with relations needed for grouping
-    const tasks = await this.prisma.task.findMany({
+    // Fetch tasks with relations needed
+    const rawTasks = await this.prisma.task.findMany({
       where,
       orderBy: { [sortBy]: sortOrder },
       skip,
@@ -79,43 +79,43 @@ export class GetAllTasksService {
       },
     });
 
+    // 👉 Map tasks to include assignTo and filter out tasks without users
+    const tasks = rawTasks
+      .filter((task) => task.tasksUsers?.length > 0) // skip tasks with no users
+      .map((task) => {
+        const firstUser = task.tasksUsers[0]?.user;
+        const profile = firstUser?.profile;
+
+        let name = 'UNNAMED';
+        if (profile?.firstName && profile?.lastName) {
+          name = `${profile.firstName} ${profile.lastName}`;
+        } else if (profile?.firstName) {
+          name = profile.firstName;
+        } else if (profile?.lastName) {
+          name = profile.lastName;
+        }
+
+        const profileUrl =
+          profile?.profileUrl ??
+          `https://avatar.iran.liara.run/username?username=${encodeURIComponent(name)}&bold=false&length=1`;
+
+        return {
+          ...task,
+          assignTo: {
+            name,
+            profileUrl,
+          },
+        };
+      });
+
     // Group tasks according to the groupBy filter
     const grouped: Record<string, typeof tasks> = {};
     switch (groupBy) {
       case 'assignedTo':
         tasks.forEach((task) => {
-          if (task.tasksUsers?.length) {
-            task.tasksUsers.forEach((tu) => {
-              const firstName = tu.user.profile?.firstName;
-              const lastName = tu.user.profile?.lastName;
-              const profileUrl = tu.user.profile?.profileUrl;
-
-              // Determine the display name
-              let fullName = '';
-              if (firstName && lastName) {
-                fullName = `${firstName} ${lastName}`;
-              } else if (firstName) {
-                fullName = firstName;
-              } else if (lastName) {
-                fullName = lastName;
-              } else {
-                fullName = 'UNNAMED';
-              }
-
-              // Determine the key
-              const key = profileUrl
-                ? `${fullName}#${profileUrl}`
-                : `${fullName}#https://avatar.iran.liara.run/username?username=${encodeURIComponent(fullName)}&bold=false&length=1`;
-
-              if (!grouped[key]) grouped[key] = [];
-              grouped[key].push(task);
-            });
-          }
-          // else {
-          //   const key = 'UNASSIGNED';
-          //   if (!grouped[key]) grouped[key] = [];
-          //   grouped[key].push(task);
-          // }
+          const key = `${task.assignTo.name}#${task.assignTo.profileUrl}`;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(task);
         });
         break;
 
@@ -137,7 +137,6 @@ export class GetAllTasksService {
         break;
     }
 
-    // Prepare metadata
     const pages = Math.ceil(total / limit);
 
     const overdueTasks = await this.prisma.task.findMany({
@@ -145,6 +144,7 @@ export class GetAllTasksService {
         startTime: { lte: new Date() },
         endTime: { gte: new Date() },
         status: { not: 'DONE' },
+        tasksUsers: { some: {} }, // only overdue with assigned users
       },
       include: {
         tasksUsers: {
@@ -161,7 +161,6 @@ export class GetAllTasksService {
 
     const totalDone = tasks.filter((task) => task.status === 'DONE').length;
 
-    // Return response with grouped data
     return successResponse(
       {
         analytics: {

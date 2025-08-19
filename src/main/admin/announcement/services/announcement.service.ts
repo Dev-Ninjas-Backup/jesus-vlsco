@@ -134,4 +134,83 @@ export class AnnouncementService {
     );
     return successResponse(recipients, 'Recipients retrieved successfully');
   }
+
+  @HandleError('Failed to get recipients of announcement')
+  async getAAnnouncementResponseAnalytics(announcementId: string) {
+    const announcement = await this.prisma.announcement.findUnique({
+      where: { id: announcementId },
+      include: {
+        teamAnnouncements: true, // only need teamIds
+      },
+    });
+
+    if (!announcement) {
+      throw new AppError(404, 'Announcement not found');
+    }
+
+    const totalLikes = announcement.likeCount;
+    const totalViews = announcement.viewCount;
+    const isForAll = announcement.isForAllUsers;
+    const assignTeams = announcement.teamAnnouncements;
+
+    // ✅ Get all assigned users (either all users or specific team members)
+    const assignedUsers = await this.utils.resolveRecipients(
+      isForAll,
+      assignTeams.map((t) => t.teamId),
+    );
+
+    // ✅ Get users who reacted
+    const reactedUsers = await this.prisma.announcementReactedUser.findMany({
+      where: { announcementId },
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+      },
+    });
+
+    // ✅ Build responses for all assigned users
+    const userResponses = assignedUsers.map((assigned) => {
+      const reaction = reactedUsers.find((r) => r.userId === assigned.id);
+
+      const firstName = reaction?.user?.profile?.firstName;
+      const lastName = reaction?.user?.profile?.lastName;
+      const fullName =
+        firstName || lastName
+          ? `${firstName ?? ''} ${lastName ?? ''}`.trim()
+          : 'UNNAMED';
+
+      const profileURL =
+        reaction?.user?.profile?.profileUrl ??
+        `https://avatar.iran.liara.run/username?username=${encodeURIComponent(
+          fullName,
+        )}&bold=false&length=1`;
+
+      return {
+        id: assigned.id,
+        fullName,
+        email: assigned.email,
+        profileURL,
+        like: reaction ? 1 : 0, // since your model doesn’t have a like flag
+        viewDate: reaction ? reaction.createdAt : null, // use createdAt as "view time"
+        status: reaction ? 'Viewed' : "Didn't Viewed",
+        confirmed: reaction ? 'Confirmed' : "Didn't Confirmed", // model has no field → assume any reaction = confirmed
+      };
+    });
+
+    return successResponse(
+      {
+        analytics: {
+          totalLikes,
+          totalViews,
+          totalAssigned: assignedUsers.length,
+          totalResponded: reactedUsers.length,
+        },
+        responses: userResponses,
+      },
+      'Announcement responses retrieved successfully',
+    );
+  }
 }

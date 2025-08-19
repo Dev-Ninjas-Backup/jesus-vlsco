@@ -137,4 +137,10 @@ export class AnnouncementController {
   async getAllRecipientsOfAnnouncement(@Param('announcementId') id: string) {
     return await this.announcementService.getAllRecipientsOfAnnouncement(id);
   }
+
+  // Get analytics for a specific announcement
+  @Get('get-analytics/:announcementId')
+  async getAAnnouncementResponseAnalytics(@Param('announcementId') id: string) {
+    return await this.announcementService.getAAnnouncementResponseAnalytics(id);
+  }
 }
