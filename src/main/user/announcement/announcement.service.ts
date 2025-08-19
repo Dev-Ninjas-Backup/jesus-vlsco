@@ -44,6 +44,13 @@ export class AnnouncementService {
           select: {
             id: true,
             email: true,
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profileUrl: true,
+              },
+            },
           },
         },
       },

@@ -78,7 +78,11 @@ export class AnnouncementService {
         skip,
         take: limit,
         include: {
-          author: true,
+          author: {
+            include: {
+              profile: true,
+            },
+          },
           category: true,
           attachments: true,
           _count: {
