@@ -10,6 +10,7 @@ import { SurveyModule } from './survey/survey.module';
 import { TaskModule } from './task/task.module';
 import { TeamModule } from './team/team.module';
 import { UserModule } from './user/user.module';
+import { TimeClockModule } from './time-clock/time-clock.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserModule } from './user/user.module';
     SurveyModule,
     AnnouncementModule,
     PoolModule,
+    TimeClockModule,
   ],
   providers: [],
 })
