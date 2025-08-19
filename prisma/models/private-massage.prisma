@@ -23,6 +23,8 @@ model PrivateMessage {
   senderId       String
   fileId         String?
 
+  isRead         Boolean @default(false)
+
   file         FileInstance?       @relation(fields: [fileId], references: [id])
   conversation PrivateConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User                @relation(fields: [senderId], references: [id], onDelete: Cascade)

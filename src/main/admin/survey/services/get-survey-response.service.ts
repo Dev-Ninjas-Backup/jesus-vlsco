@@ -11,7 +11,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class GetSurveyResponseService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to get responses')
   async getAllResponses(
@@ -69,6 +69,11 @@ export class GetSurveyResponseService {
             },
           },
         },
+        user: {
+          include: {
+            profile: true,
+          },
+        },
       },
     });
 
@@ -81,6 +86,7 @@ export class GetSurveyResponseService {
 
       return {
         ...survey,
+        createdBy: survey.user,
         surveyId: survey.id,
         title: survey.title,
         totalAssigned,

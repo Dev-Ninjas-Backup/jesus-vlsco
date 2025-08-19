@@ -97,4 +97,9 @@ export class PrivateChatController implements OnModuleInit {
 
     return { success: true, message };
   }
+
+  @Post('make-private-message-read/:messageId')
+  async makePrivateMassageReadTrue(@Param('messageId') messageId: string) {
+    return await this.privateService.makePrivateMassageReadTrue(messageId);
+  }
 }

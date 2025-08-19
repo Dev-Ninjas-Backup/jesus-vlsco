@@ -1,15 +1,15 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { GetUserService } from '../services/get-user.service';
+import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { GetUsersDto } from '../dto/get-users.dto';
+import { GetUserService } from '../services/get-user.service';
 
-@ApiTags('Admin -- User')
-@ValidateAdmin()
+@ApiTags('Admin -- Get User')
+@ValidateAuth()
 @ApiBearerAuth()
 @Controller('admin/user')
 export class GetUserController {
-  constructor(private readonly getUserService: GetUserService) {}
+  constructor(private readonly getUserService: GetUserService) { }
 
   // All user get (employee)
   @Get()
