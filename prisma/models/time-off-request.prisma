@@ -4,6 +4,7 @@ model TimeOffRequest {
   startDate    DateTime
   endDate      DateTime
   reason       String
+  type         TimeOffRequestType @default(TIME_OFF)
   isFullDayOff Boolean              @default(true)
   totalDaysOff Int
   status       TimeOffRequestStatus @default(PENDING)
@@ -19,4 +20,11 @@ enum TimeOffRequestStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+enum TimeOffRequestType {
+  UNPAID
+  SICK_LEAVE
+  CASUAL_LEAVE
+  TIME_OFF
 }

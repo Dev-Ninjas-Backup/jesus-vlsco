@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import {
   AdminRequestOffDayStatusDto,
@@ -34,5 +35,10 @@ export class AdminRequestOffDayController {
       requestId,
       updateTimeOffRequestDto,
     );
+  }
+
+  @Get('analysis')
+  async getTimeOffRequestAnalysis(@Query() query: PaginationDto) {
+    return this.adminRequestOffDayService.getTimeOffRequestAnalysis(query);
   }
 }

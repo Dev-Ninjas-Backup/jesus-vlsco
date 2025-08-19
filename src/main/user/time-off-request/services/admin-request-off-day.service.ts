@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TimeOffRequestType } from '@prisma/client';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { EVENT_TYPES } from '@project/common/interface/events-name';
@@ -116,6 +118,110 @@ export class AdminRequestOffDayService {
     return successResponse(
       updatedRequest,
       'Off day request updated successfully',
+    );
+  }
+
+  @HandleError('Failed to get time off request analytics')
+  async getTimeOffRequestAnalysis(query: PaginationDto) {
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 15;
+    const skip = (page - 1) * limit;
+
+    // 1️⃣ Fetch all payrolls with user + profile
+    const payrolls = await this.prisma.payroll.findMany({
+      include: {
+        user: {
+          include: {
+            profile: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    });
+
+    if (!payrolls.length) {
+      throw new AppError(404, 'No payrolls found');
+    }
+
+    // 2️⃣ Map payroll keys to Prisma enum types
+    const typeMap: Record<string, string> = {
+      timeOff: 'TIME_OFF',
+      unpaidLeave: 'UNPAID',
+      sickLeave: 'SICK_LEAVE',
+      casualLeave: 'CASUAL_LEAVE',
+    };
+
+    // 3️⃣ Build analytics per user
+    const analytics = [];
+
+    for (const payRoll of payrolls) {
+      const leaveTypes = Object.keys(typeMap).filter((key) => key in payRoll);
+
+      const requests: Record<string, any> = {};
+
+      for (const typeKey of leaveTypes) {
+        const totalEntitlement = (payRoll as Record<string, any>)[typeKey] ?? 0;
+        const prismaType = typeMap[typeKey];
+
+        const approvedRequests = await this.prisma.timeOffRequest.findMany({
+          where: {
+            userId: payRoll.userId,
+            status: 'APPROVED',
+            type: prismaType as TimeOffRequestType,
+          },
+          orderBy: { createdAt: 'desc' },
+        });
+
+        const remaining = totalEntitlement - approvedRequests.length;
+
+        requests[typeKey] = {
+          approved: approvedRequests,
+          remaining,
+        };
+      }
+
+      // last request per user
+      const lastTimeOffRequest = await this.prisma.timeOffRequest.findFirst({
+        where: { userId: payRoll.userId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
+      });
+
+      const lastTimeOffRequestWithProfile = lastTimeOffRequest
+        ? {
+            lastTimeOffRequestStatus: lastTimeOffRequest.status,
+            name:
+              lastTimeOffRequest.user?.profile?.firstName +
+              ' ' +
+              lastTimeOffRequest.user?.profile?.lastName,
+            jobTitle: lastTimeOffRequest.user?.profile?.jobTitle,
+            profileUrl: lastTimeOffRequest.user?.profile?.profileUrl,
+          }
+        : null;
+
+      analytics.push({
+        userId: payRoll.userId,
+        profile: {
+          firstName: payRoll.user.profile?.firstName ?? '',
+          lastName: payRoll.user.profile?.lastName ?? '',
+          jobTitle: payRoll.user.profile?.jobTitle ?? '',
+          profileUrl: payRoll.user.profile?.profileUrl ?? '',
+        },
+        requests,
+        lastRequest: lastTimeOffRequestWithProfile,
+      });
+    }
+
+    return successResponse(
+      analytics,
+      'All users off day requests retrieved successfully',
     );
   }
 }
