@@ -79,9 +79,9 @@ export class AnnouncementService {
         take: limit,
         include: {
           author: {
-            include:{
-              profile: true
-            }
+            include: {
+              profile: true,
+            },
           },
           category: true,
           attachments: true,
