@@ -7,6 +7,8 @@ model Payroll {
   regularPayRateType  PayRateType     @default(HOUR)
   overTimePayRate     Int             @default(1)
   overTimePayRateType PayRateType     @default(HOUR)
+  timeOff             Int             @default(30)
+  unpaidLeave         Int             @default(365)
   casualLeave         Int             @default(2)
   sickLeave           Int             @default(2)
   createdAt           DateTime        @default(now())

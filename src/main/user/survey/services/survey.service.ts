@@ -23,11 +23,11 @@ export class SurveyService {
 
     const surveys = await this.prisma.survey.findMany({
       where: {
-        surveyUsers: {
-          some: {
-            userId,
-          },
-        },
+        // surveyUsers: {
+        //   some: {
+        //     userId,
+        //   },
+        // },
         OR: [
           {
             title: {

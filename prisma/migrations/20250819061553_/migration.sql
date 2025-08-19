@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Payroll" ADD COLUMN     "timeOff" INTEGER NOT NULL DEFAULT 30,
+ADD COLUMN     "unpaidLeave" INTEGER NOT NULL DEFAULT 365;
