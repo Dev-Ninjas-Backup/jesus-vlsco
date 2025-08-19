@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Patch,
   UploadedFile,
   UseInterceptors,
@@ -16,6 +17,7 @@ import {
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { updateUserSwaggerSchema } from '@project/main/admin/user/dto/add-user.swagger';
+import { GetUserService } from '@project/main/admin/user/services/get-user.service';
 import { UpdateUserService } from '@project/main/admin/user/services/update-user.service';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 
@@ -27,6 +29,7 @@ export class EmployeeController {
   constructor(
     private readonly cloudinaryService: CloudinaryService,
     private readonly updateUserService: UpdateUserService,
+    private readonly getUserService: GetUserService,
   ) {}
 
   @Patch('profile')
@@ -53,5 +56,10 @@ export class EmployeeController {
       ).url;
     }
     return this.updateUserService.updateUser(userId, dto, uploadedUrl);
+  }
+
+  @Get('me/profile')
+  async getMe(@GetUser('userId') userId: string) {
+    return this.getUserService.getUserById(userId);
   }
 }
