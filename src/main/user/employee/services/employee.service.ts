@@ -47,7 +47,6 @@ export class EmployeeService {
       const normalized = dto.phone.replace(/^\+/, '');
       data.phone = normalized;
     }
-    if (dto.password) data.password = await this.utils.hash(dto.password);
     if (dto.pinCode) data.pinCode = dto.pinCode;
 
     // Profile updates
@@ -56,7 +55,6 @@ export class EmployeeService {
     if (dto.lastName) profileData.lastName = dto.lastName;
     if (dto.gender) profileData.gender = dto.gender;
     if (dto.address) profileData.address = dto.address;
-    if (dto.city) profileData.city = dto.city;
     if (dto.state) profileData.state = dto.state;
     if (dto.dob) profileData.dob = new Date(dto.dob);
     if (dto.country) profileData.country = dto.country;

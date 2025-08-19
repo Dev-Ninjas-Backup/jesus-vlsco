@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Gender } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
@@ -12,17 +12,14 @@ import {
 
 export class UpdateProfileDto {
   @ApiPropertyOptional({ example: '8801234567890' })
+  @IsOptional()
   @IsString()
   phone?: string;
 
   @ApiPropertyOptional({ example: 'user@example.com' })
+  @IsOptional()
   @IsEmail()
   email?: string;
-
-  @ApiPropertyOptional({ example: 'strongpassword123' })
-  @IsOptional()
-  @IsString()
-  password?: string;
 
   @ApiPropertyOptional({ example: 1234 })
   @IsOptional()
@@ -41,23 +38,29 @@ export class UpdateProfileDto {
   lastName?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   address?: string;
 
   @ApiPropertyOptional({ enum: Gender })
+  @Transform(({ value }) => (value === 'null' ? undefined : value))
+  @IsOptional()
   @IsEnum(Gender)
   gender?: Gender;
 
   @ApiPropertyOptional()
-  @IsString()
-  city?: string;
-
-  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   state?: string;
 
   @ApiPropertyOptional()
-  @Type(() => Date)
+  @Transform(({ value }) => {
+    // * if value is empty, return undefined
+    if (!value) return undefined;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? undefined : date.toISOString();
+  })
+  @IsOptional()
   @IsDate()
   dob?: Date;
 
@@ -71,3 +74,21 @@ export class UpdateProfileDto {
   @IsString()
   nationality?: string;
 }
+
+export const updateUserSwaggerSchema = {
+  type: 'object',
+  properties: {
+    email: { type: 'string', example: 'user@example.com' },
+    phone: { type: 'string', example: '+8801234567890' },
+    firstName: { type: 'string' },
+    lastName: { type: 'string' },
+    gender: { type: 'string', enum: [Gender.MALE, Gender.FEMALE] },
+    address: { type: 'string' },
+    state: { type: 'string' },
+    dob: { type: 'string', format: 'date-time' },
+    country: { type: 'string' },
+    nationality: { type: 'string' },
+    pinCode: { type: 'integer', example: 1234 },
+    profileUrl: { type: 'string', format: 'binary' },
+  },
+};

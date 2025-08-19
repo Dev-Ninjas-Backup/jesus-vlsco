@@ -16,10 +16,12 @@ import {
 } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
-import { updateUserSwaggerSchema } from '@project/main/admin/user/dto/add-user.swagger';
 import { GetUserService } from '@project/main/admin/user/services/get-user.service';
 import { UpdateUserService } from '@project/main/admin/user/services/update-user.service';
-import { UpdateProfileDto } from '../dto/update-profile.dto';
+import {
+  UpdateProfileDto,
+  updateUserSwaggerSchema,
+} from '../dto/update-profile.dto';
 
 @ApiTags('Employee -- Settings')
 @Controller('employee/user')
