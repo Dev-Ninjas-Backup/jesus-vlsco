@@ -19,8 +19,8 @@ export class SurveyService {
   ): Promise<TResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit && query.limit >= 0 ? query.limit : 5;
-    // const searchTerm = query.searchTerm?.trim();
 
+    // Fetch surveys assigned to the user
     const surveys = await this.prisma.survey.findMany({
       where: {
         surveyUsers: {
@@ -56,10 +56,28 @@ export class SurveyService {
             profile: true,
           },
         },
+        surveyUsers: {
+          where: {
+            userId,
+          },
+          select: {
+            isResponded: true,
+          },
+        },
       },
     });
 
-    return successResponse(surveys, 'Assigned Surveys found successfully');
+    // Map isResponded to the top-level of each survey
+    const surveysWithResponse = surveys.map((survey) => ({
+      ...survey,
+      isResponded: survey.surveyUsers[0]?.isResponded ?? false,
+      surveyUsers: undefined, // remove nested if not needed
+    }));
+
+    return successResponse(
+      surveysWithResponse,
+      'Assigned Surveys found successfully',
+    );
   }
 
   @HandleError('Failed to get single survey')
