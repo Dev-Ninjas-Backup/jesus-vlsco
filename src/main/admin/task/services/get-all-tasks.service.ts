@@ -51,27 +51,31 @@ export class GetAllTasksService {
         { description: { contains: search, mode: 'insensitive' } },
       ];
     }
-    if (userId) {
-      where.tasksUsers = { some: { userId } };
-    }
 
     const skip = (page - 1) * limit;
     const take = limit;
 
+    // 🔹 Total tasks that have any assigned users
     const actualTotal = await this.prisma.task.count({
       where: {
         tasksUsers: { some: {} },
       },
     });
 
-    // 🔹 Count only tasks WITH assigned users
+    // 🔹 Count filtered tasks
     const total = await this.prisma.task.count({
-      where: { ...where, tasksUsers: { some: {} } },
+      where: {
+        ...where,
+        tasksUsers: userId ? { some: { userId } } : { some: {} },
+      },
     });
 
-    // 🔹 Fetch tasks with relations (only assigned)
+    // 🔹 Fetch filtered tasks
     const rawTasks = await this.prisma.task.findMany({
-      where: { ...where, tasksUsers: { some: {} } },
+      where: {
+        ...where,
+        tasksUsers: userId ? { some: { userId } } : { some: {} },
+      },
       orderBy: { [sortBy]: sortOrder },
       skip,
       take,
@@ -139,13 +143,13 @@ export class GetAllTasksService {
         break;
     }
 
-    // 🔹 Overdue tasks (only with assigned users)
+    // 🔹 Overdue tasks (respect userId if present)
     const overdueTasks = await this.prisma.task.findMany({
       where: {
         startTime: { lte: new Date() },
         endTime: { gte: new Date() },
         status: { not: 'DONE' },
-        tasksUsers: { some: {} },
+        tasksUsers: userId ? { some: { userId } } : { some: {} },
       },
       include: {
         tasksUsers: {
@@ -159,7 +163,6 @@ export class GetAllTasksService {
     // 🔹 Analytics
     const totalDone = tasks.filter((task) => task.status === 'DONE').length;
     const totalOpen = tasks.length - totalDone;
-
     const pages = Math.ceil(total / limit);
 
     return successResponse(
