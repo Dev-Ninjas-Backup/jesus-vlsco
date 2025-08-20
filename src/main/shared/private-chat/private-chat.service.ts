@@ -9,7 +9,7 @@ export class PrivateChatService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly fileService: FileService,
-  ) {}
+  ) { }
 
   /**
    * Load all chats (private + team) with last message for chat list
@@ -74,12 +74,12 @@ export class PrivateChatService {
         participant: otherUser,
         lastMessage: chat.lastMessage
           ? {
-              id: chat.lastMessage.id,
-              content: chat.lastMessage.content,
-              createdAt: chat.lastMessage.createdAt,
-              sender: chat.lastMessage.sender,
-              file: chat.lastMessage.file,
-            }
+            id: chat.lastMessage.id,
+            content: chat.lastMessage.content,
+            createdAt: chat.lastMessage.createdAt,
+            sender: chat.lastMessage.sender,
+            file: chat.lastMessage.file,
+          }
           : null,
         updatedAt: chat.updatedAt,
       };
@@ -120,12 +120,12 @@ export class PrivateChatService {
       title: team.title,
       lastMessage: team.lastMessage
         ? {
-            id: team.lastMessage.id,
-            content: team.lastMessage.content,
-            createdAt: team.lastMessage.createdAt,
-            sender: team.lastMessage.sender,
-            file: team.lastMessage.file,
-          }
+          id: team.lastMessage.id,
+          content: team.lastMessage.content,
+          createdAt: team.lastMessage.createdAt,
+          sender: team.lastMessage.sender,
+          file: team.lastMessage.file,
+        }
         : null,
       updatedAt: team.updatedAt,
     }));
@@ -400,5 +400,12 @@ export class PrivateChatService {
       where: { id },
       data: { isRead: true },
     });
+  }
+
+  async deleteConversation(conversationId: string) {
+    return this.prisma.privateConversation.deleteMany({
+      where: { id: conversationId },
+    });
+
   }
 }
