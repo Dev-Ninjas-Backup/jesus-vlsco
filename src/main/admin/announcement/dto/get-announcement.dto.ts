@@ -3,7 +3,7 @@ import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsDateString,
+  IsDate,
   IsEnum,
   IsOptional,
   IsString,
@@ -90,8 +90,8 @@ export class GetAnnouncementDto extends PaginationDto {
   })
   @IsOptional()
   @Type(() => Date)
-  @IsDateString()
-  publishedFrom?: string;
+  @IsDate()
+  publishedFrom?: Date;
 
   @ApiPropertyOptional({
     example: '2025-07-31T23:59:59.999Z',
@@ -99,8 +99,8 @@ export class GetAnnouncementDto extends PaginationDto {
   })
   @IsOptional()
   @Type(() => Date)
-  @IsDateString()
-  publishedTo?: string;
+  @IsDate()
+  publishedTo?: Date;
 
   @ApiPropertyOptional({
     enum: AnnouncementSortBy,
