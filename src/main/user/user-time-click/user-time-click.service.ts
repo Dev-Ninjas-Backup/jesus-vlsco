@@ -11,24 +11,40 @@ import { RequestShiftDto } from './dto/request-shift.dto';
 
 @Injectable()
 export class UserTimeClickService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to request a shift')
-  async requestAShift(dto: RequestShiftDto): Promise<TResponse<any>> {
+  async requestAShift(dto: RequestShiftDto, userId: string): Promise<TResponse<any>> {
     const projects = await this.prisma.project.findUnique({
       where: {
         id: dto.projectId,
       },
+      include: {
+        tasks: true
+      }
     });
 
     if (!projects) {
       throw new AppError(404, 'Project not found');
     }
 
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        profile: true
+      }
+    });
+
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
     const shift = await this.prisma.shift.create({
       data: {
-        job: 'Test',
-        location: 'Test',
+        job: user?.profile?.jobTitle || 'Unknown',
+        location: user?.profile?.city || 'Unknown',
         shiftTitle: ShiftType.MORNING,
         shiftStatus: ShiftStatus.DRAFT,
         startTime: dto.startTime,
@@ -36,6 +52,11 @@ export class UserTimeClickService {
         note: dto.note,
         date: dto.startTime,
         allDay: true,
+        shiftTask: {
+          connect: projects?.tasks?.map((task) => ({
+            id: task.id,
+          })),
+        }
       },
     });
 
@@ -43,11 +64,11 @@ export class UserTimeClickService {
   }
 
   // * this is time clock
-  async getAllShifts() {}
+  async getAllShifts() { }
 
   // * submit time clock (as payroll entry)
-  async submitTimeClock() {}
+  async submitTimeClock() { }
 
   // * get all payrolls
-  async getAllPayrolls() {}
+  async getAllPayrolls() { }
 }
