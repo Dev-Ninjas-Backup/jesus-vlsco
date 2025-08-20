@@ -58,58 +58,53 @@ export class GetAllTasksService {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    // Count total tasks
-    const total = await this.prisma.task.count({ where });
+    // 🔹 Count only tasks WITH assigned users
+    const total = await this.prisma.task.count({
+      where: { ...where, tasksUsers: { some: {} } },
+    });
 
-    // Fetch tasks with relations needed
+    // 🔹 Fetch tasks with relations (only assigned)
     const rawTasks = await this.prisma.task.findMany({
-      where,
+      where: { ...where, tasksUsers: { some: {} } },
       orderBy: { [sortBy]: sortOrder },
       skip,
       take,
       include: {
         tasksUsers: {
           include: {
-            user: {
-              include: {
-                profile: true,
-              },
-            },
+            user: { include: { profile: true } },
           },
         },
       },
     });
 
-    // 👉 Map tasks to include assignTo and filter out tasks without users
-    const tasks = rawTasks
-      .filter((task) => task.tasksUsers?.length > 0) // skip tasks with no users
-      .map((task) => {
-        const firstUser = task.tasksUsers[0]?.user;
-        const profile = firstUser?.profile;
+    // 🔹 Map tasks to include assignTo info
+    const tasks = rawTasks.map((task) => {
+      const firstUser = task.tasksUsers[0]?.user;
+      const profile = firstUser?.profile;
 
-        let name = 'UNNAMED';
-        if (profile?.firstName && profile?.lastName) {
-          name = `${profile.firstName} ${profile.lastName}`;
-        } else if (profile?.firstName) {
-          name = profile.firstName;
-        } else if (profile?.lastName) {
-          name = profile.lastName;
-        }
+      let name = 'UNNAMED';
+      if (profile?.firstName && profile?.lastName) {
+        name = `${profile.firstName} ${profile.lastName}`;
+      } else if (profile?.firstName) {
+        name = profile.firstName;
+      } else if (profile?.lastName) {
+        name = profile.lastName;
+      }
 
-        const profileUrl =
-          profile?.profileUrl ??
-          `https://avatar.iran.liara.run/username?username=${encodeURIComponent(name)}&bold=false&length=1`;
+      const profileUrl =
+        profile?.profileUrl ??
+        `https://avatar.iran.liara.run/username?username=${encodeURIComponent(
+          name,
+        )}&bold=false&length=1`;
 
-        return {
-          ...task,
-          assignTo: {
-            name,
-            profileUrl,
-          },
-        };
-      });
+      return {
+        ...task,
+        assignTo: { name, profileUrl },
+      };
+    });
 
-    // Group tasks according to the groupBy filter
+    // 🔹 Group tasks by requested field
     const grouped: Record<string, typeof tasks> = {};
     switch (groupBy) {
       case 'assignedTo':
@@ -122,7 +117,7 @@ export class GetAllTasksService {
 
       case 'label':
         tasks.forEach((task) => {
-          const key = task.labels ?? 'UNLABELED';
+          const key = task.labels?.[0] ?? 'UNLABELED';
           if (!grouped[key]) grouped[key] = [];
           grouped[key].push(task);
         });
@@ -138,37 +133,37 @@ export class GetAllTasksService {
         break;
     }
 
-    const pages = Math.ceil(total / limit);
-
+    // 🔹 Overdue tasks (only with assigned users)
     const overdueTasks = await this.prisma.task.findMany({
       where: {
         startTime: { lte: new Date() },
         endTime: { gte: new Date() },
         status: { not: 'DONE' },
-        tasksUsers: { some: {} }, // only overdue with assigned users
+        tasksUsers: { some: {} },
       },
       include: {
         tasksUsers: {
           include: {
-            user: {
-              include: {
-                profile: true,
-              },
-            },
+            user: { include: { profile: true } },
           },
         },
       },
     });
 
+    // 🔹 Analytics
     const totalDone = tasks.filter((task) => task.status === 'DONE').length;
+    const totalOpen = tasks.length - totalDone;
+
+    const pages = Math.ceil(total / limit);
 
     return successResponse(
       {
         analytics: {
-          total: tasks.length,
+          total,
           done: totalDone,
-          open: total - totalDone,
+          open: totalOpen,
         },
+        data: tasks,
         overdueTasks,
         grouped,
         meta: { total, page, limit, pages },
