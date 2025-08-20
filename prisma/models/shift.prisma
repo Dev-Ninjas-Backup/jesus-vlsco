@@ -68,4 +68,5 @@ enum ShiftType {
 enum ShiftStatus {
   PUBLISHED
   DRAFT
+  REJECTED
 }
