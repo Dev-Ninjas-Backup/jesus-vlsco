@@ -23,11 +23,7 @@ export class SurveyService {
     // Fetch surveys assigned to the user
     const surveys = await this.prisma.survey.findMany({
       where: {
-        surveyUsers: {
-          some: {
-            userId,
-          },
-        },
+        OR: [{ surveyUsers: { some: { userId } } }, { isForAll: true }],
       },
       skip: (page - 1) * limit,
       take: limit,
