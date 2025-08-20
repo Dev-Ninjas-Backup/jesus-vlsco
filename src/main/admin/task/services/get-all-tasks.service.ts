@@ -58,6 +58,12 @@ export class GetAllTasksService {
     const skip = (page - 1) * limit;
     const take = limit;
 
+    const actualTotal = await this.prisma.task.count({
+      where: {
+        tasksUsers: { some: {} },
+      },
+    });
+
     // 🔹 Count only tasks WITH assigned users
     const total = await this.prisma.task.count({
       where: { ...where, tasksUsers: { some: {} } },
@@ -159,7 +165,7 @@ export class GetAllTasksService {
     return successResponse(
       {
         analytics: {
-          total,
+          total: actualTotal,
           done: totalDone,
           open: totalOpen,
         },
