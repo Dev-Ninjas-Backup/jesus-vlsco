@@ -41,7 +41,11 @@ export class ProjectService {
       take: limit,
     });
 
-    return successPaginatedResponse(project, { page: 1, limit: 10, total: 1 });
+    return successPaginatedResponse(
+      project,
+      { page: 1, limit: 10, total: 1 },
+      'Projects retrieved successfully',
+    );
   }
 
   @HandleError('Failed to get a task')
