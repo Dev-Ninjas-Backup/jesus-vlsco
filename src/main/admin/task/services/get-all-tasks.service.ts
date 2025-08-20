@@ -52,8 +52,8 @@ export class GetAllTasksService {
       ];
     }
 
-    const skip = (page - 1) * limit;
-    const take = limit;
+    // const skip = (page - 1) * limit;
+    // const take = limit;
 
     // 🔹 Total tasks that have any assigned users
     const actualTotal = await this.prisma.task.count({
@@ -77,8 +77,8 @@ export class GetAllTasksService {
         tasksUsers: userId ? { some: { userId } } : { some: {} },
       },
       orderBy: { [sortBy]: sortOrder },
-      skip,
-      take,
+      // skip,
+      // take,
       include: {
         tasksUsers: {
           include: {
