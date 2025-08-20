@@ -123,7 +123,7 @@ export class GetAllTasksService {
 
       case 'label':
         tasks.forEach((task) => {
-          const key = task.labels?.[0] ?? 'UNLABELED';
+          const key = task.labels ?? 'UNLABELED';
           if (!grouped[key]) grouped[key] = [];
           grouped[key].push(task);
         });

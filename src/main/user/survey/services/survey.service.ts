@@ -28,20 +28,6 @@ export class SurveyService {
             userId,
           },
         },
-        // OR: [
-        //   {
-        //     title: {
-        //       contains: searchTerm,
-        //       mode: 'insensitive',
-        //     },
-        //   },
-        //   {
-        //     description: {
-        //       contains: searchTerm,
-        //       mode: 'insensitive',
-        //     },
-        //   },
-        // ],
       },
       skip: (page - 1) * limit,
       take: limit,
@@ -83,7 +69,7 @@ export class SurveyService {
   @HandleError('Failed to get single survey')
   async getSingleSurvey(id: string): Promise<TResponse<any>> {
     const survey = await this.prisma.survey.findUnique({
-      where: { id, surveyUsers: { some: { isResponded: false } } },
+      where: { id },
       include: {
         questions: {
           include: {
@@ -94,7 +80,7 @@ export class SurveyService {
     });
 
     if (!survey) {
-      throw new AppError(403, 'Survey not found or already responded');
+      throw new AppError(404, 'Survey not found');
     }
 
     return successResponse(survey, 'Survey found successfully');

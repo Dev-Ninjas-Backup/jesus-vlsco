@@ -61,16 +61,12 @@ export class PoolService {
       where: {
         id,
         isTemplate: false,
-        poolUser: { some: { isResponded: false } },
       },
       include: { options: true },
     });
 
     if (!pool) {
-      throw new AppError(
-        404,
-        'Pool not found or already responded or is template',
-      );
+      throw new AppError(404, 'Pool not found or is template');
     }
 
     return successResponse(pool, 'Pool retrieved successfully');
