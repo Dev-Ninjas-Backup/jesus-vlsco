@@ -58,7 +58,7 @@ export class GetAllTasksService {
     // 🔹 Total tasks that have any assigned users
     const actualTotal = await this.prisma.task.count({
       where: {
-        tasksUsers: { some: {} },
+        tasksUsers: userId ? { some: { userId } } : { some: {} },
       },
     });
 
