@@ -8,7 +8,7 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { RequestShiftDto } from './dto/request-shift.dto';
+import { RequestShiftDto } from '../dto/request-shift.dto';
 
 @Injectable()
 export class UserTimeClickService {

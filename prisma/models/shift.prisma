@@ -3,7 +3,10 @@ model Shift {
 
   startTime DateTime
   endTime   DateTime
-  location  String
+
+  location    String
+  locationLat Float  @default(0.0)
+  locationLng Float  @default(0.0)
 
   date       DateTime
   allDay     Boolean
@@ -11,7 +14,7 @@ model Shift {
   job        String
   note       String
 
-  shiftType   ShiftType @default(MORNING)
+  shiftType   ShiftType   @default(MORNING)
   shiftStatus ShiftStatus @default(DRAFT)
 
   createdAt DateTime @default(now())
@@ -22,6 +25,7 @@ model Shift {
   shiftActivity ShiftActivity[]
   payrollEntry  PayrollEntry[]
   project       Project[]
+  timeClock     TimeClock[]
 }
 
 model ShiftActivity {

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Shift } from '@prisma/client';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { AppError } from '@project/common/error/handle-error.app';
 import { JWTPayload } from '@project/common/jwt/jwt.interface';
@@ -193,6 +194,12 @@ export class UtilsService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError(404, 'User not found');
     return user.email;
+  }
+
+  async getShiftById(id: string): Promise<Shift> {
+    const shift = await this.prisma.shift.findUnique({ where: { id } });
+    if (!shift) throw new AppError(404, 'Shift not found');
+    return shift;
   }
 
   // * validate user is assign to the task

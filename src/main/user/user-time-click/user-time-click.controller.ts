@@ -2,15 +2,20 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
+import { ClockDto } from './dto/clock.dto';
 import { RequestShiftDto } from './dto/request-shift.dto';
-import { UserTimeClickService } from './user-time-click.service';
+import { ClockInOutService } from './services/clock-in-out.service';
+import { UserTimeClickService } from './services/user-time-click.service';
 
 @ApiTags('Employee -- Time Clock')
 @Controller('employee/time-clock')
 @ValidateAuth()
 @ApiBearerAuth()
 export class UserTimeClickController {
-  constructor(private readonly userTimeClickService: UserTimeClickService) {}
+  constructor(
+    private readonly userTimeClickService: UserTimeClickService,
+    private readonly clockInOutService: ClockInOutService,
+  ) {}
 
   @Post('request-shift')
   async requestAShift(
@@ -35,6 +40,11 @@ export class UserTimeClickController {
     return this.userTimeClickService.cancelAShiftRequestIfAlreadyNotApproved(
       shiftId,
     );
+  }
+
+  @Post('process-clock')
+  async processClock(@GetUser('userId') userId: string, @Body() dto: ClockDto) {
+    return this.clockInOutService.processClock(userId, dto.lat, dto.lng);
   }
 
   async submitTimeClock() {}
