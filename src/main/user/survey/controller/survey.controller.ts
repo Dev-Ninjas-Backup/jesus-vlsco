@@ -9,7 +9,7 @@ import { SurveyService } from '../services/survey.service';
 @ValidateEmployee()
 @ApiBearerAuth()
 export class SurveyController {
-  constructor(private readonly surveyService: SurveyService) { }
+  constructor(private readonly surveyService: SurveyService) {}
 
   @Get('assigned')
   async getAllAssignedSurveys(
