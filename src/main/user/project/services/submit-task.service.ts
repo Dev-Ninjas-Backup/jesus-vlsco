@@ -37,7 +37,7 @@ export class SubmitTaskService {
     const updated = await this.prisma.task.update({
       where: { id: taskId },
       data: {
-        ...(existing && attachmentUrl && { attachmentUrl }),
+        attachment: attachmentUrl ?? '',
         status: 'DONE',
       },
       include: {

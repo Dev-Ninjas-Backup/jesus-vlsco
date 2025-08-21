@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -6,7 +7,6 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { GetAssignedSurveyDto } from '../dto/get-assigned-survey.dto';
 
 @Injectable()
 export class SurveyService {
@@ -15,7 +15,7 @@ export class SurveyService {
   @HandleError('Failed to get all assigned surveys')
   async getAllAssignedSurveys(
     userId: string,
-    query: GetAssignedSurveyDto,
+    query: PaginationDto,
   ): Promise<TResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit && query.limit >= 0 ? query.limit : 5;
@@ -35,6 +35,7 @@ export class SurveyService {
           include: { profile: true },
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     // Get all responses for these surveys at once
