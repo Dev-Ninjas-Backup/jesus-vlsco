@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { ShiftType } from '@prisma/client';
 import { CreateShiftDto } from '../dto/create-shift.dto';
 import { UpdateShiftDto } from '../dto/update-shift.dto';
 
@@ -9,14 +8,7 @@ export class ShiftLogService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateShiftDto) {
-    const {
-      userIds = [],
-      taskIds = [],
-      saveAsTemplate,
-      currentUserId,
-      currentProjectId,
-      ...shiftData // these now do NOT include currentUserId/currentProjectId
-    } = dto;
+    const { userIds = [], taskIds = [], ...shiftData } = dto;
 
     return await this.prisma.$transaction(async (tx) => {
       // 1. Create Shift
@@ -45,39 +37,6 @@ export class ShiftLogService {
         );
 
         await tx.shiftActivity.createMany({ data: shiftActivities });
-      }
-
-      // 3. Save as DefaultShift template (if requested)
-      if (saveAsTemplate) {
-        await tx.defaultShift.upsert({
-          where: {
-            userId_projectId: {
-              userId: currentUserId,
-              projectId: currentProjectId,
-            },
-          },
-          create: {
-            userId: currentUserId,
-            projectId: currentProjectId,
-            shiftType: ShiftType.MORNING,
-            shiftDuration: Math.floor(
-              (new Date(dto.endTime).getTime() -
-                new Date(dto.startTime).getTime()) /
-                (1000 * 60 * 60),
-            ),
-            startTime: dto.startTime,
-            endTime: dto.endTime,
-          },
-          update: {
-            shiftDuration: Math.floor(
-              (new Date(dto.endTime).getTime() -
-                new Date(dto.startTime).getTime()) /
-                (1000 * 60 * 60),
-            ),
-            startTime: dto.startTime,
-            endTime: dto.endTime,
-          },
-        });
       }
 
       return shift;

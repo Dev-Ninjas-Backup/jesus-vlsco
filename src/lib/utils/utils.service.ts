@@ -7,7 +7,6 @@ import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import * as bcrypt from 'bcrypt';
 import { plainToInstance } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
-import { DefaultShift } from '@prisma/client';
 
 @Injectable()
 export class UtilsService {
@@ -194,12 +193,6 @@ export class UtilsService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new AppError(404, 'User not found');
     return user.email;
-  }
-
-  async getDefaultShiftById(id: string): Promise<DefaultShift> {
-    const shift = await this.prisma.defaultShift.findUnique({ where: { id } });
-    if (!shift) throw new AppError(404, 'Shift not found');
-    return shift;
   }
 
   // * validate user is assign to the task

@@ -188,7 +188,6 @@ export class TeamService {
             payroll: true,
             projects: true,
             shift: true,
-            defaultShifts: true,
           },
         },
       },

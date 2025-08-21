@@ -21,23 +21,22 @@ model Payroll {
 }
 
 model PayrollEntry {
-  id          String   @id @default(uuid())
-  shiftId     String
-  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  id      String @id @default(uuid())
+  shiftId String
+  shift   Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
 
-  payrollId   String
-  payroll     Payroll  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  payrollId String
+  payroll   Payroll @relation(fields: [payrollId], references: [id], onDelete: Cascade)
 
-  totalHours  Float
-  regularHours Float
+  totalHours    Float
+  regularHours  Float
   overtimeHours Float
-  amount      Float
-  status      PayrollStatus @default(PENDING) // PENDING, APPROVED, REJECTED
+  amount        Float
+  status        PayrollStatus @default(PENDING) // PENDING, APPROVED, REJECTED
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
-
 
 enum PayRateType {
   HOUR

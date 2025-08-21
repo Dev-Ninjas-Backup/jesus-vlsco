@@ -7,6 +7,6 @@ model CompaniesBranch {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  manager User?      @relation(fields: [managerId], references: [id], onDelete: NoAction)
+  manager User?     @relation(fields: [managerId], references: [id], onDelete: NoAction)
   company Companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }

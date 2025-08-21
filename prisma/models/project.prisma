@@ -1,26 +1,31 @@
 model Project {
-  id              String  @id @default(uuid())
-  teamId          String?
-  managerId       String?
+  id String @id @default(uuid())
+
   title           String
   projectLocation String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  team          Team?          @relation(fields: [teamId], references: [id])
-  manager       User?           @relation(fields: [managerId], references: [id], onDelete: SetNull)
-  defaultShifts DefaultShift[]
-  projectUsers  ProjectUser[]
-  tasks         Task[]
+  teamId String?
+  team   Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
+
+  managerId String?
+  manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
+
+  shifts       Shift[]
+  projectUsers ProjectUser[]
+  tasks        Task[]
 }
 
 model ProjectUser {
-  id        String  @id @default(uuid())
+  id String @id @default(uuid())
+
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   projectId String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

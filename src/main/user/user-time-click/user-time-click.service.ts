@@ -49,7 +49,8 @@ export class UserTimeClickService {
       data: {
         job: user?.profile?.jobTitle || 'Unknown',
         location: user?.profile?.city || 'Unknown',
-        shiftTitle: ShiftType.MORNING,
+        shiftTitle: 'Shift Request',
+        shiftType: ShiftType.AFTERNOON,
         shiftStatus: ShiftStatus.DRAFT,
         startTime: dto.startTime,
         endTime: dto.endTime,
