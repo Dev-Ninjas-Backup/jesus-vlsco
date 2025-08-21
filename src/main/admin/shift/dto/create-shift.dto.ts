@@ -6,15 +6,12 @@ import {
   IsBoolean,
   IsDate,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
 
 export class CreateShiftDto {
-  @ApiProperty({ enum: ShiftType, example: ShiftType.AFTERNOON })
-  @IsEnum(ShiftType)
-  shiftType: ShiftType;
-
   @ApiProperty({
     description: 'The date of the shift (YYYY-MM-DD)',
     example: '2025-08-07',
@@ -71,7 +68,6 @@ export class CreateShiftDto {
   })
   @IsOptional()
   @IsArray()
-  // @IsUUID('all', { each: true })
   userIds?: string[];
 
   @ApiPropertyOptional({
@@ -81,7 +77,6 @@ export class CreateShiftDto {
   })
   @IsOptional()
   @IsArray()
-  // @IsUUID('all', { each: true })
   taskIds?: string[];
 
   @ApiProperty({
@@ -90,6 +85,22 @@ export class CreateShiftDto {
   })
   @IsString()
   location: string;
+
+  @ApiProperty({
+    description: 'Latitude of the location',
+    example: 23.8103,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  locationLat: number;
+
+  @ApiProperty({
+    description: 'Longitude of the location',
+    example: 90.4125,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  locationLng: number;
 
   @ApiProperty({
     description: 'Any notes related to the shift',
