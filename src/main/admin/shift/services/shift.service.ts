@@ -1,21 +1,31 @@
 import { Injectable } from '@nestjs/common';
 import { ShiftType } from '@prisma/client';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { CreateShiftDto } from '../dto/create-shift.dto';
 import { UpdateShiftDto } from '../dto/update-shift.dto';
 
 @Injectable()
 export class ShiftLogService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError("Unable to assign shift")
+  @HandleError('Unable to assign shift')
   async create(dto: CreateShiftDto): Promise<TResponse<any>> {
-    const { userIds = [], taskIds = [], startTime, endTime, ...shiftData } = dto;
+    const {
+      userIds = [],
+      taskIds = [],
+      startTime,
+      endTime,
+      ...shiftData
+    } = dto;
 
     // *decide shift type based on start time and end time
-    const shiftType = startTime < endTime ? ShiftType.EVENING : ShiftType.AFTERNOON;
+    const shiftType =
+      startTime < endTime ? ShiftType.EVENING : ShiftType.AFTERNOON;
 
     const shift = await this.prisma.$transaction(async (tx) => {
       // 1. Create Shift

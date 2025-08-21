@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ShiftStatus, ShiftType } from '@prisma/client';
+import { ShiftStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsArray,

@@ -9,7 +9,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class ClockInOutService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to process clock in/out', 'CLOCK')
   async processClock(
@@ -18,7 +18,7 @@ export class ClockInOutService {
     lng: number,
   ): Promise<TResponse<any>> {
     const timeNow = new Date();
-    console.log("timeNow", timeNow.toISOString());
+    console.log('timeNow', timeNow.toISOString());
 
     // 1. Check if user already clocked in (ACTIVE record)
     const activeClock = await this.prisma.timeClock.findFirst({
