@@ -29,30 +29,32 @@ export class SurveyService {
       take: limit,
       include: {
         questions: {
-          include: {
-            options: true,
-          },
+          include: { options: true },
         },
         user: {
-          include: {
-            profile: true,
-          },
-        },
-        surveyUsers: {
-          where: {
-            userId,
-          },
-          select: {
-            isResponded: true,
-          },
+          include: { profile: true },
         },
       },
     });
 
-    // Map isResponded to the top-level of each survey
+    // Get all responses for these surveys at once
+    const surveyIds = surveys.map((s) => s.id);
+    const responded = await this.prisma.surveyUser.findMany({
+      where: {
+        userId,
+        surveyId: { in: surveyIds },
+        isResponded: true,
+      },
+      select: { surveyId: true },
+    });
+
+    // Create a quick lookup for responded surveys
+    const respondedSet = new Set(responded.map((r) => r.surveyId));
+
+    // Attach isResponded dynamically
     const surveysWithResponse = surveys.map((survey) => ({
       ...survey,
-      isResponded: survey.surveyUsers[0]?.isResponded ?? false,
+      isResponded: respondedSet.has(survey.id),
       surveyUsers: undefined, // remove nested if not needed
     }));
 
