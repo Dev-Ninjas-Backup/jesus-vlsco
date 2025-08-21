@@ -33,13 +33,16 @@ export class SurveyResponseService {
         throw new AppError(404, 'Survey not found or not active');
       }
 
-      // 2. Check user is assigned
-      const assigned = survey.surveyUsers.find((su) => su.userId === userId);
-      if (!assigned) {
-        throw new AppError(400, 'You are not assigned to this survey');
-      }
-      if (assigned.isResponded) {
-        throw new AppError(400, 'You have already responded');
+      // 2. Check user is assigned when not for all
+      if (!survey.isForAll) {
+        const assigned = survey.surveyUsers.find((su) => su.userId === userId);
+        if (!assigned) {
+          throw new AppError(400, 'You are not assigned to this survey');
+        }
+
+        if (assigned.isResponded) {
+          throw new AppError(400, 'You have already responded');
+        }
       }
 
       // 3. Create the response record
@@ -83,9 +86,10 @@ export class SurveyResponseService {
       }
 
       // 5. Mark user responded
-      await tx.surveyUser.update({
+      await tx.surveyUser.upsert({
         where: { userId_surveyId: { userId, surveyId } },
-        data: { isResponded: true },
+        update: { isResponded: true },
+        create: { userId, surveyId, isResponded: true },
       });
 
       return successResponse(response, 'Survey submitted successfully');

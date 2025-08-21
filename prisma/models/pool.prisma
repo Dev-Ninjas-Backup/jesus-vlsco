@@ -48,6 +48,8 @@ model poolUser {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
+
+  @@unique([poolId, userId])
 }
 
 model poolResponse {
