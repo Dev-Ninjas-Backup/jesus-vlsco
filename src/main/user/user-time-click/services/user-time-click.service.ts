@@ -12,7 +12,7 @@ import { RequestShiftDto } from '../dto/request-shift.dto';
 
 @Injectable()
 export class UserTimeClickService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to request a shift')
   async requestAShift(
@@ -22,6 +22,14 @@ export class UserTimeClickService {
     const projects = await this.prisma.project.findUnique({
       where: {
         id: dto.projectId,
+        // * ensure it has at least one not done d=task
+        tasks: {
+          some: {
+            status: {
+              not: 'DONE',
+            }
+          },
+        },
       },
       include: {
         tasks: true,
@@ -29,7 +37,7 @@ export class UserTimeClickService {
     });
 
     if (!projects) {
-      throw new AppError(404, 'Project not found');
+      throw new AppError(404, 'Project has no active tasks');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -47,10 +55,12 @@ export class UserTimeClickService {
 
     const shift = await this.prisma.shift.create({
       data: {
-        job: user?.profile?.jobTitle || 'Unknown',
-        location: user?.profile?.city || 'Unknown',
-        shiftTitle: 'Shift Request',
-        shiftType: ShiftType.AFTERNOON,
+        job: `${projects?.title}` || 'Unknown',
+        shiftTitle: `${projects.title} - ${user?.profile?.jobTitle || 'Unknown'}`,
+        location: dto.location,
+        locationLat: dto.locationLat,
+        locationLng: dto.locationLng,
+        shiftType: dto.startTime < dto.endTime ? ShiftType.EVENING : ShiftType.AFTERNOON,
         shiftStatus: ShiftStatus.DRAFT,
         startTime: dto.startTime,
         endTime: dto.endTime,
@@ -125,18 +135,18 @@ export class UserTimeClickService {
       user:
         shift.users.length > 0
           ? {
-              id: shift.users[0].id,
-              email: shift.users[0].email,
-              profile: {
-                id: shift.users[0].profile?.id,
-                firstName: shift.users[0].profile?.firstName,
-                lastName: shift.users[0].profile?.lastName,
-                profileUrl: shift.users[0].profile?.profileUrl,
-                initials: shift.users[0].profile
-                  ? `${shift.users[0].profile.firstName?.[0] ?? ''}${shift.users[0].profile.lastName?.[0] ?? ''}`
-                  : null,
-              },
-            }
+            id: shift.users[0].id,
+            email: shift.users[0].email,
+            profile: {
+              id: shift.users[0].profile?.id,
+              firstName: shift.users[0].profile?.firstName,
+              lastName: shift.users[0].profile?.lastName,
+              profileUrl: shift.users[0].profile?.profileUrl,
+              initials: shift.users[0].profile
+                ? `${shift.users[0].profile.firstName?.[0] ?? ''}${shift.users[0].profile.lastName?.[0] ?? ''}`
+                : null,
+            },
+          }
           : null,
     }));
 
@@ -171,8 +181,8 @@ export class UserTimeClickService {
   }
 
   // * submit time clock (as payroll entry)
-  async submitTimeClock() {}
+  async submitTimeClock() { }
 
   // * get all payrolls
-  async getAllPayrolls() {}
+  async getAllPayrolls() { }
 }
