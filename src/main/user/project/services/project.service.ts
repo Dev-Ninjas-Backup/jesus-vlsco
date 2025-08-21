@@ -41,13 +41,16 @@ export class ProjectService {
       take: limit,
     });
 
-    return successPaginatedResponse(project, { page: 1, limit: 10, total: 1 });
+    return successPaginatedResponse(
+      project,
+      { page: 1, limit: 10, total: 1 },
+      'Projects retrieved successfully',
+    );
   }
 
   @HandleError('Failed to get a task')
   async getATask(taskId: string, userId: string): Promise<TResponse<any>> {
-    await this.utils.ensureUserInProject(taskId, userId);
-
+    console.log(taskId, userId);
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -72,8 +75,7 @@ export class ProjectService {
 
   @HandleError('Failed to start a task')
   async startATask(taskId: string, userId: string): Promise<TResponse<any>> {
-    await this.utils.ensureUserInProject(taskId, userId);
-
+    console.log(taskId, userId);
     await this.prisma.task.update({
       where: { id: taskId },
       data: { status: 'STARTED' },

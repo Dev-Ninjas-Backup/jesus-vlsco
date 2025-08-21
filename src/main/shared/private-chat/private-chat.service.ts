@@ -401,4 +401,10 @@ export class PrivateChatService {
       data: { isRead: true },
     });
   }
+
+  async deleteConversation(conversationId: string) {
+    return this.prisma.privateConversation.deleteMany({
+      where: { id: conversationId },
+    });
+  }
 }

@@ -63,6 +63,37 @@ export class AnnouncementService {
     };
   }
 
+  @HandleError('Failed to fetch announcement')
+  async getSingleAnnouncement(announcementId: string): Promise<TResponse<any>> {
+    const announcement = await this.prisma.announcement.findUnique({
+      where: { id: announcementId },
+      include: {
+        attachments: true,
+        likedUser: true,
+        category: true,
+        author: {
+          select: {
+            id: true,
+            email: true,
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profileUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Announcement fetched successfully',
+      data: announcement,
+    };
+  }
+
   @HandleError('Failed to like announcement')
   async likeAnnouncement(
     userId: string,

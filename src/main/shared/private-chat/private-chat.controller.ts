@@ -1,15 +1,17 @@
 import {
   Body,
   Controller,
+  Delete,
+  forwardRef,
+  Get,
+  Inject,
+  OnModuleInit,
   Param,
   Post,
   UploadedFile,
   UseInterceptors,
-  OnModuleInit,
-  Inject,
-  forwardRef,
-  Get,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -18,10 +20,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { PrivateChatService } from './private-chat.service';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { SendPrivateMessageDto } from './dto/privateChatGateway.dto';
 import { sendPrivateMessageSwaggerSchema } from './dto/privateChatGateway.swagger';
+import { PrivateChatService } from './private-chat.service';
 import { PrivateChatGateway } from './privateChatGateway/privateChatGateway';
 
 @ApiTags('Private Chat')
@@ -101,5 +102,10 @@ export class PrivateChatController implements OnModuleInit {
   @Post('make-private-message-read/:messageId')
   async makePrivateMassageReadTrue(@Param('messageId') messageId: string) {
     return await this.privateService.makePrivateMassageReadTrue(messageId);
+  }
+
+  @Delete(':conversationId')
+  async deleteConversation(@Param('conversationId') conversationId: string) {
+    return await this.privateService.deleteConversation(conversationId);
   }
 }

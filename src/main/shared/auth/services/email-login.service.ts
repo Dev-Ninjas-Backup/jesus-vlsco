@@ -80,10 +80,21 @@ export class EmailLoginService {
         isVerified: true,
         lastLoginAt: new Date(),
       },
+      include: {
+        profile: true,
+      },
     });
 
+    const userWithOutProfile = {
+      ...updatedUser,
+      profile: undefined,
+    };
+
     const data = {
-      user: this.utils.sanitizedResponse(UserResponseDto, updatedUser),
+      user: {
+        ...this.utils.sanitizedResponse(UserResponseDto, userWithOutProfile),
+        profile: updatedUser.profile,
+      },
       token: this.utils.generateToken({
         email: user.email,
         roles: user.role,
@@ -101,6 +112,7 @@ export class EmailLoginService {
   ): Promise<TResponse<any>> {
     const superAdmin = await this.prisma.user.findFirst({
       where: { role: 'SUPER_ADMIN', email },
+      include: { profile: true },
     });
 
     if (!superAdmin) {
@@ -112,7 +124,10 @@ export class EmailLoginService {
     }
 
     const data = {
-      user: this.utils.sanitizedResponse(UserResponseDto, superAdmin),
+      user: {
+        ...this.utils.sanitizedResponse(UserResponseDto, superAdmin),
+        profile: superAdmin.profile,
+      },
       token: this.utils.generateToken({
         email: superAdmin.email,
         roles: superAdmin.role,

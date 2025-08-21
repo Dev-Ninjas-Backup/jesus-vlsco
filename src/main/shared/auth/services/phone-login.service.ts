@@ -97,10 +97,14 @@ export class PhoneLoginService {
         otp: null,
         otpExpiresAt: null,
       },
+      include: { profile: true },
     });
 
     return successResponse({
-      user: this.utils.sanitizedResponse(UserResponseDto, updatedUser),
+      user: {
+        ...this.utils.sanitizedResponse(UserResponseDto, updatedUser),
+        profile: updatedUser.profile,
+      },
       token: this.utils.generateToken({
         email: updatedUser.email,
         roles: updatedUser.role,

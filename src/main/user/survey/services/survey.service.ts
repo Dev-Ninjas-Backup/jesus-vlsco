@@ -23,25 +23,7 @@ export class SurveyService {
     // Fetch surveys assigned to the user
     const surveys = await this.prisma.survey.findMany({
       where: {
-        surveyUsers: {
-          some: {
-            userId,
-          },
-        },
-        // OR: [
-        //   {
-        //     title: {
-        //       contains: searchTerm,
-        //       mode: 'insensitive',
-        //     },
-        //   },
-        //   {
-        //     description: {
-        //       contains: searchTerm,
-        //       mode: 'insensitive',
-        //     },
-        //   },
-        // ],
+        OR: [{ surveyUsers: { some: { userId } } }, { isForAll: true }],
       },
       skip: (page - 1) * limit,
       take: limit,
@@ -83,7 +65,7 @@ export class SurveyService {
   @HandleError('Failed to get single survey')
   async getSingleSurvey(id: string): Promise<TResponse<any>> {
     const survey = await this.prisma.survey.findUnique({
-      where: { id, surveyUsers: { some: { isResponded: false } } },
+      where: { id },
       include: {
         questions: {
           include: {
@@ -94,7 +76,7 @@ export class SurveyService {
     });
 
     if (!survey) {
-      throw new AppError(403, 'Survey not found or already responded');
+      throw new AppError(404, 'Survey not found');
     }
 
     return successResponse(survey, 'Survey found successfully');

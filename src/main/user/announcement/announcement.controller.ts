@@ -15,6 +15,11 @@ export class AnnouncementController {
     return this.announcementService.getAssignedAnnouncements(userId);
   }
 
+  @Get(':announcementId')
+  getSingleAnnouncement(@Param('announcementId') announcementId: string) {
+    return this.announcementService.getSingleAnnouncement(announcementId);
+  }
+
   @Post('like/:announcementId')
   likeAnnouncement(
     @GetUser('userId') userId: string,

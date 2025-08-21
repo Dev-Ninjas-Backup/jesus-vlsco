@@ -27,8 +27,12 @@ export class GetPoolResponseService {
       throw new AppError(404, 'Pool not found');
     }
 
+    // const totalUsersInDb = await this.prisma.user.count();
+
     const result = pool.map((pool) => ({
-      ...pool,
+      id: pool.id,
+      title: pool.title,
+      description: pool.description,
       options: pool.options.map((option) => ({
         option: option.option,
         totalResponse: option.poolResponse?.length,

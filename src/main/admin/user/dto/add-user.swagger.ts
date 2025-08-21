@@ -8,7 +8,7 @@ export const swaggerSchema = {
     email: { type: 'string', example: 'user@example.com' },
     role: {
       type: 'string',
-      enum: [UserEnum.ADMIN, UserEnum.EMPLOYEE],
+      enum: [UserEnum.ADMIN, UserEnum.EMPLOYEE, UserEnum.MANAGER],
       example: UserEnum.EMPLOYEE,
     },
     firstName: { type: 'string', example: 'John' },
@@ -50,7 +50,10 @@ export const updateUserSwaggerSchema = {
     email: { type: 'string', example: 'user@example.com' },
     phone: { type: 'string', example: '+8801234567890' },
     employeeID: { type: 'integer', example: 1001 },
-    role: { type: 'string', enum: [UserEnum.ADMIN, UserEnum.EMPLOYEE] },
+    role: {
+      type: 'string',
+      enum: [UserEnum.ADMIN, UserEnum.EMPLOYEE, UserEnum.MANAGER],
+    },
     firstName: { type: 'string' },
     lastName: { type: 'string' },
     gender: { type: 'string', enum: [Gender.MALE, Gender.FEMALE] },

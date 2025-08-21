@@ -24,27 +24,15 @@ export class PoolService {
 
     const pools = await this.prisma.pool.findMany({
       where: {
-        poolUser: {
-          some: {
-            userId,
-          },
-        },
-        // OR: [
-        //   {
-        //     title: {
-        //       contains: searchTerm,
-        //       mode: 'insensitive',
-        //     },
-        //   },
-        //   {
-        //     description: {
-        //       contains: searchTerm,
-        //       mode: 'insensitive',
-        //     },
-        //   },
-        // ],
+        OR: [{ poolUser: { some: { userId } } }, { isForAll: true }],
       },
-      include: { options: true },
+      include: {
+        options: true,
+        poolResponse: {
+          where: { userId },
+          select: { id: true },
+        },
+      },
       skip: (page - 1) * limit,
       take: limit,
       orderBy: {
@@ -52,7 +40,13 @@ export class PoolService {
       },
     });
 
-    return successResponse(pools, 'Pools retrieved successfully');
+    // 🔹 map to add custom field
+    const result = pools.map((pool) => ({
+      ...pool,
+      isResponded: pool.poolResponse.length > 0,
+    }));
+
+    return successResponse(result, 'Pools retrieved successfully');
   }
 
   @HandleError('Error getting single pool')
@@ -61,16 +55,12 @@ export class PoolService {
       where: {
         id,
         isTemplate: false,
-        poolUser: { some: { isResponded: false } },
       },
       include: { options: true },
     });
 
     if (!pool) {
-      throw new AppError(
-        404,
-        'Pool not found or already responded or is template',
-      );
+      throw new AppError(404, 'Pool not found or is template');
     }
 
     return successResponse(pool, 'Pool retrieved successfully');

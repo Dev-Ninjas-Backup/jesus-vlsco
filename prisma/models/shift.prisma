@@ -35,6 +35,8 @@ model Shift {
   shiftActivity ShiftActivity[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
+
+  payrollEntry PayrollEntry[]
 }
 
 model ShiftActivity {
@@ -66,4 +68,5 @@ enum ShiftType {
 enum ShiftStatus {
   PUBLISHED
   DRAFT
+  REJECTED
 }

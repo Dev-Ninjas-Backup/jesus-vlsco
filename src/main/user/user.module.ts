@@ -5,6 +5,7 @@ import { EmployeeModule } from './employee/employee.module';
 import { AnnouncementModule } from './announcement/announcement.module';
 import { ProjectModule } from './project/project.module';
 import { RecognitionModule } from './recognition/recognition.module';
+import { UserTimeClickModule } from './user-time-click/user-time-click.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { RecognitionModule } from './recognition/recognition.module';
     AnnouncementModule,
     ProjectModule,
     RecognitionModule,
+    UserTimeClickModule,
   ],
 })
 export class UserModule {}

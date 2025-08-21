@@ -12,7 +12,12 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
+import {
+  GetUser,
+  ValidateAdmin,
+  ValidateAuth,
+} from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { CreateAnnouncementDto } from './dto/createAnnouncement.dto';
 import { createAnnouncementSwagger } from './dto/createAnnouncement.swagger';
@@ -25,10 +30,8 @@ import { CreateAnnouncementService } from './services/create-announcement.servic
 import { DeleteAnnouncementCategoryService } from './services/delete-announcement-category.service';
 import { GetAnnouncementCategoryService } from './services/get-announcement-category.service';
 import { UpdateAnnouncementCategoryService } from './services/update-announcement-category.service';
-import { PaginationDto } from '@project/common/dto/pagination.dto';
 
 @ApiTags('Admin -- Announcement')
-@ValidateAdmin()
 @ApiBearerAuth()
 @Controller('admin/announcement')
 export class AnnouncementController {
@@ -44,6 +47,7 @@ export class AnnouncementController {
 
   // Create a new announcement category
   @Post('create-announcement')
+  @ValidateAdmin()
   @UseInterceptors(FilesInterceptor('files'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -90,18 +94,21 @@ export class AnnouncementController {
 
   // Create a new announcement category
   @Post('create-category')
+  @ValidateAdmin()
   async createCategory(@Body() dto: CreateAnnouncementCategoryDto) {
     return await this.createAnnouncementCategoryService.createCategory(dto);
   }
 
   // Get all announcement categories
   @Get('get-categories')
+  @ValidateAuth()
   async getCategories() {
     return await this.getAnnouncementCategoryService.getCategories();
   }
 
   // Update an existing announcement category
   @Patch('update-category/:id')
+  @ValidateAdmin()
   async updateCategory(
     @Body() dto: UpdateAnnouncementCategoryDto,
     @Param('id') id: string,
@@ -111,36 +118,42 @@ export class AnnouncementController {
 
   // Delete an announcement category
   @Delete('delete-category/:id')
+  @ValidateAdmin()
   async deleteCategory(@Param('id') id: string) {
     return await this.deleteAnnouncementCategoryService.deleteCategory(id);
   }
 
   // Get all announcements
   @Get('get-announcements')
+  @ValidateAuth()
   async getAnnouncements(@Query() query: GetAnnouncementDto) {
     return await this.announcementService.getAnnouncements(query);
   }
 
   // Get a specific announcement
   @Get('get-announcement/:id')
+  @ValidateAuth()
   async getAnnouncement(@Param('id') id: string) {
     return await this.announcementService.getAnnouncement(id);
   }
 
   // Delete an announcement
   @Delete('delete-announcement/:id')
+  @ValidateAdmin()
   async deleteAnnouncement(@Param('id') id: string) {
     return await this.announcementService.deleteAnnouncement(id);
   }
 
   // Get all recipients of an announcement
   @Get('get-recipients/:announcementId')
+  @ValidateAdmin()
   async getAllRecipientsOfAnnouncement(@Param('announcementId') id: string) {
     return await this.announcementService.getAllRecipientsOfAnnouncement(id);
   }
 
   // Get analytics for a specific announcement
   @Get('get-analytics/:announcementId')
+  @ValidateAdmin()
   async getAAnnouncementResponseAnalytics(
     @Param('announcementId') id: string,
     @Query() pg: PaginationDto,

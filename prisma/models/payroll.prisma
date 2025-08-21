@@ -16,7 +16,28 @@ model Payroll {
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  payrollEntry PayrollEntry[]
 }
+
+model PayrollEntry {
+  id          String   @id @default(uuid())
+  shiftId     String
+  shift       Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  payrollId   String
+  payroll     Payroll  @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+
+  totalHours  Float
+  regularHours Float
+  overtimeHours Float
+  amount      Float
+  status      PayrollStatus @default(PENDING) // PENDING, APPROVED, REJECTED
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 
 enum PayRateType {
   HOUR
@@ -41,4 +62,10 @@ enum BreakTimePerDay {
   ONE_HOUR
   TWO_HOUR
   THREE_HOUR
+}
+
+enum PayrollStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
