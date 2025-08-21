@@ -1,0 +1,28 @@
+model TimeClock {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  shiftId String?
+  shift   Shift?  @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+
+  clockInAt  DateTime?
+  clockOutAt DateTime?
+
+  clockInLat  Float?
+  clockInLng  Float?
+  clockOutLat Float?
+  clockOutLng Float?
+
+  status    TimeClockStatus @default(PENDING)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+enum TimeClockStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  REJECTED
+}

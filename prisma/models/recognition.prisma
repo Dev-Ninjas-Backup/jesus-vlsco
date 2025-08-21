@@ -23,8 +23,8 @@ model RecognitionLikeComment {
   recognitionUserId String? // who made the comment/reaction as recognition user
   recognitionUser   RecognitionUser? @relation(fields: [recognitionId, recognitionUserId], references: [recognitionId, userId], onDelete: Cascade)
 
-  commenterId String? // who made the comment/reaction as non recognition user
-  commenterOfRecognition   User? @relation(fields: [commenterId], references: [id], onDelete: Cascade)
+  commenterId            String? // who made the comment/reaction as non recognition user
+  commenterOfRecognition User?   @relation(fields: [commenterId], references: [id], onDelete: Cascade)
 
   // 👇 for replies
   parentCommentId String?
@@ -40,7 +40,7 @@ model RecognitionUser {
   userId        String
 
   recognition Recognition @relation(fields: [recognitionId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id] , onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   RecognitionLikeComment RecognitionLikeComment[]
 

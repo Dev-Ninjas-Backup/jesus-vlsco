@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsString } from 'class-validator';
+import { IsDate, IsNumber, IsString } from 'class-validator';
 
 export class RequestShiftDto {
   @ApiProperty({
@@ -32,4 +32,27 @@ export class RequestShiftDto {
   })
   @IsString()
   note: string;
+
+  @ApiProperty({
+    description: 'Location where the shift will take place',
+    example: 'Building A, Floor 2',
+  })
+  @IsString()
+  location: string;
+
+  @ApiProperty({
+    description: 'Latitude of the location',
+    example: 23.8103,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  locationLat: number;
+
+  @ApiProperty({
+    description: 'Longitude of the location',
+    example: 90.4125,
+  })
+  @Type(() => Number)
+  @IsNumber()
+  locationLng: number;
 }

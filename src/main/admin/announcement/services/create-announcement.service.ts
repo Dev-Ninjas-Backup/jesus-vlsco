@@ -43,6 +43,11 @@ export class CreateAnnouncementService {
         attachments: {
           createMany: { data: urls.map((file) => ({ file })) },
         },
+        teamAnnouncements: {
+          createMany: {
+            data: data.teams?.map((teamId) => ({ teamId })) || [],
+          },
+        },
       },
     });
 

@@ -72,6 +72,64 @@ export class PoolService {
     poolId: string,
     dto: PoolResponseDto,
   ): Promise<TResponse<any>> {
+    // 1. get the pool
+    const pool = await this.prisma.pool.findUnique({
+      where: { id: poolId },
+    });
+    if (!pool) {
+      throw new AppError(404, 'Pool not found');
+    }
+
+    // 2. Validate option belongs to pool
+    const option = await this.prisma.poolOption.findFirst({
+      where: { id: dto.optionId, poolId },
+    });
+    if (!option) {
+      throw new AppError(400, 'Invalid option for this pool');
+    }
+
+    // 3. Ensure user is allowed to respond (either assigned or pool is for all)
+    if (!pool.isForAll) {
+      const assigned = await this.prisma.poolUser.findUnique({
+        where: {
+          poolId_userId: {
+            poolId,
+            userId,
+          },
+        },
+      });
+
+      if (!assigned) {
+        throw new AppError(403, 'You are not assigned to this pool');
+      }
+    }
+
+    // 4. Check if user has already responded
+    const isResponded = await this.prisma.poolUser.findUnique({
+      where: {
+        poolId_userId: {
+          poolId,
+          userId,
+        },
+      },
+    });
+    if (isResponded) {
+      throw new AppError(400, 'You have already responded to this pool');
+    }
+
+    // 5. Create / Update the pool user response record
+    await this.prisma.poolUser.upsert({
+      where: {
+        poolId_userId: {
+          poolId,
+          userId,
+        },
+      },
+      update: { isResponded: true },
+      create: { poolId, userId, isResponded: true },
+    });
+
+    // 6. Create response
     const response = await this.prisma.poolResponse.create({
       data: { optionId: dto.optionId, poolId, userId },
     });

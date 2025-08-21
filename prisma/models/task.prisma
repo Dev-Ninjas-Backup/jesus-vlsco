@@ -1,22 +1,24 @@
 model Task {
-  id          String     @id @default(uuid())
-  projectId   String?
+  id String @id @default(uuid())
+
   title       String
   description String?
   startTime   DateTime
   endTime     DateTime
   location    String?
   attachment  String?
-  labels      Labels?
-  status      TaskStatus @default(DAFT)
+
+  labels Labels?    @default(LOW)
+  status TaskStatus @default(DAFT)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  tasksUsers   TaskUser[]
-  project      Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  taskComments TaskComment[]
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
 
+  tasksUsers    TaskUser[]
+  taskComments  TaskComment[]
   ShiftActivity ShiftActivity[]
   Shift         Shift[]
 }

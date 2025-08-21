@@ -8,7 +8,7 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { RequestShiftDto } from './dto/request-shift.dto';
+import { RequestShiftDto } from '../dto/request-shift.dto';
 
 @Injectable()
 export class UserTimeClickService {
@@ -22,6 +22,14 @@ export class UserTimeClickService {
     const projects = await this.prisma.project.findUnique({
       where: {
         id: dto.projectId,
+        // * ensure it has at least one not done d=task
+        tasks: {
+          some: {
+            status: {
+              not: 'DONE',
+            },
+          },
+        },
       },
       include: {
         tasks: true,
@@ -29,7 +37,7 @@ export class UserTimeClickService {
     });
 
     if (!projects) {
-      throw new AppError(404, 'Project not found');
+      throw new AppError(404, 'Project has no active tasks');
     }
 
     const user = await this.prisma.user.findUnique({
@@ -47,9 +55,13 @@ export class UserTimeClickService {
 
     const shift = await this.prisma.shift.create({
       data: {
-        job: user?.profile?.jobTitle || 'Unknown',
-        location: user?.profile?.city || 'Unknown',
-        shiftTitle: ShiftType.MORNING,
+        job: `${projects?.title}` || 'Unknown',
+        shiftTitle: `${projects.title} - ${user?.profile?.jobTitle || 'Unknown'}`,
+        location: dto.location,
+        locationLat: dto.locationLat,
+        locationLng: dto.locationLng,
+        shiftType:
+          dto.startTime < dto.endTime ? ShiftType.EVENING : ShiftType.AFTERNOON,
         shiftStatus: ShiftStatus.DRAFT,
         startTime: dto.startTime,
         endTime: dto.endTime,
@@ -77,7 +89,7 @@ export class UserTimeClickService {
       },
     });
 
-    return successResponse(shift, 'Time clock created successfully');
+    return successResponse(shift, 'Shift request sent successfully');
   }
 
   @HandleError('Failed to get all shifts')
