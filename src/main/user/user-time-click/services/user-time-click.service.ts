@@ -88,7 +88,7 @@ export class UserTimeClickService {
       },
     });
 
-    return successResponse(shift, 'Time clock created successfully');
+    return successResponse(shift, 'Shift request sent successfully');
   }
 
   @HandleError('Failed to get all shifts')
