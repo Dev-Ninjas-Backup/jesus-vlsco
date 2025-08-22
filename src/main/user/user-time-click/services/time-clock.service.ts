@@ -141,6 +141,10 @@ export class TimeClockService {
       })),
     }));
 
+    const flatDaysEntries = result
+      .flatMap((week) => week.days)
+      .flatMap((day) => day.entries);
+
     const resultWithUser = {
       user: {
         id: user.id,
@@ -154,7 +158,10 @@ export class TimeClockService {
     };
 
     return successResponse(
-      resultWithUser,
+      {
+        clockSheet: resultWithUser,
+        daysEntries: flatDaysEntries,
+      },
       'Clock sheet retrieved successfully',
     );
   }

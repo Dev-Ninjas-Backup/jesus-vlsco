@@ -132,11 +132,13 @@ export class ClockInOutService {
       throw new AppError(404, 'No active shift found for the user');
     }
 
-    // * get latest clock of that shift
+    // * get latest clock of that user
     const clock = await this.prisma.timeClock.findFirst({
       where: {
         userId,
-        shiftId: shift.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 
