@@ -8,6 +8,12 @@ import { UserTimeClickController } from './user-time-click.controller';
 
 @Module({
   controllers: [UserTimeClickController],
-  providers: [UserTimeClickService, ClockInOutService, TimeClockService, TimeClockGateway, JwtService],
+  providers: [
+    UserTimeClickService,
+    ClockInOutService,
+    TimeClockService,
+    TimeClockGateway,
+    JwtService,
+  ],
 })
-export class UserTimeClickModule { }
+export class UserTimeClickModule {}
