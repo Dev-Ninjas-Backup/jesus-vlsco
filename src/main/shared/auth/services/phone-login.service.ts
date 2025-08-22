@@ -48,6 +48,11 @@ export class PhoneLoginService {
       throw new AppError(404, 'User not found');
     }
 
+    // * add plus to phone number if not present
+    if (!dto.phoneNumber.startsWith('+')) {
+      dto.phoneNumber = `+${dto.phoneNumber}`;
+    }
+
     try {
       const message = await this.twilio.messages.create({
         body: `Your OTP is ${otp}`,
