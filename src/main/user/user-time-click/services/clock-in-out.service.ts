@@ -9,7 +9,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class ClockInOutService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to process clock in/out', 'CLOCK')
   async processClock(
@@ -126,7 +126,11 @@ export class ClockInOutService {
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
       },
-      orderBy: { createdAt: 'desc', startTime: 'asc', endTime: 'asc' },
+      orderBy: [
+        { createdAt: 'desc' },
+        { startTime: 'asc' },
+        { endTime: 'asc' },
+      ],
     });
 
     if (!shift) {
