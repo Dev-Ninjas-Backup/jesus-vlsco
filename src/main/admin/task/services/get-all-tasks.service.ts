@@ -27,8 +27,6 @@ export class GetAllTasksService {
       labels,
       page = 1,
       limit = 10,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
       groupBy = 'title',
     } = filters;
 
@@ -76,7 +74,9 @@ export class GetAllTasksService {
         ...where,
         tasksUsers: userId ? { some: { userId } } : { some: {} },
       },
-      orderBy: { [sortBy]: sortOrder },
+      orderBy: {
+        createdAt: 'desc',
+      },
       // skip,
       // take,
       include: {

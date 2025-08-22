@@ -48,7 +48,7 @@ export class ClockInOutService {
       const updated = await this.prisma.timeClock.update({
         where: { id: activeClock.id },
         data: {
-          clockOutAt: new Date(),
+          clockOutAt: new Date().toISOString(),
           clockOutLat: lat,
           clockOutLng: lng,
           status: 'COMPLETED',
@@ -100,7 +100,7 @@ export class ClockInOutService {
       data: {
         userId,
         shiftId: selectedShift.id,
-        clockInAt: new Date(),
+        clockInAt: new Date().toISOString(),
         clockInLat: lat,
         clockInLng: lng,
         status: 'ACTIVE',
