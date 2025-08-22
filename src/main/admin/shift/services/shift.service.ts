@@ -11,13 +11,14 @@ import { UpdateShiftDto } from '../dto/update-shift.dto';
 
 @Injectable()
 export class ShiftLogService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Unable to assign shift')
   async create(dto: CreateShiftDto): Promise<TResponse<any>> {
     const {
       userIds = [],
       taskIds = [],
+      date,
       startTime,
       endTime,
       ...shiftData
@@ -28,17 +29,24 @@ export class ShiftLogService {
       startTime < endTime ? ShiftType.EVENING : ShiftType.AFTERNOON;
 
     // * check for shift on the same date, if exist then update it
-    const existingShift = await this.prisma.shift.findFirst({
+    const overlappingShift = await this.prisma.shift.findFirst({
       where: {
-        date: dto.date,
+        date: date.toISOString(),
+        OR: [
+          {
+            startTime: { lte: dto.endTime },
+            endTime: { gte: dto.startTime },
+          },
+        ],
       },
     });
 
-    if (existingShift) {
+    if (overlappingShift) {
       const updatedShift = await this.prisma.shift.update({
-        where: { id: existingShift.id },
+        where: { id: overlappingShift.id },
         data: {
           ...shiftData,
+          date: date.toISOString(),
           startTime,
           endTime,
           shiftType,
@@ -66,6 +74,7 @@ export class ShiftLogService {
       const shift = await tx.shift.create({
         data: {
           ...shiftData,
+          date: date.toISOString(),
           startTime,
           endTime,
           shiftType,

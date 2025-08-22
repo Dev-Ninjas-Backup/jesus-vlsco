@@ -35,6 +35,11 @@ export class UserTimeClickController {
     return this.userTimeClickService.getAllShifts(pg, userId);
   }
 
+  @Get('shift/current-clock')
+  async getCurrentClock(@GetUser('userId') userId: string) {
+    return this.clockInOutService.getCurrentShiftWithClock(userId);
+  }
+
   @Post(':shiftId/cancel-shift-request')
   async cancelAShiftRequestIfAlreadyNotApproved(
     @Param('shiftId') shiftId: string,

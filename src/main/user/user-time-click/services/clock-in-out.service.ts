@@ -113,6 +113,42 @@ export class ClockInOutService {
     );
   }
 
+  @HandleError('Failed to get current shift', 'CLOCK')
+  async getCurrentShiftWithClock(userId: string): Promise<TResponse<any>> {
+    const shift = await this.prisma.shift.findFirst({
+      where: {
+        startTime: {
+          lte: new Date().toISOString(),
+        },
+        endTime: {
+          gte: new Date().toISOString(),
+        },
+        shiftStatus: 'PUBLISHED',
+        users: { some: { id: userId } },
+      },
+      orderBy: { startTime: 'desc' },
+    });
+
+    if (!shift) {
+      throw new AppError(404, 'No active shift found for the user');
+    }
+
+    const clocks = await this.prisma.timeClock.findMany({
+      where: {
+        userId,
+        shiftId: shift.id,
+      },
+    });
+
+    return successResponse(
+      {
+        shift,
+        clocks,
+      },
+      'Current shift',
+    );
+  }
+
   // Helpers
   private isWithinRadius(
     point: { lat: number; lng: number },
