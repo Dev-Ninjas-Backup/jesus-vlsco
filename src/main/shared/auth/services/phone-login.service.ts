@@ -102,13 +102,14 @@ export class PhoneLoginService {
         otp: null,
         otpExpiresAt: null,
       },
-      include: { profile: true },
+      include: { profile: true, shift: true },
     });
 
     return successResponse({
       user: {
         ...this.utils.sanitizedResponse(UserResponseDto, updatedUser),
         profile: updatedUser.profile,
+        shift: updatedUser.shift,
       },
       token: this.utils.generateToken({
         email: updatedUser.email,

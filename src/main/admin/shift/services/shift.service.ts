@@ -27,6 +27,44 @@ export class ShiftLogService {
     const shiftType =
       startTime < endTime ? ShiftType.EVENING : ShiftType.AFTERNOON;
 
+    // * check for shift on the same date, if exist then update it
+    const existingShift = await this.prisma.shift.findFirst({
+      where: {
+        startTime: {
+          gte: startTime,
+          lte: endTime,
+        },
+        date: dto.date,
+      },
+    });
+
+    if (existingShift) {
+      const updatedShift = await this.prisma.shift.update({
+        where: { id: existingShift.id },
+        data: {
+          ...shiftData,
+          startTime,
+          endTime,
+          shiftType,
+          users: userIds.length
+            ? { connect: userIds.map((id) => ({ id })) }
+            : undefined,
+          shiftTask: taskIds.length
+            ? { connect: taskIds.map((id) => ({ id })) }
+            : undefined,
+        },
+        include: {
+          users: {
+            include: {
+              profile: true,
+            },
+          },
+          shiftTask: true,
+        },
+      });
+      return successResponse(updatedShift, 'Shift updated successfully');
+    }
+
     const shift = await this.prisma.$transaction(async (tx) => {
       // 1. Create Shift
       const shift = await tx.shift.create({
