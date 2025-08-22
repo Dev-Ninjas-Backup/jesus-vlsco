@@ -13,7 +13,6 @@ export class TimeClockService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get my clock sheet', 'CLOCK')
-  @HandleError('Failed to get my clock sheet', 'CLOCK')
   async getMyClockSheet(
     userId: string,
     dto: GetClockSheet,

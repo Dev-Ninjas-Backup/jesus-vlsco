@@ -115,29 +115,25 @@ export class ClockInOutService {
 
   @HandleError('Failed to get current shift', 'CLOCK')
   async getCurrentShiftWithClock(userId: string): Promise<TResponse<any>> {
+    // * get current or upcoming shift
+    const now = new Date();
+    const nowUtc = new Date(now.toISOString());
+
     const shift = await this.prisma.shift.findFirst({
       where: {
-        // startTime: {
-        //   lte: new Date().toISOString(),
-        // },
-        endTime: {
-          gte: new Date().toISOString(),
-        },
+        startTime: { lte: nowUtc },
+        endTime: { gte: nowUtc },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
       },
-      orderBy: [
-        { createdAt: 'desc' },
-        { startTime: 'asc' },
-        { endTime: 'asc' },
-      ],
     });
 
     if (!shift) {
       throw new AppError(404, 'No active shift found for the user');
     }
 
-    const clocks = await this.prisma.timeClock.findMany({
+    // * get latest clock of that shift
+    const clock = await this.prisma.timeClock.findFirst({
       where: {
         userId,
         shiftId: shift.id,
@@ -171,18 +167,31 @@ export class ClockInOutService {
       include: {
         members: {
           include: {
-            user: true,
+            user: {
+              include: {
+                profile: true,
+              },
+            },
           },
         },
       },
     });
 
-    const teamMembers = team?.members.map((member) => member.user) || [];
+    const teamMembers =
+      team?.members.map((member) => {
+        return {
+          id: member.user.id,
+          email: member.user.email,
+          firstName: member.user.profile?.firstName,
+          lastName: member.user.profile?.lastName,
+          profileUrl: member.user.profile?.profileUrl,
+        };
+      }) || [];
 
     return successResponse(
       {
         shift,
-        clocks,
+        clock,
         teamMembers,
       },
       'Current shift',
