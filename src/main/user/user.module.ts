@@ -18,4 +18,4 @@ import { UserTimeClickModule } from './user-time-click/user-time-click.module';
     UserTimeClickModule,
   ],
 })
-export class UserModule { }
+export class UserModule {}

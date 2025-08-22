@@ -8,4 +8,4 @@ import { UserTimeClickController } from './user-time-click.controller';
   controllers: [UserTimeClickController],
   providers: [UserTimeClickService, ClockInOutService, TimeClockService],
 })
-export class UserTimeClickModule { }
+export class UserTimeClickModule {}

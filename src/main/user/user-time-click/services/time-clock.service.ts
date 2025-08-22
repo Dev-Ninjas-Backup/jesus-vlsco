@@ -1,94 +1,162 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetClockSheet } from '../dto/clock.dto';
 
 @Injectable()
 export class TimeClockService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError("Failed to get my clock sheet", "CLOCK")
-  @HandleError("Failed to get my clock sheet", "CLOCK")
-  async getMyClockSheet(userId: string, dto: GetClockSheet): Promise<TResponse<any>> {
-    const from = dto.from ? new Date(dto.from) :
-      new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  @HandleError('Failed to get my clock sheet', 'CLOCK')
+  @HandleError('Failed to get my clock sheet', 'CLOCK')
+  async getMyClockSheet(
+    userId: string,
+    dto: GetClockSheet,
+  ): Promise<TResponse<any>> {
+    // * get user data
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profile: true,
+      },
+    });
 
-    const to = dto.to ? new Date(dto.to) :
-      new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
+    const from = dto.from
+      ? new Date(dto.from)
+      : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+    const to = dto.to
+      ? new Date(dto.to)
+      : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
 
     const clocks = await this.prisma.timeClock.findMany({
       orderBy: { createdAt: 'asc' },
       where: {
         userId,
-        createdAt: { gte: from, lte: to }
+        createdAt: { gte: from, lte: to },
       },
       include: {
         shift: true,
-      }
+      },
     });
 
-    // --- Transform: calculate hours & group ---
-    const groupedByWeek: Record<string, any> = {};
+    const toDecimal = (num: number) => Number(num.toFixed(2));
 
-    clocks.forEach(clock => {
+    // --- use Map for grouping ---
+    const groupedByWeek = new Map<
+      string,
+      {
+        weekStart: Date;
+        weekEnd: Date;
+        daily: Map<
+          string,
+          {
+            date: string;
+            totalHours: number;
+            entries: any[];
+          }
+        >;
+        weeklyTotal: number;
+      }
+    >();
+
+    clocks.forEach((clock) => {
       if (!clock.clockInAt || !clock.clockOutAt) return;
 
       const start = new Date(clock.clockInAt);
       const end = new Date(clock.clockOutAt);
-      const calculateHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+      const hours = toDecimal(
+        (end.getTime() - start.getTime()) / (1000 * 60 * 60),
+      );
 
-      const hours = Math.round(calculateHours * 100) / 100;
-
-      // --- find week number ---
+      // --- find week key ---
       const weekStart = new Date(start);
       weekStart.setDate(start.getDate() - start.getDay()); // Sunday
-      const weekKey = weekStart.toISOString().split('T')[0]; // week id
+      const weekKey = weekStart.toISOString().split('T')[0];
 
-      if (!groupedByWeek[weekKey]) {
-        groupedByWeek[weekKey] = {
-          weekStart: weekStart,
+      if (!groupedByWeek.has(weekKey)) {
+        groupedByWeek.set(weekKey, {
+          weekStart,
           weekEnd: new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000),
-          daily: {},
+          daily: new Map(),
           weeklyTotal: 0,
-        };
+        });
       }
 
+      const weekData = groupedByWeek.get(weekKey)!;
+
+      // --- handle daily grouping ---
       const dateKey = start.toISOString().split('T')[0];
-      if (!groupedByWeek[weekKey].daily[dateKey]) {
-        groupedByWeek[weekKey].daily[dateKey] = {
+      if (!weekData.daily.has(dateKey)) {
+        weekData.daily.set(dateKey, {
           date: dateKey,
           totalHours: 0,
           entries: [],
-        };
+        });
       }
 
-      groupedByWeek[weekKey].daily[dateKey].entries.push({
+      const dayData = weekData.daily.get(dateKey)!;
+
+      dayData.entries.push({
         date: dateKey,
         shift: {
-          id: clock.shiftId || "N/A",
-          title: clock.shift?.shiftTitle || "N/A",
+          id: clock.shiftId || 'N/A',
+          title: clock.shift?.shiftTitle || 'N/A',
+          date: clock.shift?.date || 'N/A',
+          startTime: clock.shift?.startTime || 'N/A',
+          endTime: clock.shift?.endTime || 'N/A',
+          location: clock.shift?.location || 'N/A',
+          locationLat: clock.shift?.locationLat || 0,
+          locationLng: clock.shift?.locationLng || 0,
         },
         start: clock.clockInAt,
         end: clock.clockOutAt,
         totalHours: hours,
-        regular: hours > 8 ? 8 : hours, // 8h cap as regular
-        overtime: hours > 8 ? hours - 8 : 0,
+        regular: hours > 8 ? 8 : hours,
+        overtime: hours > 8 ? toDecimal(hours - 8) : 0,
         notes: clock.shift?.note || null,
       });
 
-      groupedByWeek[weekKey].daily[dateKey].totalHours += hours;
-      groupedByWeek[weekKey].weeklyTotal += hours;
+      // update totals
+      dayData.totalHours = toDecimal(dayData.totalHours + hours);
+      weekData.weeklyTotal = toDecimal(weekData.weeklyTotal + hours);
     });
 
     // --- flatten result ---
-    const result = Object.values(groupedByWeek).map(week => ({
+    const result = Array.from(groupedByWeek.values()).map((week) => ({
       weekStart: week.weekStart,
       weekEnd: week.weekEnd,
-      weeklyTotal: week.weeklyTotal,
-      days: Object.values(week.daily),
+      weeklyTotal: toDecimal(week.weeklyTotal),
+      days: Array.from(week.daily.values()).map((day) => ({
+        ...day,
+        totalHours: toDecimal(day.totalHours),
+      })),
     }));
 
-    return successResponse(result, 'Clock sheet retrieved successfully');
+    const resultWithUser = {
+      user: {
+        id: user.id,
+        firstName: user?.profile?.firstName || 'N/A',
+        lastName: user?.profile?.lastName || 'N/A',
+        email: user?.email || 'N/A',
+        phone: user?.phone || 'N/A',
+        profileUrl: user?.profile?.profileUrl || 'N/A',
+      },
+      result,
+    };
+
+    return successResponse(
+      resultWithUser,
+      'Clock sheet retrieved successfully',
+    );
   }
 }

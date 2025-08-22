@@ -16,8 +16,8 @@ export class UserTimeClickController {
   constructor(
     private readonly userTimeClickService: UserTimeClickService,
     private readonly clockInOutService: ClockInOutService,
-    private readonly timeClockService: TimeClockService
-  ) { }
+    private readonly timeClockService: TimeClockService,
+  ) {}
 
   @Post('request-shift')
   async requestAShift(
@@ -50,10 +50,13 @@ export class UserTimeClickController {
   }
 
   @Get('clock-sheet')
-  async getMyClockSheet(@GetUser('userId') userId: string, @Query() dto: GetClockSheet) {
+  async getMyClockSheet(
+    @GetUser('userId') userId: string,
+    @Query() dto: GetClockSheet,
+  ) {
     return this.timeClockService.getMyClockSheet(userId, dto);
   }
 
-  async submitTimeClock() { }
-  async getAllPayrolls() { }
+  async submitTimeClock() {}
+  async getAllPayrolls() {}
 }
