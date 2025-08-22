@@ -111,13 +111,20 @@ export class TimeClockGateway
     @ConnectedSocket() client: Socket,
   ) {
     const userId = client.data?.userId;
-    if (!userId) return client.disconnect();
+    if (!userId) {
+      this.logger.warn('User ID not found');
+      return client.disconnect();
+    }
+
+    this.logger.log(`Location update for user: ${userId}`);
 
     const result = await this.clockService.processClock(
       userId,
       data.lat,
       data.lng,
     );
+
+    this.logger.log('Process Clock', result);
 
     client.emit('clock-status', result);
   }
