@@ -6,16 +6,37 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { AddTaskDto } from '../dto/add-task.dto';
+import { AppError } from '@project/common/error/handle-error.app';
 
 @Injectable()
 export class AddTaskService {
   constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError('Failed to create task')
+  @HandleError('Failed to create task', 'Task')
   async createTask(
     dto: AddTaskDto,
     fileUrl: string | null,
   ): Promise<TResponse<any>> {
+    // * validate project exists
+    const project = await this.prisma.project.findUnique({
+      where: {
+        id: dto.projectId,
+      },
+    });
+    if (!project) {
+      throw new AppError(404, 'Project not found');
+    }
+
+    // * validate user exists
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: dto.assignUserId,
+      },
+    });
+    if (!user) {
+      throw new AppError(404, 'User not found');
+    }
+
     const task = await this.prisma.task.create({
       data: {
         title: dto.title,
