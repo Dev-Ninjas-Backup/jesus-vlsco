@@ -9,7 +9,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class ClockInOutService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to process clock in/out', 'CLOCK')
   async processClock(
@@ -140,10 +140,46 @@ export class ClockInOutService {
       },
     });
 
+    const team = await this.prisma.team.findFirst({
+      where: {
+        projects: {
+          some: {
+            projectUsers: {
+              some: {
+                userId,
+              },
+            },
+            // shifts: {
+            //   some: {
+            //     id: shift.id,
+            //   },
+            // }
+          },
+        },
+        members: {
+          some: {
+            user: {
+              id: userId,
+            },
+          },
+        },
+      },
+      include: {
+        members: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    const teamMembers = team?.members.map((member) => member.user) || [];
+
     return successResponse(
       {
         shift,
         clocks,
+        teamMembers,
       },
       'Current shift',
     );
