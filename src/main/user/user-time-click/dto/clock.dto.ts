@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { IsDate, IsNumber, IsOptional } from 'class-validator';
 
 export class ClockDto {
   @ApiProperty({
@@ -18,4 +18,24 @@ export class ClockDto {
   @Type(() => Number)
   @IsNumber({}, { message: 'Longitude must be a number' })
   lng: number;
+}
+
+export class GetClockSheet {
+  @ApiPropertyOptional({
+    description: 'Start time of the shift (ISO format)',
+    example: '2025-08-07T08:00:00.000Z',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  from?: Date;
+
+  @ApiPropertyOptional({
+    description: 'End time of the shift (ISO format)',
+    example: '2025-08-07T16:00:00.000Z',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  to?: Date;
 }
