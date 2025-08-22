@@ -117,16 +117,16 @@ export class ClockInOutService {
   async getCurrentShiftWithClock(userId: string): Promise<TResponse<any>> {
     const shift = await this.prisma.shift.findFirst({
       where: {
-        startTime: {
-          lte: new Date().toISOString(),
-        },
+        // startTime: {
+        //   lte: new Date().toISOString(),
+        // },
         endTime: {
           gte: new Date().toISOString(),
         },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
       },
-      orderBy: { startTime: 'desc' },
+      orderBy: { createdAt: 'desc', startTime: 'asc', endTime: 'asc' },
     });
 
     if (!shift) {
