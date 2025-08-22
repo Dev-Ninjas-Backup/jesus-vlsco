@@ -28,7 +28,7 @@ export class GetAllTasksService {
       page = 1,
       limit = 10,
       sortBy = 'createdAt',
-      sortOrder = 'asc',
+      sortOrder = 'desc',
       groupBy = 'title',
     } = filters;
 

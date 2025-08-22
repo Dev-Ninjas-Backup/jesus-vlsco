@@ -59,10 +59,13 @@ export class ClockInOutService {
     }
 
     // 2. If not clocked in, check for active shifts
+    const now = new Date();
+    const nowUtc = new Date(now.toISOString());
+
     const shifts = await this.prisma.shift.findMany({
       where: {
-        startTime: { lte: new Date() },
-        endTime: { gte: new Date() },
+        startTime: { lte: nowUtc },
+        endTime: { gte: nowUtc },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
       },
