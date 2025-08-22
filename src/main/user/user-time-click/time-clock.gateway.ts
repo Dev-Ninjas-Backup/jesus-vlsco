@@ -23,8 +23,7 @@ import { ClockInOutService } from './services/clock-in-out.service';
   cors: { origin: '*' },
 })
 export class TimeClockGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(TimeClockGateway.name);
   private readonly clients = new Map<string, Set<Socket>>();
 
@@ -33,7 +32,7 @@ export class TimeClockGateway
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly clockService: ClockInOutService,
-  ) {}
+  ) { }
 
   @WebSocketServer()
   server: Server;
@@ -118,14 +117,18 @@ export class TimeClockGateway
 
     this.logger.log(`Location update for user: ${userId}`);
 
-    const result = await this.clockService.processClock(
-      userId,
-      data.lat,
-      data.lng,
-    );
+    try {
+      const result = await this.clockService.processClock(userId, data.lat, data.lng);
 
-    this.logger.log('Process Clock', result);
+      this.logger.log('Process Clock', result);
 
-    client.emit('clock-status', result);
+      client.emit('clock-status', result);
+
+    } catch (err) {
+      client.emit('clock-status', {
+        success: false,
+        message: err.message || 'Unknown error',
+      });
+    }
   }
 }

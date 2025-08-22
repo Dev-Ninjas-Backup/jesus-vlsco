@@ -11,7 +11,7 @@ import { UpdateShiftDto } from '../dto/update-shift.dto';
 
 @Injectable()
 export class ShiftLogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Unable to assign shift')
   async create(dto: CreateShiftDto): Promise<TResponse<any>> {
@@ -30,10 +30,6 @@ export class ShiftLogService {
     // * check for shift on the same date, if exist then update it
     const existingShift = await this.prisma.shift.findFirst({
       where: {
-        startTime: {
-          gte: startTime,
-          lte: endTime,
-        },
         date: dto.date,
       },
     });
