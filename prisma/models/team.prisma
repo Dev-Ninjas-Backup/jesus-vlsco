@@ -5,8 +5,8 @@ model Team {
   department  String
   image       String
 
-  creatorId String
-  creator   User   @relation(fields: [creatorId], references: [id], onDelete: NoAction)
+  creatorId String?
+  creator   User?   @relation(fields: [creatorId], references: [id], onDelete: SetNull)
 
   lastMessageId String?
   lastMessage   TeamMessage? @relation("TeamLastMessage", fields: [lastMessageId], references: [id])
@@ -42,7 +42,7 @@ model TeamSurvey {
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String
 
-  survey   Survey @relation(fields: [surveyId], references: [id])
+  survey   Survey @relation(fields: [surveyId], references: [id], onDelete: Cascade)
   surveyId String
 
   createdAt DateTime @default(now())

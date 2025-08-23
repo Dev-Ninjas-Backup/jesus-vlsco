@@ -17,8 +17,7 @@ export class ClockInOutService {
     lat: number,
     lng: number,
   ): Promise<TResponse<any>> {
-    const timeNow = new Date();
-    console.log('timeNow', timeNow.toISOString());
+    const now = new Date();
 
     // 1. Check if user already clocked in (ACTIVE record)
     const activeClock = await this.prisma.timeClock.findFirst({
@@ -44,11 +43,16 @@ export class ClockInOutService {
         return successResponse(activeClock, 'Already clocked in');
       }
 
-      // Clock-out if moved away
+      // Clock-out if moved away (but clamp within shift endTime)
+      const clockOutAt =
+        activeClock.shift?.endTime && now > new Date(activeClock.shift.endTime)
+          ? new Date(activeClock.shift.endTime)
+          : now;
+
       const updated = await this.prisma.timeClock.update({
         where: { id: activeClock.id },
         data: {
-          clockOutAt: new Date().toISOString(),
+          clockOutAt: clockOutAt.toISOString(),
           clockOutLat: lat,
           clockOutLng: lng,
           status: 'COMPLETED',
@@ -58,49 +62,51 @@ export class ClockInOutService {
       return successResponse(updated, 'Clocked out successfully');
     }
 
-    // 2. If not clocked in, check for active shifts
-    const now = new Date();
-    const nowUtc = new Date(now.toISOString());
+    // 2. Find current or upcoming shift for today
+    const startOfDay = new Date(now);
+    startOfDay.setUTCHours(0, 0, 0, 0);
 
-    const shifts = await this.prisma.shift.findMany({
+    const endOfDay = new Date(now);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
+    const shift = await this.prisma.shift.findFirst({
       where: {
-        startTime: { lte: nowUtc },
-        endTime: { gte: nowUtc },
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
+        OR: [
+          { startTime: { lte: now }, endTime: { gte: now } }, // * current shift
+          { startTime: { gte: now } }, // * upcoming shift today
+        ],
+      },
+      orderBy: {
+        startTime: 'asc',
       },
     });
 
-    if (!shifts || shifts.length === 0) {
+    if (!shift) {
       throw new AppError(404, 'No active shift found for the user');
     }
 
-    // find nearest valid shift
-    let selectedShift: (typeof shifts)[0] | null = null;
-    let minDistance = Infinity;
+    // 3. Validate location
+    const distance = this.getDistanceMeters(
+      { lat, lng },
+      { lat: shift.locationLat, lng: shift.locationLng },
+    );
 
-    for (const shift of shifts) {
-      const distance = this.getDistanceMeters(
-        { lat, lng },
-        { lat: shift.locationLat, lng: shift.locationLng },
-      );
-
-      if (distance <= 100 && distance < minDistance) {
-        selectedShift = shift;
-        minDistance = distance;
-      }
-    }
-
-    if (!selectedShift) {
+    if (distance > 100) {
       throw new AppError(400, 'You are not at the shift location');
     }
 
-    // 3. Create clock-in record
+    // 4. Create new clock-in record
     const newClock = await this.prisma.timeClock.create({
       data: {
         userId,
-        shiftId: selectedShift.id,
-        clockInAt: new Date().toISOString(),
+        shiftId: shift.id,
+        clockInAt: now.toISOString(),
         clockInLat: lat,
         clockInLng: lng,
         status: 'ACTIVE',
@@ -109,7 +115,7 @@ export class ClockInOutService {
 
     return successResponse(
       newClock,
-      `Clocked in successfully to shift: ${selectedShift.shiftTitle}`,
+      `Clocked in successfully to shift: ${shift.shiftTitle}`,
     );
   }
 
