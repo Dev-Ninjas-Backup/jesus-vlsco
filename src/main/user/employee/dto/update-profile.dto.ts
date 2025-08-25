@@ -18,6 +18,7 @@ export class UpdateProfileDto {
 
   @ApiPropertyOptional({ example: 'user@example.com' })
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEmail()
   email?: string;
 
@@ -29,6 +30,7 @@ export class UpdateProfileDto {
 
   // Profile fields
   @ApiPropertyOptional({ example: 'John' })
+  @IsOptional()
   @IsString()
   firstName?: string;
 
@@ -61,6 +63,7 @@ export class UpdateProfileDto {
     return isNaN(date.getTime()) ? undefined : date.toISOString();
   })
   @IsOptional()
+  @Type(() => Date)
   @IsDate()
   dob?: Date;
 

@@ -56,7 +56,7 @@ export class DashboardService {
       {
         where: {
           type: 'Announcement',
-          users: { some: { id: userId } },
+          users: { some: { userId } },
         },
       },
     );
@@ -67,7 +67,7 @@ export class DashboardService {
     const recognitionsNotifications = await this.prisma.notification.findMany({
       where: {
         type: 'Recognition',
-        users: { some: { id: userId } },
+        users: { some: { userId } },
       },
     });
     return recognitionsNotifications;
