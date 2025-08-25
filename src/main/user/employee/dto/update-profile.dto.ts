@@ -45,8 +45,8 @@ export class UpdateProfileDto {
   address?: string;
 
   @ApiPropertyOptional({ enum: Gender })
-  @Transform(({ value }) => (value === 'null' ? undefined : value))
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
   @IsEnum(Gender)
   gender?: Gender;
 
