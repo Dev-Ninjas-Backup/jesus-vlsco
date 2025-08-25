@@ -69,29 +69,35 @@ export class GetSurveyResponseService {
             },
           },
         },
-        user: {
-          include: {
-            profile: true,
-          },
-        },
+        // user: {
+        //   include: {
+        //     profile: true,
+        //   },
+        // },
       },
     });
 
+    const totalUsers = await this.prisma.user.count();
+
     const analytics = surveys.map((survey) => {
-      const totalAssigned = survey.surveyUsers.length;
+      const surveyUsers = survey.surveyUsers;
+      const totalAssigned = survey.isForAll ? totalUsers : surveyUsers.length;
+
       const respondedCount = survey.surveyUsers.filter(
         (su) => su.isResponded,
       ).length;
       const notRespondedCount = totalAssigned - respondedCount;
 
       return {
-        ...survey,
-        createdBy: survey.user,
         surveyId: survey.id,
         title: survey.title,
+        description: survey.description,
+        // createdBy: survey.user,
         totalAssigned,
         respondedCount,
+        responsePercentage: (respondedCount / totalAssigned) * 100,
         notRespondedCount,
+        notResponsePercentage: (notRespondedCount / totalAssigned) * 100,
         respondedUsers: survey.surveyUsers
           .filter((su) => su.isResponded)
           .map((su) => su.user),

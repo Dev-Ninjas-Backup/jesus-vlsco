@@ -8,7 +8,7 @@ import { DashboardService } from './dashboard.service';
 @ValidateEmployee()
 @ApiBearerAuth()
 export class DashboardController {
-  constructor(private readonly dashboardService: DashboardService) { }
+  constructor(private readonly dashboardService: DashboardService) {}
 
   @ApiOperation({ summary: 'Get user dashboard' })
   @Get()

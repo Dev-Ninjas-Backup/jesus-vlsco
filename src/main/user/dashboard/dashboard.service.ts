@@ -1,27 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import { successResponse, TResponse } from '@project/common/utils/response.util';
+import {
+  successResponse,
+  TResponse,
+} from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class DashboardService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError("Failed to fetch dashboard")
+  @HandleError('Failed to fetch dashboard')
   async getUserDashboard(userId: string): Promise<TResponse<any>> {
     const upcomingShifts = await this.getUserUpcomingShifts(userId);
     const upcomingTasks = await this.getUserUpcomingTasks(userId);
     const companyUpdates = await this.getCompanyUpdateNotifications(userId);
     const recognitions = await this.getRecognitionsNotifications(userId);
 
-    return successResponse({
-      upcomingShifts,
-      upcomingTasks,
-      companyUpdates,
-      recognitions,
-    }, 'Dashboard fetched successfully');
+    return successResponse(
+      {
+        upcomingShifts,
+        upcomingTasks,
+        companyUpdates,
+        recognitions,
+      },
+      'Dashboard fetched successfully',
+    );
   }
-
 
   private async getUserUpcomingShifts(userId: string) {
     const shifts = await this.prisma.shift.findMany({
@@ -30,7 +35,7 @@ export class DashboardService {
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
       },
-    })
+    });
 
     return shifts;
   }
@@ -41,16 +46,18 @@ export class DashboardService {
         startTime: { gte: new Date() },
         tasksUsers: { some: { userId: userid } },
       },
-    })
+    });
 
     return tasks;
   }
 
   async getCompanyUpdateNotifications(userId: string) {
+    console.log(userId);
     return [];
   }
 
   async getRecognitionsNotifications(userId: string) {
+    console.log(userId);
     return [];
   }
 }

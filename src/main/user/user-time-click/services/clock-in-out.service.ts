@@ -121,16 +121,44 @@ export class ClockInOutService {
 
   @HandleError('Failed to get current shift', 'CLOCK')
   async getCurrentShiftWithClock(userId: string): Promise<TResponse<any>> {
-    // * get current or upcoming shift
+    // * get current UTC date range (start and end of today)
     const now = new Date();
-    const nowUtc = new Date(now.toISOString());
+
+    const startOfDay = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+
+    const endOfDay = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate(),
+        23,
+        59,
+        59,
+        999,
+      ),
+    );
 
     const shift = await this.prisma.shift.findFirst({
       where: {
-        startTime: { lte: nowUtc },
-        endTime: { gte: nowUtc },
+        date: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
+      },
+      orderBy: {
+        startTime: 'asc',
       },
     });
 

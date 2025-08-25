@@ -9,7 +9,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class GetPoolResponseService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get responses')
   async getPoolResponse(): Promise<TResponse<any>> {
@@ -45,9 +45,7 @@ export class GetPoolResponseService {
             option: option.option,
             totalResponse: optionResponses,
             responsePercentage:
-              totalResponses > 0
-                ? (optionResponses / totalResponses) * 100
-                : 0,
+              totalResponses > 0 ? (optionResponses / totalResponses) * 100 : 0,
           };
         }),
       };
