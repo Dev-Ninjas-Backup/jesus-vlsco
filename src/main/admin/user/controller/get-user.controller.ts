@@ -20,6 +20,11 @@ export class GetUserController {
     return await this.getUserService.getAllUsers(query);
   }
 
+  @Get('assigned-users')
+  async getAssignedUsers() {
+    return this.getUserService.getAllAssignedUsersOfAnyShift();
+  }
+
   // Single User get by Id (employee)
   @Get('id/:id')
   async getUserById(@Param('id') id: string) {

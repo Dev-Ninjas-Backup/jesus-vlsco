@@ -116,16 +116,20 @@ export class CreateAnnouncementDto {
   })
   @Transform(({ value }) => {
     if (Array.isArray(value)) {
-      return value;
+      return value.map((v) => v.trim()).filter((v) => v.length > 0); // ✅ remove blanks
     }
 
     if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed))
+          return parsed.map((v) => v.trim()).filter((v) => v.length > 0);
       } catch {
         // Try CSV fallback
-        return value.split(',').map((v) => v.trim());
+        return value
+          .split(',')
+          .map((v) => v.trim())
+          .filter((v) => v.length > 0); // ✅ remove blanks
       }
     }
 

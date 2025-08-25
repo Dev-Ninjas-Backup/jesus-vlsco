@@ -54,7 +54,7 @@ import { MainModule } from './main/main.module';
       useFactory: async (config: ConfigService) => ({
         secret: await config.getOrThrow(ENVEnum.JWT_SECRET),
         signOptions: {
-          expiresIn: await config.getOrThrow(ENVEnum.JWT_EXPIRES_IN),
+          expiresIn: '90d',
         },
       }),
     }),

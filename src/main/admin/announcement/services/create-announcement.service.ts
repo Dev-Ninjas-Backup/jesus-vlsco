@@ -29,6 +29,10 @@ export class CreateAnnouncementService {
     urls: string[],
     userId: string,
   ) {
+    const validTeams = (data.teams || []).filter(
+      (id) => id && id.trim() !== '',
+    );
+
     const announcement = await this.prisma.announcement.create({
       data: {
         title: data.title,
@@ -43,11 +47,15 @@ export class CreateAnnouncementService {
         attachments: {
           createMany: { data: urls.map((file) => ({ file })) },
         },
-        teamAnnouncements: {
-          createMany: {
-            data: data.teams?.map((teamId) => ({ teamId })) || [],
-          },
-        },
+        ...(validTeams.length
+          ? {
+              teamAnnouncements: {
+                createMany: {
+                  data: validTeams.map((teamId) => ({ teamId })),
+                },
+              },
+            }
+          : {}),
       },
     });
 
