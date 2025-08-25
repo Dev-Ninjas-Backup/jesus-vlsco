@@ -1,3 +1,4 @@
+import { RecognitionMeta } from './events-meta';
 import { AnnouncementEvent, ShiftEvent, TimeOffEvent } from './events-payload';
 
 export const EVENT_TYPES = {
@@ -10,6 +11,8 @@ export const EVENT_TYPES = {
   TIME_OFF_UPDATE: 'timeoff.update',
   TIME_OFF_DELETE: 'timeoff.delete',
   TIME_OFF_STATUS_CHANGE: 'timeoff.status.change',
+
+  RECOGNITION: 'recognition',
 } as const;
 
 export type EventPayloadMap = {
@@ -22,4 +25,6 @@ export type EventPayloadMap = {
   [EVENT_TYPES.TIME_OFF_UPDATE]: TimeOffEvent;
   [EVENT_TYPES.TIME_OFF_DELETE]: TimeOffEvent;
   [EVENT_TYPES.TIME_OFF_STATUS_CHANGE]: TimeOffEvent;
+
+  [EVENT_TYPES.RECOGNITION]: RecognitionMeta;
 };

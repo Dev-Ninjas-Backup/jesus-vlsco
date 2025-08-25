@@ -27,7 +27,13 @@ export class ShiftLogService {
 
     // * Ensure endTime is after startTime (single day shift only)
     if (new Date(endTime) <= new Date(startTime)) {
-      throw new AppError(404, 'Shift must start and end on the same day');
+      throw new AppError(400, 'Shift end time must be after start time');
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    if (start.toDateString() !== end.toDateString()) {
+      throw new AppError(400, 'Shift must start and end on the same day');
     }
 
     // * Decide shift type based on time
@@ -36,11 +42,19 @@ export class ShiftLogService {
         ? ShiftType.MORNING
         : ShiftType.AFTERNOON;
 
+    // * Get start and end of day
+    const now = new Date(date);
+    const startOfDay = new Date(now);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date(now);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
     // * Check if a shift already exists on the same date
     const existingShift = await this.prisma.shift.findFirst({
       where: {
-        date: date.toISOString(),
+        date: { gte: startOfDay, lte: endOfDay },
       },
+      orderBy: { startTime: 'asc' },
     });
 
     if (existingShift) {

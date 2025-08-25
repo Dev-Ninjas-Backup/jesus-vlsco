@@ -6,6 +6,7 @@ import { AnnouncementEvent } from '@project/common/interface/events-payload';
 import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
+import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { Worker } from 'bullmq';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
     private readonly config: ConfigService,
     private readonly mailService: MailService,
     private readonly gateway: NotificationGateway,
+    private readonly prisma: PrismaService,
   ) {}
 
   onModuleInit() {
@@ -58,6 +60,26 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
             meta,
           },
         );
+
+        // * Store in database
+        await this.prisma.notification.create({
+          data: {
+            title,
+            message,
+            type: 'Announcement',
+            meta: {
+              ...meta,
+            },
+            users: {
+              createMany: {
+                data: recipients.map((r) => ({
+                  userId: r.id,
+                  read: false,
+                })),
+              },
+            },
+          },
+        });
       },
       {
         connection: {

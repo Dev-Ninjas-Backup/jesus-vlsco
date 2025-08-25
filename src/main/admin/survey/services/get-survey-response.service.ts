@@ -83,9 +83,8 @@ export class GetSurveyResponseService {
       const surveyUsers = survey.surveyUsers;
       const totalAssigned = survey.isForAll ? totalUsers : surveyUsers.length;
 
-      const respondedCount = survey.surveyUsers.filter(
-        (su) => su.isResponded,
-      ).length;
+      const respondedCount =
+        survey.surveyUsers.filter((su) => su.isResponded).length || 0;
       const notRespondedCount = totalAssigned - respondedCount;
 
       return {
