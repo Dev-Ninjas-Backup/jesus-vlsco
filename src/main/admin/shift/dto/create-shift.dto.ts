@@ -73,7 +73,8 @@ export class CreateShiftDto {
     example: ['a1b2c3d4-e5f6-7890-1234-56789abcdef0'],
     type: [String],
   })
-  @IsArray({ each: true })
+  @IsArray()
+  @IsString({ each: true })
   userIds?: string[];
 
   @ApiPropertyOptional({
