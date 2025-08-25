@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsNumber, IsOptional } from 'class-validator';
+import { IsDate, IsEnum, IsNumber, IsOptional } from 'class-validator';
 
 export enum ClockAction {
   CLOCK_IN = 'CLOCK_IN',
@@ -29,6 +29,7 @@ export class ClockDto {
     example: ClockAction.CLOCK_IN,
     enum: ClockAction,
   })
+  @IsEnum(ClockAction)
   action: ClockAction;
 }
 
