@@ -73,6 +73,7 @@ export class UserTimeClickService {
             id: task.id,
           })),
         },
+        projectId: dto.projectId,
         users: {
           connect: {
             id: userId,
