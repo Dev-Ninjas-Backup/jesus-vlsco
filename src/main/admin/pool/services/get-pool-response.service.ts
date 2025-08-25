@@ -9,7 +9,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 
 @Injectable()
 export class GetPoolResponseService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to get responses')
   async getPoolResponse(): Promise<TResponse<any>> {
@@ -27,17 +27,31 @@ export class GetPoolResponseService {
       throw new AppError(404, 'Pool not found');
     }
 
-    // const totalUsersInDb = await this.prisma.user.count();
+    const result = pool.map((pool) => {
+      // total responses across all options for this pool
+      const totalResponses = pool.options.reduce(
+        (sum, option) => sum + option.poolResponse.length,
+        0,
+      );
 
-    const result = pool.map((pool) => ({
-      id: pool.id,
-      title: pool.title,
-      description: pool.description,
-      options: pool.options.map((option) => ({
-        option: option.option,
-        totalResponse: option.poolResponse?.length,
-      })),
-    }));
+      return {
+        id: pool.id,
+        title: pool.title,
+        description: pool.description,
+        totalResponse: totalResponses,
+        options: pool.options.map((option) => {
+          const optionResponses = option.poolResponse.length;
+          return {
+            option: option.option,
+            totalResponse: optionResponses,
+            responsePercentage:
+              totalResponses > 0
+                ? (optionResponses / totalResponses) * 100
+                : 0,
+          };
+        }),
+      };
+    });
 
     return successResponse(result, 'Pool fetched successfully');
   }
