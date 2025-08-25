@@ -126,6 +126,7 @@ export class AdminRequestOffDayService {
     const page = query.page && query.page > 0 ? query.page : 1;
     const limit = query.limit && query.limit > 0 ? query.limit : 15;
     const skip = (page - 1) * limit;
+    console.log(page, limit, skip);
 
     // 1️⃣ Fetch all payrolls with user + profile
     const payrolls = await this.prisma.payroll.findMany({
@@ -136,8 +137,9 @@ export class AdminRequestOffDayService {
           },
         },
       },
-      skip,
-      take: limit,
+      // skip,
+      // take: limit,
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!payrolls.length) {

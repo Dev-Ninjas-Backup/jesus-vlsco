@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ShiftType } from '@prisma/client';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -18,28 +19,45 @@ export class ShiftLogService {
     const {
       userIds = [],
       taskIds = [],
+      date,
       startTime,
       endTime,
       ...shiftData
     } = dto;
 
-    // *decide shift type based on start time and end time
-    const shiftType =
-      startTime < endTime ? ShiftType.EVENING : ShiftType.AFTERNOON;
+    // * Ensure endTime is after startTime (single day shift only)
+    if (new Date(endTime) <= new Date(startTime)) {
+      throw new AppError(404, 'Shift must start and end on the same day');
+    }
 
-    const shift = await this.prisma.$transaction(async (tx) => {
-      // 1. Create Shift
-      const shift = await tx.shift.create({
+    // * Decide shift type based on time
+    const shiftType =
+      new Date(startTime).getHours() < 12
+        ? ShiftType.MORNING
+        : ShiftType.AFTERNOON;
+
+    // * Check if a shift already exists on the same date
+    const existingShift = await this.prisma.shift.findFirst({
+      where: {
+        date: date.toISOString(),
+      },
+    });
+
+    if (existingShift) {
+      // ✅ Update the existing shift instead of creating another
+      const updatedShift = await this.prisma.shift.update({
+        where: { id: existingShift.id },
         data: {
           ...shiftData,
+          date: date.toISOString(),
           startTime,
           endTime,
           shiftType,
           users: userIds.length
-            ? { connect: userIds.map((id) => ({ id })) }
+            ? { set: [], connect: userIds.map((id) => ({ id })) }
             : undefined,
           shiftTask: taskIds.length
-            ? { connect: taskIds.map((id) => ({ id })) }
+            ? { set: [], connect: taskIds.map((id) => ({ id })) }
             : undefined,
         },
         include: {
@@ -51,8 +69,31 @@ export class ShiftLogService {
           shiftTask: true,
         },
       });
+      return successResponse(updatedShift, 'Shift updated successfully');
+    }
 
-      // 2. Create ShiftActivity entries
+    // * Otherwise create new shift
+    const shift = await this.prisma.$transaction(async (tx) => {
+      const shift = await tx.shift.create({
+        data: {
+          ...shiftData,
+          date: date.toISOString(),
+          startTime,
+          endTime,
+          shiftType,
+          users: userIds.length
+            ? { connect: userIds.map((id) => ({ id })) }
+            : undefined,
+          shiftTask: taskIds.length
+            ? { connect: taskIds.map((id) => ({ id })) }
+            : undefined,
+        },
+        include: {
+          users: { include: { profile: true } },
+          shiftTask: true,
+        },
+      });
+
       if (userIds.length && taskIds.length) {
         const shiftActivities = userIds.flatMap((userId) =>
           taskIds.map((taskId) => ({
@@ -63,7 +104,6 @@ export class ShiftLogService {
             content: `${dto.shiftTitle} - Auto generated`,
           })),
         );
-
         await tx.shiftActivity.createMany({ data: shiftActivities });
       }
 

@@ -169,4 +169,70 @@ export class GetUserService {
   async getUserByEmployeeID(employeeID: number): Promise<TResponse<any>> {
     return this.findUserBy('employeeID', employeeID);
   }
+
+  @HandleError('Failed to fetch all assigned users of any shift')
+  async getAllAssignedUsersOfAnyShift(): Promise<TResponse<any>> {
+    // 1. Fetch all shifts with users
+    const shifts = await this.prisma.shift.findMany({
+      where: {
+        users: { some: {} }, // only shifts with at least 1 user
+      },
+      include: {
+        users: {
+          include: { profile: true }, // include user profile
+        },
+      },
+    });
+
+    // 2. Fetch all projects that include the shifts
+    const projects = await this.prisma.project.findMany({
+      where: {
+        projectUsers: { some: {} },
+      },
+      include: {
+        projectUsers: true,
+        shifts: true,
+      },
+    });
+    // console.log("projects", projects);
+
+    // 3. Build dynamic output
+    const outputData = shifts.flatMap((shift) =>
+      shift.users.map((user) => {
+        // Find the project that has this shift AND user assigned
+        const project = projects.find((p) =>
+          // p.shifts.some((s) => s.id === shift.id) &&
+          p.projectUsers.some((pu) => pu.userId === user.id),
+        );
+
+        return {
+          date: shift.date,
+          project: project
+            ? {
+                id: project.id,
+                title: project.title,
+                location: project.projectLocation,
+              }
+            : null,
+          shift: {
+            id: shift.id,
+            startTime: shift.startTime,
+            endTime: shift.endTime,
+            shiftType: shift.shiftType,
+            allDay: shift.allDay,
+            note: shift.note,
+          },
+          profile: {
+            id: user.id,
+            firstName: user.profile?.firstName || '',
+            lastName: user.profile?.lastName || '',
+            profileUrl: user.profile?.profileUrl || '',
+            email: user.email || '',
+          },
+        };
+      }),
+    );
+
+    return successResponse(outputData, 'Assigned users fetched successfully');
+  }
 }

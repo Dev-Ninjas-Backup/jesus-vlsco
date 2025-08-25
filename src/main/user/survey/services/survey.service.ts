@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -6,7 +7,6 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { GetAssignedSurveyDto } from '../dto/get-assigned-survey.dto';
 
 @Injectable()
 export class SurveyService {
@@ -15,7 +15,7 @@ export class SurveyService {
   @HandleError('Failed to get all assigned surveys')
   async getAllAssignedSurveys(
     userId: string,
-    query: GetAssignedSurveyDto,
+    query: PaginationDto,
   ): Promise<TResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit && query.limit >= 0 ? query.limit : 5;
@@ -29,30 +29,33 @@ export class SurveyService {
       take: limit,
       include: {
         questions: {
-          include: {
-            options: true,
-          },
+          include: { options: true },
         },
         user: {
-          include: {
-            profile: true,
-          },
-        },
-        surveyUsers: {
-          where: {
-            userId,
-          },
-          select: {
-            isResponded: true,
-          },
+          include: { profile: true },
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
-    // Map isResponded to the top-level of each survey
+    // Get all responses for these surveys at once
+    const surveyIds = surveys.map((s) => s.id);
+    const responded = await this.prisma.surveyUser.findMany({
+      where: {
+        userId,
+        surveyId: { in: surveyIds },
+        isResponded: true,
+      },
+      select: { surveyId: true },
+    });
+
+    // Create a quick lookup for responded surveys
+    const respondedSet = new Set(responded.map((r) => r.surveyId));
+
+    // Attach isResponded dynamically
     const surveysWithResponse = surveys.map((survey) => ({
       ...survey,
-      isResponded: survey.surveyUsers[0]?.isResponded ?? false,
+      isResponded: respondedSet.has(survey.id),
       surveyUsers: undefined, // remove nested if not needed
     }));
 

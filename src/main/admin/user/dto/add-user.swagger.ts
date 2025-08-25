@@ -8,7 +8,12 @@ export const swaggerSchema = {
     email: { type: 'string', example: 'user@example.com' },
     role: {
       type: 'string',
-      enum: [UserEnum.ADMIN, UserEnum.EMPLOYEE, UserEnum.MANAGER],
+      enum: [
+        UserEnum.ADMIN,
+        UserEnum.EMPLOYEE,
+        UserEnum.MANAGER,
+        UserEnum.SUPER_ADMIN,
+      ],
       example: UserEnum.EMPLOYEE,
     },
     firstName: { type: 'string', example: 'John' },
