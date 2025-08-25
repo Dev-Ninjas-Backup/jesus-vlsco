@@ -52,12 +52,24 @@ export class DashboardService {
   }
 
   async getCompanyUpdateNotifications(userId: string) {
-    console.log(userId);
-    return [];
+    const companyUpdatesNotifications = await this.prisma.notification.findMany(
+      {
+        where: {
+          type: 'Announcement',
+          users: { some: { id: userId } },
+        },
+      },
+    );
+    return companyUpdatesNotifications;
   }
 
   async getRecognitionsNotifications(userId: string) {
-    console.log(userId);
-    return [];
+    const recognitionsNotifications = await this.prisma.notification.findMany({
+      where: {
+        type: 'Recognition',
+        users: { some: { id: userId } },
+      },
+    });
+    return recognitionsNotifications;
   }
 }

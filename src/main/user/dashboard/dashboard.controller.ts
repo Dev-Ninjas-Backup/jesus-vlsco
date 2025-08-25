@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
 import { DashboardService } from './dashboard.service';
 
-@ApiTags('Employee -- Dashboard')
+@ApiTags('Employee -- Dashboard & Shifts')
 @Controller('employee/dashboard')
 @ValidateEmployee()
 @ApiBearerAuth()
