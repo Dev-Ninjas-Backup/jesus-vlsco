@@ -6,6 +6,7 @@ import { AnnouncementModule } from './announcement/announcement.module';
 import { ProjectModule } from './project/project.module';
 import { RecognitionModule } from './recognition/recognition.module';
 import { UserTimeClickModule } from './user-time-click/user-time-click.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserTimeClickModule } from './user-time-click/user-time-click.module';
     ProjectModule,
     RecognitionModule,
     UserTimeClickModule,
+    DashboardModule,
   ],
 })
 export class UserModule {}
