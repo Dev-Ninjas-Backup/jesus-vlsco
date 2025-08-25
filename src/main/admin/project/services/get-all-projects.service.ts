@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetProjectsDto } from '../dto/get-projects.dto';
-import { HandleError } from '@project/common/error/handle-error.decorator';
 
 @Injectable()
 export class GetAllProjectsService {
@@ -76,7 +76,17 @@ export class GetAllProjectsService {
       include: {
         team: true,
         manager: true,
-        projectUsers: { include: { user: true } },
+        projectUsers: {
+          include: {
+            user: {
+              include: {
+                profile: true,
+                shift: true,
+                team: true,
+              },
+            },
+          },
+        },
         tasks: true,
       },
     });

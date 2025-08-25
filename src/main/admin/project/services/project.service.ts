@@ -19,7 +19,6 @@ export class ProjectService {
 
   // ========== CREATE ==========
   @HandleError('Failed to create project')
-  @HandleError('Failed to create project')
   async createProject(dto: CreateProjectDto): Promise<TResponse<any>> {
     const team = await this.prisma.team.findUnique({
       where: { id: dto.teamId },

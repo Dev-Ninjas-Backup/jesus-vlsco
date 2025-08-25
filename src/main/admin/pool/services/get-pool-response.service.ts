@@ -21,6 +21,7 @@ export class GetPoolResponseService {
           },
         },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!pool) {

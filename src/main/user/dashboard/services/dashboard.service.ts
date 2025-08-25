@@ -28,6 +28,18 @@ export class DashboardService {
     );
   }
 
+  @HandleError('Failed to fetch notifications')
+  async getUserNotifications(userId: string): Promise<TResponse<any>> {
+    const notifications = await this.prisma.notification.findMany({
+      where: {
+        users: { some: { userId } },
+      },
+    });
+
+    return successResponse(notifications, 'Notifications fetched successfully');
+  }
+
+  // Helpers
   private async getUserUpcomingShifts(userId: string) {
     const shifts = await this.prisma.shift.findMany({
       where: {

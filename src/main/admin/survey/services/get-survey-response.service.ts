@@ -75,6 +75,7 @@ export class GetSurveyResponseService {
         //   },
         // },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     const totalUsers = await this.prisma.user.count();
