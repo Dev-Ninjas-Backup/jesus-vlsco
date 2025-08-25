@@ -1,9 +1,9 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { AddRecognitionService } from '../services/add-recognition.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { addRecognitionSwaggerScham } from '../dto/add-recognition.swagger';
+import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { AddRecognitionDto } from '../dto/add-recognition.dto';
+import { addRecognitionSwaggerScham } from '../dto/add-recognition.swagger';
+import { AddRecognitionService } from '../services/add-recognition.service';
 
 @ApiTags('Admin -- Recognition')
 @Controller('admin/recognition')
@@ -20,7 +20,10 @@ export class AddRecognitionController {
       properties: { ...addRecognitionSwaggerScham.properties },
     },
   })
-  async addRecognition(@Body() dto: AddRecognitionDto) {
-    return await this.addRecognitionService.addRecognition(dto);
+  async addRecognition(
+    @Body() dto: AddRecognitionDto,
+    @GetUser('userId') adminId: string,
+  ) {
+    return await this.addRecognitionService.addRecognition(dto, adminId);
   }
 }
