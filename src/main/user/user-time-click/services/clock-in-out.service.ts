@@ -235,7 +235,7 @@ export class ClockInOutService {
   }
 
   // Helpers
-  private isWithinRadius(
+  isWithinRadius(
     point: { lat: number; lng: number },
     center: { lat: number; lng: number },
     radius: number,
@@ -243,7 +243,7 @@ export class ClockInOutService {
     return this.getDistanceMeters(point, center) <= radius;
   }
 
-  private getDistanceMeters(
+  getDistanceMeters(
     a: { lat: number; lng: number },
     b: { lat: number; lng: number },
   ): number {
@@ -261,7 +261,7 @@ export class ClockInOutService {
     return R * c;
   }
 
-  private deg2rad(deg: number): number {
+  deg2rad(deg: number): number {
     return deg * (Math.PI / 180);
   }
 }

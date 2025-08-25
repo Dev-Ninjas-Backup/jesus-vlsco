@@ -5,6 +5,7 @@ import { TimeClockService } from './services/time-clock.service';
 import { UserTimeClickService } from './services/user-time-click.service';
 import { TimeClockGateway } from './time-clock.gateway';
 import { UserTimeClickController } from './user-time-click.controller';
+import { ClockInAndOutService } from './services/clock-in-and-out.service';
 
 @Module({
   controllers: [UserTimeClickController],
@@ -14,6 +15,7 @@ import { UserTimeClickController } from './user-time-click.controller';
     TimeClockService,
     TimeClockGateway,
     JwtService,
+    ClockInAndOutService,
   ],
 })
 export class UserTimeClickModule {}

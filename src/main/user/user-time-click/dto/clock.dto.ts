@@ -2,6 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsDate, IsNumber, IsOptional } from 'class-validator';
 
+export enum ClockAction {
+  CLOCK_IN = 'CLOCK_IN',
+  CLOCK_OUT = 'CLOCK_OUT',
+}
+
 export class ClockDto {
   @ApiProperty({
     description: 'Latitude of the user location',
@@ -18,6 +23,13 @@ export class ClockDto {
   @Type(() => Number)
   @IsNumber({}, { message: 'Longitude must be a number' })
   lng: number;
+
+  @ApiProperty({
+    description: 'Action to perform (CLOCK_IN or CLOCK_OUT)',
+    example: ClockAction.CLOCK_IN,
+    enum: ClockAction,
+  })
+  action: ClockAction;
 }
 
 export class GetClockSheet {
