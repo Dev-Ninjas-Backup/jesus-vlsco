@@ -94,9 +94,9 @@ export class GetSurveyResponseService {
         // createdBy: survey.user,
         totalAssigned,
         respondedCount,
-        responsePercentage: (respondedCount / totalAssigned) * 100,
+        responsePercentage: (respondedCount / totalAssigned) * 100 || 0,
         notRespondedCount,
-        notResponsePercentage: (notRespondedCount / totalAssigned) * 100,
+        notResponsePercentage: (notRespondedCount / totalAssigned) * 100 || 0,
         respondedUsers: survey.surveyUsers
           .filter((su) => su.isResponded)
           .map((su) => su.user),
