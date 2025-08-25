@@ -82,7 +82,11 @@ export class GetAllProjectsService {
               include: {
                 profile: true,
                 shift: true,
-                team: true,
+                teamMembers: {
+                  include: {
+                    team: true,
+                  },
+                },
               },
             },
           },
