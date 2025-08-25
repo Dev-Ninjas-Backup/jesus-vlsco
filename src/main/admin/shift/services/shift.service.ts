@@ -20,10 +20,15 @@ export class ShiftLogService {
       userIds = [],
       taskIds = [],
       date,
+      currentProjectId,
       startTime,
       endTime,
       ...shiftData
     } = dto;
+
+    if (!currentProjectId) {
+      throw new AppError(400, 'Project ID is required');
+    }
 
     // * Ensure endTime is after startTime (single day shift only)
     if (new Date(endTime) <= new Date(startTime)) {
@@ -49,10 +54,17 @@ export class ShiftLogService {
     const endOfDay = new Date(now);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
-    // * Check if a shift already exists on the same date
+    // * Check if a shift already exists on the same date for these users
     const existingShift = await this.prisma.shift.findFirst({
       where: {
         date: { gte: startOfDay, lte: endOfDay },
+        users: {
+          some: {
+            id: {
+              in: userIds,
+            },
+          },
+        },
       },
       orderBy: { startTime: 'asc' },
     });
@@ -73,6 +85,11 @@ export class ShiftLogService {
           shiftTask: taskIds.length
             ? { set: [], connect: taskIds.map((id) => ({ id })) }
             : undefined,
+          project: {
+            connect: {
+              id: currentProjectId,
+            },
+          },
         },
         include: {
           users: {

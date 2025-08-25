@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { AppError } from '@project/common/error/handle-error.app';
 import {
   successResponse,
   TResponse,
@@ -13,30 +12,39 @@ export class GetShiftsService {
   async getAssignedUsersOfAProjects(
     projectId: string,
   ): Promise<TResponse<any>> {
-    const project = await this.prisma.project.findUnique({
-      where: { id: projectId },
-    });
-
-    if (!project) throw new AppError(404, 'Project not found');
-
-    const teamWithUsers = await this.prisma.team.findUnique({
-      where: { id: project.teamId as any },
+    const projectUsers = await this.prisma.projectUser.findMany({
+      where: { projectId },
       include: {
-        members: {
+        user: {
           include: {
-            user: {
-              include: {
-                profile: true,
-                payroll: true,
-                shift: true,
-                taskUsers: true,
-              },
-            },
+            profile: true,
           },
         },
       },
     });
 
-    return successResponse(teamWithUsers, 'Team found successfully');
+    if (!projectUsers) {
+      return successResponse([], 'No project users found');
+    }
+
+    // * get all shifts for this project
+    const shifts = await this.prisma.shift.findMany({
+      where: { projectId },
+      include: {
+        users: {
+          include: {
+            profile: true,
+          },
+        },
+      },
+    });
+
+    return successResponse(
+      {
+        projectUsers,
+        shifts,
+      },
+      'Team found successfully',
+    );
   }
 }

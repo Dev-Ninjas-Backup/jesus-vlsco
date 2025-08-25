@@ -20,11 +20,13 @@ model Shift {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  projectId String?
+  project       Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   users         User[]
   shiftTask     Task[]
   shiftActivity ShiftActivity[]
   payrollEntry  PayrollEntry[]
-  project       Project[]
   timeClock     TimeClock[]
 }
 

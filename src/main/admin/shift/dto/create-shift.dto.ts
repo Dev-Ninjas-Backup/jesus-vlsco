@@ -13,6 +13,13 @@ import {
 
 export class CreateShiftDto {
   @ApiProperty({
+    description: 'The ID of the current project',
+    example: 'c4c4c4c4-c4c4-c4c4-c4c4-c4c4c4c4c4c4',
+  })
+  @IsString()
+  currentProjectId: string;
+
+  @ApiProperty({
     description: 'The date of the shift (YYYY-MM-DD)',
     example: '2025-08-07',
   })
@@ -66,8 +73,7 @@ export class CreateShiftDto {
     example: ['a1b2c3d4-e5f6-7890-1234-56789abcdef0'],
     type: [String],
   })
-  @IsOptional()
-  @IsArray()
+  @IsArray({ each: true })
   userIds?: string[];
 
   @ApiPropertyOptional({
