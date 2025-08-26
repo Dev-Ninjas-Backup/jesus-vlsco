@@ -18,7 +18,7 @@ import { SendPrivateMessageDto } from '../dto/privateChatGateway.dto';
   cors: {
     origin: '*',
   },
-  namespace: '/private',
+  namespace: '/js/private',
 })
 export class PrivateChatGateway
   implements OnGatewayConnection, OnGatewayDisconnect

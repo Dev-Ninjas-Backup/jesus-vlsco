@@ -19,7 +19,7 @@ import { Server, Socket } from 'socket.io';
 import { ClockInOutService } from './services/clock-in-out.service';
 
 @WebSocketGateway({
-  namespace: '/clock',
+  namespace: '/js/clock',
   cors: { origin: '*' },
 })
 export class TimeClockGateway
