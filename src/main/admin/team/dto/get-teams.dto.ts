@@ -33,7 +33,7 @@ export class GetTeamsDto {
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  page?: number = 1;
+  page?: number;
 
   @ApiPropertyOptional({ description: 'Items per page', default: 10 })
   @IsOptional()
@@ -41,7 +41,7 @@ export class GetTeamsDto {
   @IsNumber()
   @Min(1)
   @Max(100)
-  limit?: number = 10;
+  limit?: number;
 
   @ApiPropertyOptional({
     description: 'Sort by field',
