@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -9,13 +10,21 @@ import { GetAssignedShiftsDto } from '../dto/get-assigned-shifts.dto';
 
 @Injectable()
 export class GetShiftsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   @HandleError('Failed to get shifts and users')
   async getAssignedUsersOfAProjects(
     projectId: string,
     dto: GetAssignedShiftsDto,
   ): Promise<TResponse<any>> {
+    const project = await this.prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      throw new AppError(404, 'Project not found');
+    }
+
     // * both are optional , default is current week
     let { startDate, endDate } = dto;
 
@@ -81,11 +90,17 @@ export class GetShiftsService {
         user: {
           id: user.id,
           email: user.email,
+          isAvailable: false, // * this is based on current date, if there is a shift for today, then busy/available else not
           profile: {
             firstName: user.profile?.firstName ?? '',
             lastName: user.profile?.lastName ?? '',
             profileUrl: user.profile?.profileUrl ?? '',
           },
+        },
+        project: {
+          id: project.id,
+          title: project.title,
+          location: project.projectLocation,
         },
         shifts: userShifts.map((s) => ({
           id: s.id,
@@ -95,6 +110,9 @@ export class GetShiftsService {
           startTime: s.startTime,
           endTime: s.endTime,
           shiftStatus: s.shiftStatus,
+          location: s.location,
+          lat: s.locationLat,
+          lng: s.locationLng,
         })),
       };
     });
