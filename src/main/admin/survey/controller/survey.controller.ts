@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CreateSurveyFromTemplateDto } from '../dto/create-survey-from-template.dto';
 import { GetAllSurveysDto } from '../dto/get-survey.dto';
 import { CreateSurveyDto, UpdateSurveyDto } from '../dto/survey.dto';
 import { SurveyService } from '../services/survey.service';
@@ -30,14 +29,14 @@ export class SurveyController {
     return this.surveyService.createSurvey(userId, dto);
   }
 
-  @Post('from-template/:templateId')
-  async createSurveyFromTemplate(
-    @GetUser('userId') userId: string,
-    @Param('templateId') templateId: string,
-    @Body() dto: CreateSurveyFromTemplateDto,
-  ) {
-    return this.surveyService.createSurveyFromTemplate(userId, templateId, dto);
-  }
+  // @Post('from-template/:templateId')
+  // async createSurveyFromTemplate(
+  //   @GetUser('userId') userId: string,
+  //   @Param('templateId') templateId: string,
+  //   @Body() dto: CreateSurveyFromTemplateDto,
+  // ) {
+  //   return this.surveyService.createSurveyFromTemplate(userId, templateId, dto);
+  // }
 
   @Get('get-all')
   async getAllSurveys(@Query() dto: GetAllSurveysDto) {

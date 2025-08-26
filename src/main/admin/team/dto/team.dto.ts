@@ -28,23 +28,6 @@ export class CreateTeamDto {
   @IsNotEmpty()
   department: string;
 
-  // @ApiProperty({
-  //   type: 'string',
-  //   format: 'binary',
-  //   description: 'Optional team image or logo',
-  //   required: false,
-  // })
-  // @IsOptional()
-  // image?: any; // Will be handled with @UploadedFile() in controller
-
-  // @ApiProperty({
-  //   example: 'aee23bfb-1fbd-4f39-bde7-1f5e3857d650',
-  //   description: 'ID of the user creating the team',
-  // })
-  // @IsUUID()
-  // @IsNotEmpty()
-  // creatorId: string;
-
   @ApiProperty({
     example: [
       'fa24c6d2-09c6-498f-9f84-878cf3871225',

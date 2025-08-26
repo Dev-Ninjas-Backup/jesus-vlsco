@@ -88,11 +88,7 @@ export class ShiftLogService {
           shiftTask: taskIds.length
             ? { set: [], connect: taskIds.map((id) => ({ id })) }
             : undefined,
-          project: {
-            connect: {
-              id: currentProjectId,
-            },
-          },
+          projectId: currentProjectId,
         },
         include: {
           users: {
@@ -115,6 +111,7 @@ export class ShiftLogService {
           startTime,
           endTime,
           shiftType,
+          projectId: currentProjectId,
           users: userIds.length
             ? { connect: userIds.map((id) => ({ id })) }
             : undefined,

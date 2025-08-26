@@ -124,9 +124,8 @@ export class AdminRequestOffDayService {
   @HandleError('Failed to get time off request analytics')
   async getTimeOffRequestAnalysis(query: PaginationDto) {
     const page = query.page && query.page > 0 ? query.page : 1;
-    const limit = query.limit && query.limit > 0 ? query.limit : 15;
+    const limit = query.limit && query.limit > 0 ? query.limit : 25;
     const skip = (page - 1) * limit;
-    console.log(page, limit, skip);
 
     // 1️⃣ Fetch all payrolls with user + profile
     const payrolls = await this.prisma.payroll.findMany({
@@ -137,8 +136,8 @@ export class AdminRequestOffDayService {
           },
         },
       },
-      // skip,
-      // take: limit,
+      skip,
+      take: limit,
       orderBy: { createdAt: 'desc' },
     });
 
@@ -175,7 +174,12 @@ export class AdminRequestOffDayService {
           orderBy: { createdAt: 'desc' },
         });
 
-        const remaining = totalEntitlement - approvedRequests.length;
+        const remaining =
+          totalEntitlement -
+          approvedRequests.reduce(
+            (total, request) => total + request.totalDaysOff,
+            0,
+          );
 
         requests[typeKey] = {
           approved: approvedRequests,

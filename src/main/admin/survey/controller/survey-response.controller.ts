@@ -5,7 +5,7 @@ import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { GetSurveyResponseService } from '../services/get-survey-response.service';
 import { SurveyResponseService } from '../services/survey-response.service';
 
-@ApiTags('Admin -- Survey Response')
+@ApiTags('Admin -- Survey')
 @Controller('admin/survey-response')
 @ValidateAdmin()
 @ApiBearerAuth()

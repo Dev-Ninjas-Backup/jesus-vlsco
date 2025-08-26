@@ -63,12 +63,18 @@ export class TeamService {
 
   @HandleError('Failed to update team')
   async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
-    await this.utils.ensureTeamExists(id);
+    const team = await this.prisma.team.findUnique({
+      where: { id },
+      include: { members: true },
+    });
 
-    // Start transaction
+    if (!team) {
+      throw new AppError(404, 'Team not found');
+    }
+
     const result = await this.prisma.$transaction(async (tx) => {
-      // 1. Update the basic team fields
-      const team = await tx.team.update({
+      // 1. Update basic fields
+      await tx.team.update({
         where: { id },
         data: {
           title: dto.title,
@@ -77,24 +83,36 @@ export class TeamService {
         },
       });
 
-      // 2. If members provided, reset and reassign them
-      if (dto.members && dto.members.length > 0) {
-        // Remove existing members
-        await tx.teamMembers.deleteMany({
-          where: { teamId: id },
-        });
+      // 2. Update members if provided
+      if (dto.members) {
+        const uniqueMembers = [...new Set(dto.members)];
+        const existingMembers = team.members.map((m) => m.userId);
 
-        // Add new members
-        await tx.teamMembers.createMany({
-          data: dto.members.map((userId) => ({
-            teamId: id,
-            userId,
-          })),
-          skipDuplicates: true,
-        });
+        const newMembers = uniqueMembers.filter(
+          (m) => !existingMembers.includes(m),
+        );
+        const removedMembers = existingMembers.filter(
+          (m) => !uniqueMembers.includes(m),
+        );
+
+        if (removedMembers.length > 0) {
+          await tx.teamMembers.deleteMany({
+            where: { teamId: id, userId: { in: removedMembers } },
+          });
+        }
+
+        if (newMembers.length > 0) {
+          await tx.teamMembers.createMany({
+            data: newMembers.map((userId) => ({ teamId: id, userId })),
+          });
+        }
       }
 
-      return team;
+      // 3. Return fully updated team
+      return tx.team.findUnique({
+        where: { id },
+        include: { members: true },
+      });
     });
 
     return successResponse(result, 'Team updated successfully');
