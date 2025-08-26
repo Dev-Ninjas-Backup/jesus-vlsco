@@ -50,6 +50,7 @@ export class GetShiftsService {
         user: {
           include: {
             profile: true,
+            payroll: true,
           },
         },
       },
@@ -72,6 +73,7 @@ export class GetShiftsService {
         users: {
           include: {
             profile: true,
+            payroll: true,
           },
         },
       },
@@ -98,11 +100,10 @@ export class GetShiftsService {
           id: user.id,
           email: user.email,
           isAvailable: !hasTodayShift,
-          profile: {
-            firstName: user.profile?.firstName ?? '',
-            lastName: user.profile?.lastName ?? '',
-            profileUrl: user.profile?.profileUrl ?? '',
-          },
+          firstName: user.profile?.firstName ?? '',
+          lastName: user.profile?.lastName ?? '',
+          profileUrl: user.profile?.profileUrl ?? '',
+          offDay: user.payroll?.offDay ?? ['SUNDAY'],
         },
         project: {
           id: project.id,
