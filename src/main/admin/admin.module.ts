@@ -11,6 +11,7 @@ import { TaskModule } from './task/task.module';
 import { TeamModule } from './team/team.module';
 import { UserModule } from './user/user.module';
 import { TimeClockModule } from './time-clock/time-clock.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TimeClockModule } from './time-clock/time-clock.module';
     AnnouncementModule,
     PoolModule,
     TimeClockModule,
+    DashboardModule,
   ],
   providers: [],
 })

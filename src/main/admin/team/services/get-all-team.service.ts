@@ -18,9 +18,9 @@ export class GetAllTeamsService {
       memberId,
       projectId,
       page = 1,
-      limit = 10,
+      limit = 15,
       sortBy = 'createdAt',
-      sortOrder = 'asc',
+      sortOrder = 'desc',
     } = filters;
 
     // Build dynamic where

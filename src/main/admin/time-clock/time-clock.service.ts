@@ -2,27 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
-import {
-  successResponse,
-  TResponse,
-} from '@project/common/utils/response.util';
+import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ApproveOrRejectShiftRequest } from './dto/time-clock.dto';
 
 @Injectable()
 export class TimeClockService {
   constructor(private readonly prisma: PrismaService) {}
-
-  @HandleError('Unable to create time clock')
-  async responseToShiftRequest(): Promise<TResponse<any>> {
-    return successResponse(null, 'Time clock created successfully');
-  }
-
-  async responseToPayrollEntryRequest() {}
-
-  async getAllPayrolls() {}
-
-  async getAllAApprovedShiftsByByAllUsers() {}
 
   @HandleError('Unable to get all pending shifts by all users')
   async getAllPendingShiftsByAllUsers(pg: PaginationDto) {
@@ -75,7 +61,4 @@ export class TimeClockService {
       `Shift request ${dto.isApproved ? 'approved' : 'rejected'} successfully`,
     );
   }
-
-  // * get time clock of a user
-  async getAllShiftsOfAUser() {}
 }
