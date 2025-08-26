@@ -4,6 +4,7 @@ import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { ClockDto, GetClockSheet } from './dto/clock.dto';
 import { RequestShiftDto } from './dto/request-shift.dto';
+import { ClockHistoryService } from './services/clock-history.service';
 import { ClockInAndOutService } from './services/clock-in-and-out.service';
 import { ClockInOutService } from './services/clock-in-out.service';
 import { TimeClockService } from './services/time-clock.service';
@@ -19,6 +20,7 @@ export class UserTimeClickController {
     private readonly clockInOutService: ClockInOutService,
     private readonly timeClockService: TimeClockService,
     private readonly clockInAndOutService: ClockInAndOutService,
+    private readonly clockHistoryService: ClockHistoryService,
   ) {}
 
   @Post('request-shift')
@@ -64,6 +66,8 @@ export class UserTimeClickController {
     return this.timeClockService.getMyClockSheet(userId, dto);
   }
 
-  async submitTimeClock() {}
-  async getAllPayrolls() {}
+  @Get('history')
+  async getUserHistory(@GetUser('userId') userId: string) {
+    return this.clockHistoryService.getUserHistory(userId);
+  }
 }
