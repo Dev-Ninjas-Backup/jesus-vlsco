@@ -10,7 +10,7 @@ import { GetAssignedShiftsDto } from '../dto/get-assigned-shifts.dto';
 
 @Injectable()
 export class GetShiftsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get shifts and users')
   async getAssignedUsersOfAProjects(
