@@ -22,7 +22,11 @@ import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { createTeamSwaggerSchema } from '../dto/createTeam.swagger';
 import { GetTeamsDto } from '../dto/get-teams.dto';
-import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
+import {
+  AddMembersToTeamDto,
+  CreateTeamDto,
+  UpdateTeamDto,
+} from '../dto/team.dto';
 import { GetAllTeamsService } from '../services/get-all-team.service';
 import { TeamService } from '../services/team.service';
 
@@ -109,17 +113,17 @@ export class TeamController {
   //   return this.teamService.addMemberToTeam(teamId, userId);
   // }
 
-  // @ApiOperation({ summary: 'Add users to team' })
-  // @Patch(':teamId/users')
-  // async addMembersToTeam(
-  //   @Param('teamId') teamId: string,
-  //   @Body() addMembersToTeamDto: AddMembersToTeamDto,
-  // ) {
-  //   return this.teamService.addMembersToTeam(
-  //     teamId,
-  //     addMembersToTeamDto.members,
-  //   );
-  // }
+  @ApiOperation({ summary: 'Add users to team' })
+  @Patch(':teamId/users')
+  async addMembersToTeam(
+    @Param('teamId') teamId: string,
+    @Body() addMembersToTeamDto: AddMembersToTeamDto,
+  ) {
+    return this.teamService.addMembersToTeam(
+      teamId,
+      addMembersToTeamDto.members,
+    );
+  }
 
   @ApiOperation({ summary: 'Get team members' })
   @Get(':teamId/members')

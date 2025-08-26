@@ -12,7 +12,10 @@ import { UpdateShiftDto } from '../dto/update-shift.dto';
 
 @Injectable()
 export class ShiftLogService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    // private readonly eventEmitter: EventEmitter2
+  ) {}
 
   @HandleError('Unable to assign shift')
   async create(dto: CreateShiftDto): Promise<TResponse<any>> {
@@ -140,6 +143,9 @@ export class ShiftLogService {
 
       return shift;
     });
+
+    // * trigger shift event
+    // await this.eventEmitter.emitAsync('shift.created', { shift });
 
     return successResponse(shift, 'Shift assigned successfully');
   }
