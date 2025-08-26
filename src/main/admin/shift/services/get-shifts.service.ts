@@ -86,11 +86,18 @@ export class GetShiftsService {
         shift.users.some((u) => u.id === user.id),
       );
 
+      // check availability: if a shift exists for today → busy, else available
+      const hasTodayShift = userShifts.some((s) => {
+        const shiftDate = new Date(s.date);
+        shiftDate.setHours(0, 0, 0, 0);
+        return shiftDate.getTime() === today.getTime();
+      });
+
       return {
         user: {
           id: user.id,
           email: user.email,
-          isAvailable: false, // * this is based on current date, if there is a shift for today, then busy/available else not
+          isAvailable: !hasTodayShift,
           profile: {
             firstName: user.profile?.firstName ?? '',
             lastName: user.profile?.lastName ?? '',
