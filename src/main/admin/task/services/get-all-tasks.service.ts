@@ -5,15 +5,11 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { UtilsService } from '@project/lib/utils/utils.service';
 import { GetTasksDto } from '../dto/get-tasks.dto';
 
 @Injectable()
 export class GetAllTasksService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly utils: UtilsService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Error getting all tasks')
   async getAllTasks(filters: GetTasksDto): Promise<TResponse<any>> {
@@ -50,8 +46,8 @@ export class GetAllTasksService {
       ];
     }
 
-    // const skip = (page - 1) * limit;
-    // const take = limit;
+    const skip = (page - 1) * limit;
+    const take = limit;
 
     // 🔹 Total tasks that have any assigned users
     const actualTotal = await this.prisma.task.count({
@@ -165,6 +161,8 @@ export class GetAllTasksService {
     const totalOpen = tasks.length - totalDone;
     const pages = Math.ceil(total / limit);
 
+    const paginatedTasksForData = tasks.slice(skip, skip + take);
+
     return successResponse(
       {
         analytics: {
@@ -172,7 +170,7 @@ export class GetAllTasksService {
           done: totalDone,
           open: totalOpen,
         },
-        data: tasks,
+        data: paginatedTasksForData,
         overdueTasks,
         grouped,
         meta: { total, page, limit, pages },
