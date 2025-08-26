@@ -1,17 +1,18 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
+import { GetAssignedShiftsDto } from '@project/main/admin/shift/dto/get-assigned-shifts.dto';
+import { GetShiftsService } from '@project/main/admin/shift/services/get-shifts.service';
 import { DashboardService } from './services/dashboard.service';
-import { GetShiftScheduleService } from './services/get-shift-schedule.service';
 
 @ApiTags('Employee -- Dashboard & Shifts')
 @Controller('employee/dashboard')
-@ValidateEmployee()
+@ValidateAuth()
 @ApiBearerAuth()
 export class DashboardController {
   constructor(
     private readonly dashboardService: DashboardService,
-    private readonly getShiftScheduleService: GetShiftScheduleService,
+    private readonly getShiftsService: GetShiftsService,
   ) {}
 
   @ApiOperation({ summary: 'Get user dashboard' })
@@ -21,9 +22,15 @@ export class DashboardController {
   }
 
   @ApiOperation({ summary: 'Get shift schedule of a project' })
-  @Get('shift/:projectId')
-  async getShiftScheduleOfAProject(@Param('projectId') projectId: string) {
-    return this.getShiftScheduleService.getShiftSchedule(projectId);
+  @Get('assigned-users/:projectId')
+  async getAssignedUsersOfAProjects(
+    @Param('projectId') projectId: string,
+    @Query() dto: GetAssignedShiftsDto,
+  ) {
+    return await this.getShiftsService.getAssignedUsersOfAProjects(
+      projectId,
+      dto,
+    );
   }
 
   @ApiOperation({ summary: 'Get user notifications' })
