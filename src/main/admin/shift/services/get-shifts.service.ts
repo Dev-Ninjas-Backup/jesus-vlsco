@@ -122,6 +122,18 @@ export class GetShiftsService {
           lat: s.locationLat,
           lng: s.locationLng,
         })),
+        allShifts: shifts.map((s) => ({
+          id: s.id,
+          title: s.shiftTitle,
+          projectId: s.projectId,
+          date: s.date,
+          startTime: s.startTime,
+          endTime: s.endTime,
+          shiftStatus: s.shiftStatus,
+          location: s.location,
+          lat: s.locationLat,
+          lng: s.locationLng,
+        })),
       };
     });
 
