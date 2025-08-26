@@ -9,14 +9,10 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { UtilsService } from '@project/lib/utils/utils.service';
 
 @Injectable()
 export class ProjectService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly utils: UtilsService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get all project with its tasks')
   async getAllProjectWithItsTasks(
@@ -25,25 +21,28 @@ export class ProjectService {
     const page = Math.max(Number(dto.page) || 1, 1);
     const limit = Math.min(Number(dto.limit) || 10, 100);
 
-    const project = await this.prisma.project.findMany({
-      include: {
-        tasks: {
-          include: {
-            tasksUsers: {
-              include: {
-                user: true,
+    const [totalProjects, projects] = await this.prisma.$transaction([
+      this.prisma.project.count(),
+      this.prisma.project.findMany({
+        include: {
+          tasks: {
+            include: {
+              tasksUsers: {
+                include: {
+                  user: true,
+                },
               },
             },
           },
         },
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+    ]);
 
     return successPaginatedResponse(
-      project,
-      { page: 1, limit: 10, total: 1 },
+      projects,
+      { page, limit, total: totalProjects },
       'Projects retrieved successfully',
     );
   }
