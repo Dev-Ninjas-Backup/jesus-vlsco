@@ -37,5 +37,9 @@ export interface TimeOffEvent extends BaseEvent<TimeOffMeta> {
 }
 
 export interface RecognitionEvent extends BaseEvent<RecognitionMeta> {
+  info: {
+    title: string;
+    recipients: { email: string; id: string }[];
+  };
   action: 'RECOGNITION';
 }

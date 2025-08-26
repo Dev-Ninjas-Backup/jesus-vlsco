@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { RecognitionEvent } from '@project/common/interface/events-payload';
 import {
   successResponse,
   TResponse,
@@ -10,10 +13,16 @@ import { AddRecognitionDto } from '../dto/add-recognition.dto';
 
 @Injectable()
 export class AddRecognitionService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
 
   @HandleError('Failed to create recognition')
-  async addRecognition(dto: AddRecognitionDto): Promise<TResponse<any>> {
+  async addRecognition(
+    dto: AddRecognitionDto,
+    adminId: string,
+  ): Promise<TResponse<any>> {
     // validate input if needed
     if (!dto.recognitionUserIds?.length) {
       throw new AppError(400, 'At least one user must be recognized');
@@ -57,6 +66,28 @@ export class AddRecognitionService {
         recipients: dto.recognitionUserIds,
       };
     });
+
+    if (dto.shouldNotify) {
+      // Define payload
+      const payload: RecognitionEvent = {
+        info: {
+          title: dto.message,
+          recipients: dto.recognitionUserIds.map((userId) => ({
+            email: userId,
+            id: userId,
+          })),
+        },
+        action: 'RECOGNITION',
+        meta: {
+          recognitionId: result.recognitionId,
+          performedBy: adminId,
+          createdAt: new Date(),
+        },
+      };
+
+      // Emit an event; CompanyEventService will queue and broadcast
+      this.eventEmitter.emit(EVENT_TYPES.RECOGNITION, payload);
+    }
 
     return successResponse(result, result.message);
   }

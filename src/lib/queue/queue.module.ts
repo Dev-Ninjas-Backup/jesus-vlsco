@@ -7,6 +7,8 @@ import { TimeoffEventService } from './services/timeoff-event.service';
 import { CompanyAnnouncementWorker } from './worker/company-announcement.worker';
 import { ShiftWorker } from './worker/shift.worker';
 import { TimeOffWorker } from './worker/timeoff.worker';
+import { RecognitionEventService } from './services/recognition-event.service';
+import { RecognitionWorker } from './worker/recognition.worker';
 
 @Global()
 @Module({
@@ -16,6 +18,7 @@ import { TimeOffWorker } from './worker/timeoff.worker';
       { name: QueueName.TIME_OFF },
       { name: QueueName.SHIFT },
       { name: QueueName.COMPANY_EVENT },
+      { name: QueueName.RECOGNITION },
     ),
   ],
   providers: [
@@ -25,6 +28,8 @@ import { TimeOffWorker } from './worker/timeoff.worker';
     ShiftEventService,
     TimeOffWorker,
     TimeoffEventService,
+    RecognitionEventService,
+    RecognitionWorker,
   ],
   exports: [BullModule],
 })

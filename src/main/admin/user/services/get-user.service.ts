@@ -36,6 +36,7 @@ export class GetUserService {
         payroll: true,
         projects: true,
         shift: true,
+        team: true,
       },
     });
 
@@ -100,7 +101,7 @@ export class GetUserService {
           experience: true,
           payroll: true,
           projects: true,
-
+          team: true,
           shift: true,
         },
       }),
@@ -114,7 +115,7 @@ export class GetUserService {
         experience,
         payroll,
         projects,
-
+        team,
         shift,
         ...mainUser
       } = user;
@@ -130,7 +131,7 @@ export class GetUserService {
         experience,
         payroll,
         projects,
-
+        team,
         shift,
       };
     });

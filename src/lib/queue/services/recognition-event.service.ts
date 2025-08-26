@@ -6,7 +6,6 @@ import {
   EventPayloadMap,
 } from '@project/common/interface/events-name';
 import { QueueName } from '@project/common/interface/queue-name';
-import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { Queue } from 'bullmq';
 
 @Injectable()
@@ -14,7 +13,6 @@ export class RecognitionEventService {
   constructor(
     @InjectQueue(QueueName.RECOGNITION)
     private readonly notificationQueue: Queue,
-    private readonly gateway: NotificationGateway,
   ) {}
 
   /**
