@@ -46,7 +46,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // app.setGlobalPrefix('js');
+  app.setGlobalPrefix('js');
 
   // ✅ Swagger config with Bearer Auth
   const config = new DocumentBuilder()
