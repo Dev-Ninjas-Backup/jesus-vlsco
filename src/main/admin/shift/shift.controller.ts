@@ -11,7 +11,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateShiftDto } from './dto/create-shift.dto';
-import { GetAssignedShiftsDto } from './dto/get-assigned-shifts';
+import { GetAssignedShiftsDto } from './dto/get-assigned-shifts.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
 import { GetShiftsService } from './services/get-shifts.service';
 import { ShiftLogService } from './services/shift.service';

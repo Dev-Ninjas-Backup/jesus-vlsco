@@ -10,7 +10,7 @@ export class GetAssignedShiftsDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  from?: Date;
+  startDate?: Date;
 
   @ApiPropertyOptional({
     description: 'End time of the shift (ISO format)',
@@ -19,5 +19,5 @@ export class GetAssignedShiftsDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  to?: Date;
+  endDate?: Date;
 }

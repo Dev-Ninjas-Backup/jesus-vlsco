@@ -5,7 +5,7 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { GetAssignedShiftsDto } from '../dto/get-assigned-shifts';
+import { GetAssignedShiftsDto } from '../dto/get-assigned-shifts.dto';
 
 @Injectable()
 export class GetShiftsService {
@@ -16,8 +16,23 @@ export class GetShiftsService {
     projectId: string,
     dto: GetAssignedShiftsDto,
   ): Promise<TResponse<any>> {
-    const from = dto.from;
-    const to = dto.to;
+    // * both are optional , default is current week
+    let { startDate, endDate } = dto;
+
+    const today = new Date();
+    if (!startDate || !endDate) {
+      // default: current week (Mon → Sun)
+      const firstDayOfWeek = new Date(today);
+      firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Sunday = 0
+      firstDayOfWeek.setHours(0, 0, 0, 0);
+
+      const lastDayOfWeek = new Date(firstDayOfWeek);
+      lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+      lastDayOfWeek.setHours(23, 59, 59, 999);
+
+      startDate = startDate ?? firstDayOfWeek;
+      endDate = endDate ?? lastDayOfWeek;
+    }
 
     // 1. Get all users assigned to the project
     const projectUsers = await this.prisma.projectUser.findMany({
@@ -35,9 +50,15 @@ export class GetShiftsService {
       return successResponse([], 'No project users found');
     }
 
-    // 2. Get all shifts for this project, including assigned users
+    // 2. Get all shifts within range for this project, including assigned users
     const shifts = await this.prisma.shift.findMany({
-      where: { projectId },
+      where: {
+        projectId,
+        date: {
+          gte: new Date(startDate),
+          lte: new Date(endDate),
+        },
+      },
       include: {
         users: {
           include: {
@@ -56,17 +77,6 @@ export class GetShiftsService {
         shift.users.some((u) => u.id === user.id),
       );
 
-      // * calculate availability of the user for the current time based on shifts
-      // const availability = userShifts.reduce((acc, shift) => {
-      //   if (
-      //     new Date(shift.startTime) <= new Date() &&
-      //     new Date(shift.endTime) >= new Date()
-      //   ) {
-      //     acc++;
-      //   }
-      //   return acc;
-      // })
-
       return {
         user: {
           id: user.id,
@@ -79,6 +89,8 @@ export class GetShiftsService {
         },
         shifts: userShifts.map((s) => ({
           id: s.id,
+          title: s.shiftTitle,
+          projectId: s.projectId,
           date: s.date,
           startTime: s.startTime,
           endTime: s.endTime,
@@ -87,6 +99,6 @@ export class GetShiftsService {
       };
     });
 
-    return successResponse(formatted, 'Team found successfully');
+    return successResponse(formatted, 'Assigned users found successfully');
   }
 }
