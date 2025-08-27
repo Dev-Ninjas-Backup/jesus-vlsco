@@ -16,7 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
-import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { GetTasksDto } from '@project/main/admin/task/dto/get-tasks.dto';
 import { GetAllTasksService } from '@project/main/admin/task/services/get-all-tasks.service';
@@ -25,7 +25,7 @@ import { SubmitTaskService } from './services/submit-task.service';
 
 @ApiTags('Employee -- Project & Task')
 @Controller('employee/project')
-@ValidateEmployee()
+@ValidateAuth()
 @ApiBearerAuth()
 export class ProjectController {
   constructor(
