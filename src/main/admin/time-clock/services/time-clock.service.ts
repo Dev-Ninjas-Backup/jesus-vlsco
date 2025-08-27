@@ -4,7 +4,7 @@ import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { ApproveOrRejectShiftRequest } from './dto/time-clock.dto';
+import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
 
 @Injectable()
 export class TimeClockService {

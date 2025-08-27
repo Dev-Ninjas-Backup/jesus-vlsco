@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { TimeClockService } from './time-clock.service';
+import { PayrollService } from './services/payroll.service';
+import { TimeClockService } from './services/time-clock.service';
 import { TimeClockController } from './time-clock.controller';
 
 @Module({
   controllers: [TimeClockController],
-  providers: [TimeClockService],
+  providers: [TimeClockService, PayrollService],
 })
 export class TimeClockModule {}
