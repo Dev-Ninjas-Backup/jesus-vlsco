@@ -103,6 +103,7 @@ export class GetUserService {
           projects: true,
           team: true,
           shift: true,
+          projectUsers: true,
         },
       }),
       builder.countTotal(this.prisma.user),
@@ -117,6 +118,7 @@ export class GetUserService {
         projects,
         team,
         shift,
+        projectUsers,
         ...mainUser
       } = user;
       const sanitizedUser = this.utils.sanitizedResponse(
@@ -133,6 +135,7 @@ export class GetUserService {
         projects,
         team,
         shift,
+        projectUsers,
       };
     });
 
