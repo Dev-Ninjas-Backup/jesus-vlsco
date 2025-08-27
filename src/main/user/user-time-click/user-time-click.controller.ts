@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { ClockDto, GetClockSheet } from './dto/clock.dto';
+import { ClockDto, GetClockSheet, SubmitTimeSheet } from './dto/clock.dto';
 import { RequestShiftDto } from './dto/request-shift.dto';
 import { ClockHistoryService } from './services/clock-history.service';
 import { ClockInAndOutService } from './services/clock-in-and-out.service';
@@ -64,6 +64,14 @@ export class UserTimeClickController {
     @Query() dto: GetClockSheet,
   ) {
     return this.timeClockService.getMyClockSheet(userId, dto);
+  }
+
+  @Post('submit-clock-sheet')
+  async submitClockSheet(
+    @GetUser('userId') userId: string,
+    @Body() dto: SubmitTimeSheet,
+  ) {
+    return this.timeClockService.submitTimeClockSheet(userId, dto);
   }
 
   @Get('history')

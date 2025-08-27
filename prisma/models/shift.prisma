@@ -26,7 +26,6 @@ model Shift {
   users         User[]
   shiftTask     Task[]
   shiftActivity ShiftActivity[]
-  payrollEntry  PayrollEntry[]
   timeClock     TimeClock[]
 }
 

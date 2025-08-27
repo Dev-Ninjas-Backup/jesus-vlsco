@@ -6,7 +6,7 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { GetClockSheet } from '../dto/clock.dto';
+import { GetClockSheet, SubmitTimeSheet } from '../dto/clock.dto';
 
 @Injectable()
 export class TimeClockService {
@@ -163,6 +163,115 @@ export class TimeClockService {
         daysEntries: flatDaysEntries,
       },
       'Clock sheet retrieved successfully',
+    );
+  }
+
+  @HandleError('Failed to submit timesheet', 'PAYROLL')
+  async submitTimeClockSheet(userId: string, dto: SubmitTimeSheet) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { payroll: true },
+    });
+
+    if (!user) throw new AppError(404, 'User not found');
+    if (!user.payroll) throw new AppError(404, 'Payroll config not found');
+
+    const { from, to } = dto;
+    if (!from || !to) throw new AppError(400, 'From and To dates required');
+
+    // fetch raw time clocks
+    const clocks = await this.prisma.timeClock.findMany({
+      where: {
+        userId,
+        clockInAt: { gte: new Date(from) },
+        clockOutAt: { lte: new Date(to) },
+      },
+      orderBy: { clockInAt: 'asc' },
+    });
+
+    if (!clocks.length) {
+      throw new AppError(404, 'No clock entries found for this period');
+    }
+
+    // payroll config
+    const {
+      breakTimePerDay,
+      regularPayRate,
+      regularPayRateType,
+      overTimePayRate,
+      overTimePayRateType,
+    } = user.payroll;
+
+    const getBreakHours = (b: string) =>
+      b === 'HALF_HOUR'
+        ? 0.5
+        : b === 'ONE_HOUR'
+          ? 1
+          : b === 'TWO_HOUR'
+            ? 2
+            : b === 'THREE_HOUR'
+              ? 3
+              : 0;
+
+    const breakHours = getBreakHours(breakTimePerDay);
+
+    // totals
+    let totalHours = 0,
+      regularHours = 0,
+      overtimeHours = 0;
+
+    clocks.forEach((clock) => {
+      if (!clock.clockInAt || !clock.clockOutAt) return;
+
+      const diff =
+        (clock.clockOutAt.getTime() - clock.clockInAt.getTime()) /
+        (1000 * 60 * 60);
+      const worked = Math.max(diff - breakHours, 0);
+
+      const reg = worked > 8 ? 8 : worked;
+      const ot = worked > 8 ? worked - 8 : 0;
+
+      totalHours += worked;
+      regularHours += reg;
+      overtimeHours += ot;
+    });
+
+    const toDecimal = (n: number) => Number(n.toFixed(2));
+    totalHours = toDecimal(totalHours);
+    regularHours = toDecimal(regularHours);
+    overtimeHours = toDecimal(overtimeHours);
+
+    const calcAmount = (hrs: number, rate: number, type: string) =>
+      type === 'HOUR'
+        ? hrs * rate
+        : type === 'DAY'
+          ? Math.ceil(hrs / 8) * rate
+          : type === 'WEEK'
+            ? Math.ceil(hrs / 40) * rate
+            : rate; // MONTH flat
+
+    const amount = toDecimal(
+      calcAmount(regularHours, regularPayRate, regularPayRateType) +
+        calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
+    );
+
+    // create payroll entry
+    const payrollEntry = await this.prisma.payrollEntries.create({
+      data: {
+        userId,
+        totalHours,
+        regularHours,
+        overtimeHours,
+        amount,
+        status: 'PENDING',
+        startDate: new Date(from),
+        endDate: new Date(to),
+      },
+    });
+
+    return successResponse(
+      payrollEntry,
+      'Payroll entry submitted successfully',
     );
   }
 }

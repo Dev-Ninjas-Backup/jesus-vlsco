@@ -81,10 +81,26 @@ export class AddUserService {
       },
     });
 
+    // * create payroll with default values
+    await this.prisma.payroll.create({
+      data: {
+        userId: user.id,
+        regularPayRate: 10,
+        regularPayRateType: 'DAY',
+        overTimePayRate: 10,
+        overTimePayRateType: 'DAY',
+        casualLeave: 10,
+        sickLeave: 14,
+        numberOffDay: 1,
+        offDay: ['SUNDAY'],
+      },
+    });
+
     const result = await this.prisma.user.findUnique({
       where: { id: user.id },
       include: {
         profile: true,
+        payroll: true,
       },
     });
 

@@ -52,3 +52,21 @@ export class GetClockSheet {
   @IsDate()
   to?: Date;
 }
+
+export class SubmitTimeSheet {
+  @ApiProperty({
+    description: 'Start time of the shift (ISO format)',
+    example: '2025-08-07T08:00:00.000Z',
+  })
+  @Type(() => Date)
+  @IsDate()
+  from: Date;
+
+  @ApiProperty({
+    description: 'End time of the shift (ISO format)',
+    example: '2025-08-07T16:00:00.000Z',
+  })
+  @Type(() => Date)
+  @IsDate()
+  to: Date;
+}

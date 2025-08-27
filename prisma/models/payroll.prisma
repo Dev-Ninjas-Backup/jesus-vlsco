@@ -16,23 +16,22 @@ model Payroll {
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  payrollEntry PayrollEntry[]
 }
 
-model PayrollEntry {
+model PayrollEntries {
   id      String @id @default(uuid())
-  shiftId String
-  shift   Shift  @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-
-  payrollId String
-  payroll   Payroll @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+ 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   totalHours    Float
   regularHours  Float
   overtimeHours Float
   amount        Float
-  status        PayrollStatus @default(PENDING) // PENDING, APPROVED, REJECTED
+  status        PayrollStatus @default(PENDING)
+
+  startDate DateTime
+  endDate   DateTime
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

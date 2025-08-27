@@ -45,6 +45,7 @@ model User {
   poolResponse           poolResponse[]
   recognitionLikeComment RecognitionLikeComment[]
   timeClock              TimeClock[]
+  payrollEntry PayrollEntries[]
 }
 
 enum UserEnum {
