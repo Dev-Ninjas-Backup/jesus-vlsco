@@ -1,7 +1,23 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { BreakTimePerDay, Department, Gender, JopTitle, PayRateType, Weekdays } from '@prisma/client';
+import {
+  BreakTimePerDay,
+  Department,
+  Gender,
+  JopTitle,
+  PayRateType,
+  Weekdays,
+} from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
-import { IsArray, IsDate, IsEnum, IsInt, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsEnum,
+  IsInt,
+  IsISO8601,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { EducationItemDto } from './education.dto';
 import { ExperienceItemDto } from './experience.dto';
 
@@ -63,17 +79,13 @@ export class UpdateProfileDto {
   @EmptyToUndefined()
   department?: Department;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  @Transform(({ value }) => {
-    // * if value is empty, return undefined
-    if (!value) return undefined;
-    const date = new Date(value);
-    return isNaN(date.getTime()) ? undefined : date.toISOString();
+  @ApiPropertyOptional({
+    description: 'date in iso format',
+    example: '2000-01-01T00:00:00.000Z',
   })
-  dob: Date;
+  @IsOptional()
+  @IsISO8601()
+  dob?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -123,7 +135,10 @@ export class UpdatePayrollDto {
   @IsEnum(PayRateType)
   regularPayRateType?: PayRateType;
 
-  @ApiPropertyOptional({ example: 150, description: 'Overtime pay rate amount' })
+  @ApiPropertyOptional({
+    example: 150,
+    description: 'Overtime pay rate amount',
+  })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
@@ -159,7 +174,10 @@ export class UpdatePayrollDto {
   @Min(0)
   sickLeave?: number;
 
-  @ApiPropertyOptional({ example: 2, description: 'Number of off days per week' })
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Number of off days per week',
+  })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
