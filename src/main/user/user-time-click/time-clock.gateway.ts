@@ -16,7 +16,8 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import { Server, Socket } from 'socket.io';
-import { ClockInOutService } from './services/clock-in-out.service';
+import { ClockDto } from './dto/clock.dto';
+import { ClockInAndOutService } from './services/clock-in-and-out.service';
 
 @WebSocketGateway({
   namespace: '/js/clock',
@@ -32,7 +33,7 @@ export class TimeClockGateway
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly clockService: ClockInOutService,
+    private readonly clockInAndOutService: ClockInAndOutService,
   ) {}
 
   @WebSocketServer()
@@ -107,7 +108,7 @@ export class TimeClockGateway
 
   @SubscribeMessage('location-update')
   async handleLocationUpdate(
-    @MessageBody() data: { lat: number; lng: number },
+    @MessageBody() data: ClockDto,
     @ConnectedSocket() client: Socket,
   ) {
     const userId = client.data?.userId;
@@ -119,11 +120,7 @@ export class TimeClockGateway
     this.logger.log(`Location update for user: ${userId}`);
 
     try {
-      const result = await this.clockService.processClock(
-        userId,
-        data.lat,
-        data.lng,
-      );
+      const result = await this.clockInAndOutService.processClock(userId, data);
 
       this.logger.log('Process Clock', result);
 

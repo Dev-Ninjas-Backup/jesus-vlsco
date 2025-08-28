@@ -15,14 +15,43 @@ model TimeClock {
   clockOutLat Float?
   clockOutLng Float?
 
-  status    TimeClockStatus @default(PENDING)
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  // * set by backend service while clock out
+  totalHours    Float?
+  overtimeHours Float?
+
+  isOvertimeAllowed Boolean         @default(false)
+  status            TimeClockStatus @default(PENDING)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  requestOverTime RequestOverTime[]
 }
 
 enum TimeClockStatus {
   PENDING
   ACTIVE
   COMPLETED
+  REJECTED
+}
+
+model RequestOverTime {
+  id String @id @default(uuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  timeClockId String
+  timeClock   TimeClock @relation(fields: [timeClockId], references: [id], onDelete: Cascade)
+
+  reason String
+  status RequestOverTimeStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum RequestOverTimeStatus {
+  PENDING
+  APPROVED
   REJECTED
 }
