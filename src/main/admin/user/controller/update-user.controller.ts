@@ -17,8 +17,10 @@ import {
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { updateUserSwaggerSchema } from '../dto/add-user.swagger';
+import { UpdateFullUserDto } from '../dto/update-full-user.dto';
 import { UpdateProfileDto, UpdateRoleDto } from '../dto/update-profile.dto';
 import { UpdateUserService } from '../services/update-user.service';
+import { UpdateFullUserService } from '../services/update-full-user.service';
 
 @ApiTags('Admin -- User')
 @Controller('admin/user')
@@ -28,6 +30,7 @@ export class UpdateUserController {
   constructor(
     private readonly updateUserService: UpdateUserService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly updateFullUserService: UpdateFullUserService,
   ) {}
 
   @Patch(':userId')
@@ -54,6 +57,17 @@ export class UpdateUserController {
       ).url;
     }
     return this.updateUserService.updateUser(userId, dto, uploadedUrl);
+  }
+
+  @Patch(':userId/full')
+  @ApiOperation({
+    summary: 'Update an existing user with optional new profile photo',
+  })
+  async updateFullUser(
+    @Param('userId') userId: string,
+    @Body() dto: UpdateFullUserDto,
+  ) {
+    return this.updateFullUserService.updateFullUser(userId, dto);
   }
 
   @Patch(':userId/role')

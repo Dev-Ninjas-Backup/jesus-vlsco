@@ -12,6 +12,7 @@ import { EducationService } from './services/education.service';
 import { ExperienceService } from './services/experience.service';
 import { GetUserService } from './services/get-user.service';
 import { PayrollService } from './services/payroll.service';
+import { UpdateFullUserService } from './services/update-full-user.service';
 import { UpdateUserService } from './services/update-user.service';
 
 @Module({
@@ -26,6 +27,7 @@ import { UpdateUserService } from './services/update-user.service';
   providers: [
     AddUserService,
     UpdateUserService,
+    UpdateFullUserService,
     EducationService,
     ExperienceService,
     AddPayrollService,
