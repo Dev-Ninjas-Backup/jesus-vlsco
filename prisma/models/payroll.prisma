@@ -19,8 +19,8 @@ model Payroll {
 }
 
 model PayrollEntries {
-  id      String @id @default(uuid())
- 
+  id String @id @default(uuid())
+
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 

@@ -21,7 +21,7 @@ model Shift {
   updatedAt DateTime @updatedAt
 
   projectId String?
-  project       Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   users         User[]
   shiftTask     Task[]
