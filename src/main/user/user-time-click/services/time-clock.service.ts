@@ -111,6 +111,8 @@ export class TimeClockService {
         start: clock.clockInAt,
         end: clock.clockOutAt,
         totalHours: hours,
+        regular: hours > 8 ? 8 : hours,
+        overtime: hours > 8 ? toDecimal(hours - 8) : 0,
         notes: clock.shift?.note || null,
       });
 
@@ -234,7 +236,7 @@ export class TimeClockService {
 
     const amount = toDecimal(
       calcAmount(regularHours, regularPayRate, regularPayRateType) +
-        calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
+      calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
     );
 
     // --- idempotent payroll entry (update if exists) ---
