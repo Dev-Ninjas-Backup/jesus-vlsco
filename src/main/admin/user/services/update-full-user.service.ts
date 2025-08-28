@@ -7,7 +7,12 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { UpdateFullUserDto } from '../dto/update-full-user.dto';
+import { EducationItemDto } from '../dto/education.dto';
+import { ExperienceItemDto } from '../dto/experience.dto';
+import {
+  UpdateFullUserDto,
+  UpdatePayrollDto,
+} from '../dto/update-full-user.dto';
 
 @Injectable()
 export class UpdateFullUserService {
@@ -64,6 +69,21 @@ export class UpdateFullUserService {
       },
     });
 
+    // * Manage Experience
+    if (dto.experiences && dto.experiences.length) {
+      await this.syncExperiences(userId, dto?.experiences);
+    }
+
+    // * Manage Educations
+    if (dto.educations && dto.educations.length) {
+      await this.syncEducations(userId, dto?.educations);
+    }
+
+    // * Manage Payroll
+    if (dto.payroll) {
+      await this.updatePayroll(userId, dto.payroll);
+    }
+
     const updatedUserWithAllData = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       include: {
@@ -75,5 +95,53 @@ export class UpdateFullUserService {
     });
 
     return successResponse(updatedUserWithAllData, 'User updated successfully');
+  }
+
+  async syncExperiences(userId: string, experiences: ExperienceItemDto[]) {
+    await this.prisma.experience.deleteMany({ where: { userId } });
+
+    if (experiences?.length) {
+      await this.prisma.experience.createMany({
+        data: experiences.map((exp) => ({
+          ...exp,
+          id: undefined, // ignore incoming id if any
+          userId,
+        })),
+      });
+    }
+  }
+
+  async syncEducations(userId: string, educations: EducationItemDto[]) {
+    await this.prisma.education.deleteMany({ where: { userId } });
+
+    if (educations?.length) {
+      await this.prisma.education.createMany({
+        data: educations.map((edu) => ({
+          userId,
+          ...edu,
+          id: undefined, // ignore incoming id if any
+        })),
+      });
+    }
+  }
+
+  async updatePayroll(userId: string, payrollDto: UpdatePayrollDto) {
+    const existingPayroll = await this.prisma.payroll.findUnique({
+      where: { userId },
+    });
+
+    if (existingPayroll) {
+      return this.prisma.payroll.update({
+        where: { userId },
+        data: payrollDto,
+      });
+    }
+
+    return this.prisma.payroll.create({
+      data: {
+        ...payrollDto,
+        userId,
+      },
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
   BreakTimePerDay,
   Department,
@@ -21,9 +21,6 @@ import {
 import { EducationItemDto } from './education.dto';
 import { ExperienceItemDto } from './experience.dto';
 
-/**
- * Transforms empty string values into `undefined` so `@IsOptional()` will skip validation.
- */
 function EmptyToUndefined() {
   return Transform(({ value }) => (value === '' ? undefined : value));
 }
@@ -175,14 +172,14 @@ export class UpdatePayrollDto {
   sickLeave?: number;
 
   @ApiPropertyOptional({
-    example: 2,
-    description: 'Number of off days per week',
+    example: 5,
+    description: 'Number of time off days per year',
   })
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  @Min(1)
-  numberOffDay?: number;
+  @Min(0)
+  timeOff?: number;
 
   @ApiPropertyOptional({
     isArray: true,
@@ -207,9 +204,8 @@ export class UpdatePayrollDto {
 
 export class UpdateFullUserDto {
   // * Manage Profile
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: UpdateProfileDto,
-    required: false,
     description: 'Profile to update (only changed ones)',
   })
   @IsOptional()
@@ -217,34 +213,31 @@ export class UpdateFullUserDto {
   @Type(() => UpdateProfileDto)
   profile?: UpdateProfileDto;
 
-  // * manage experience
-  @ApiProperty({
+  // * Manage Experience
+  @ApiPropertyOptional({
     type: [UpdateSingleExperienceDto],
-    required: false,
-    description: 'List of Experiences to update (only changed ones)',
+    description: 'List of Experiences to update or create',
   })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateSingleExperienceDto)
-  experiences?: UpdateSingleExperienceDto[];
+  experiences?: ExperienceItemDto[];
 
   // * Manage Educations
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: [UpdateSingleEducationDto],
-    required: false,
-    description: 'List of Educations to update (only changed ones)',
+    description: 'List of Educations to update or create',
   })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateSingleEducationDto)
-  educations?: UpdateSingleExperienceDto[];
+  educations?: EducationItemDto[];
 
   // * Manage Payroll
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: UpdatePayrollDto,
-    required: false,
     description: 'Payroll to update (only changed ones)',
   })
   @IsOptional()
