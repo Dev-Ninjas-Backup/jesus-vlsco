@@ -2,10 +2,10 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
-  IsDate,
   IsEmail,
   IsEnum,
   IsInt,
+  IsISO8601,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -94,17 +94,13 @@ export class AddUserDto {
   @EmptyToUndefined()
   state?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @Type(() => Date)
-  @Transform(({ value }) => {
-    // * if value is empty, return undefined
-    if (!value) return undefined;
-    const date = new Date(value);
-    return isNaN(date.getTime()) ? undefined : date.toISOString();
+  @ApiPropertyOptional({
+    description: 'date in iso format',
+    example: '2000-01-01T00:00:00.000Z',
   })
-  @IsDate()
-  dob?: Date;
+  @IsOptional()
+  @IsISO8601()
+  dob?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
