@@ -20,8 +20,7 @@ export const calcAmount = (hrs: number, rate: number, type: string) =>
         ? Math.ceil(hrs / 40) * rate
         : rate; // MONTH flat
 
-export const getLocalDateKey = (date: Date) =>
-  date.toLocaleDateString('en-CA'); // YYYY-MM-DD in local tz
+export const getLocalDateKey = (date: Date) => date.toLocaleDateString('en-CA'); // YYYY-MM-DD in local tz
 
 export const getWeekStart = (date: Date) => {
   const weekStart = new Date(date);

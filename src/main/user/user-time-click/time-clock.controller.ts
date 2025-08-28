@@ -6,18 +6,18 @@ import { ClockDto, GetClockSheet, SubmitTimeSheet } from './dto/clock.dto';
 import { RequestShiftDto } from './dto/request-shift.dto';
 import { ClockHistoryService } from './services/clock-history.service';
 import { ClockInAndOutService } from './services/clock-in-and-out.service';
-import { ClockInOutService } from './services/clock-in-out.service';
+import { CurrentClockShiftService } from './services/current-shift-clock.service';
 import { TimeClockService } from './services/time-clock.service';
-import { UserTimeClickService } from './services/user-time-click.service';
+import { UserShiftService } from './services/user-shift.service';
 
 @ApiTags('Employee -- Time Clock')
 @Controller('employee/time-clock')
 @ValidateAuth()
 @ApiBearerAuth()
-export class UserTimeClickController {
+export class TimeClockController {
   constructor(
-    private readonly userTimeClickService: UserTimeClickService,
-    private readonly clockInOutService: ClockInOutService,
+    private readonly userShiftService: UserShiftService,
+    private readonly currentClockShiftService: CurrentClockShiftService,
     private readonly timeClockService: TimeClockService,
     private readonly clockInAndOutService: ClockInAndOutService,
     private readonly clockHistoryService: ClockHistoryService,
@@ -28,7 +28,7 @@ export class UserTimeClickController {
     @Body() dto: RequestShiftDto,
     @GetUser('userId') userId: string,
   ) {
-    return this.userTimeClickService.requestAShift(dto, userId);
+    return this.userShiftService.requestAShift(dto, userId);
   }
 
   @Get('get-all-shifts')
@@ -36,21 +36,21 @@ export class UserTimeClickController {
     @Query() pg: PaginationDto,
     @GetUser('userId') userId: string,
   ) {
-    return this.userTimeClickService.getAllShifts(pg, userId);
-  }
-
-  @Get('shift/current-clock')
-  async getCurrentClock(@GetUser('userId') userId: string) {
-    return this.clockInOutService.getCurrentShiftWithClock(userId);
+    return this.userShiftService.getAllShifts(pg, userId);
   }
 
   @Post(':shiftId/cancel-shift-request')
   async cancelAShiftRequestIfAlreadyNotApproved(
     @Param('shiftId') shiftId: string,
   ) {
-    return this.userTimeClickService.cancelAShiftRequestIfAlreadyNotApproved(
+    return this.userShiftService.cancelAShiftRequestIfAlreadyNotApproved(
       shiftId,
     );
+  }
+
+  @Get('shift/current-clock')
+  async getCurrentClock(@GetUser('userId') userId: string) {
+    return this.currentClockShiftService.getCurrentShiftWithClock(userId);
   }
 
   @Post('process-clock')

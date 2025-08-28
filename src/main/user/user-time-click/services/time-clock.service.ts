@@ -7,13 +7,17 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetClockSheet, SubmitTimeSheet } from '../dto/clock.dto';
-import { calcAmount, getBreakHours, getLocalDateKey, getWeekStart, toDecimal } from '../helper/helper';
-
-
+import {
+  calcAmount,
+  getBreakHours,
+  getLocalDateKey,
+  getWeekStart,
+  toDecimal,
+} from '../helper/helper';
 
 @Injectable()
 export class TimeClockService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get my clock sheet', 'CLOCK')
   async getMyClockSheet(
@@ -171,7 +175,13 @@ export class TimeClockService {
     if (!clocks.length)
       throw new AppError(404, 'No clock entries found for this period');
 
-    const { breakTimePerDay, regularPayRate, regularPayRateType, overTimePayRate, overTimePayRateType } = user.payroll;
+    const {
+      breakTimePerDay,
+      regularPayRate,
+      regularPayRateType,
+      overTimePayRate,
+      overTimePayRateType,
+    } = user.payroll;
 
     const breakHours = getBreakHours(breakTimePerDay);
 
@@ -181,8 +191,7 @@ export class TimeClockService {
     clocks.forEach((c) => {
       if (!c.clockInAt || !c.clockOutAt) return;
 
-      const worked =
-        (c.clockOutAt.getTime() - c.clockInAt.getTime()) / 36e5;
+      const worked = (c.clockOutAt.getTime() - c.clockInAt.getTime()) / 36e5;
       const dayKey = getLocalDateKey(new Date(c.clockInAt));
       dailyMap.set(dayKey, (dailyMap.get(dayKey) || 0) + worked);
     });
@@ -207,7 +216,7 @@ export class TimeClockService {
 
     const amount = toDecimal(
       calcAmount(regularHours, regularPayRate, regularPayRateType) +
-      calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
+        calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
     );
 
     // --- idempotent payroll entry (update if exists) ---
@@ -219,7 +228,13 @@ export class TimeClockService {
     if (existing) {
       payrollEntry = await this.prisma.payrollEntries.update({
         where: { id: existing.id },
-        data: { totalHours, regularHours, overtimeHours, amount, status: 'PENDING' },
+        data: {
+          totalHours,
+          regularHours,
+          overtimeHours,
+          amount,
+          status: 'PENDING',
+        },
       });
     } else {
       payrollEntry = await this.prisma.payrollEntries.create({
@@ -236,6 +251,9 @@ export class TimeClockService {
       });
     }
 
-    return successResponse(payrollEntry, 'Payroll entry submitted successfully');
+    return successResponse(
+      payrollEntry,
+      'Payroll entry submitted successfully',
+    );
   }
 }

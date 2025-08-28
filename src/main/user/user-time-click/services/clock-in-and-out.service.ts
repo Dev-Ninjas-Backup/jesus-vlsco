@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ClockDto } from '../dto/clock.dto';
-import { ClockInOutService } from './clock-in-out.service';
-import { HandleError } from '@project/common/error/handle-error.decorator';
+import { CurrentClockShiftService } from './current-shift-clock.service';
 
 @Injectable()
 export class ClockInAndOutService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly clockInOutService: ClockInOutService,
+    private readonly currentClockShiftService: CurrentClockShiftService,
   ) {}
 
   @HandleError('Clock In/Out Error')
@@ -53,7 +53,7 @@ export class ClockInAndOutService {
       if (!shift) throw new AppError(404, 'No active shift found for the user');
 
       // location check
-      const distance = this.clockInOutService.getDistanceMeters(
+      const distance = this.currentClockShiftService.getDistanceMeters(
         { lat: dto.lat, lng: dto.lng },
         { lat: shift.locationLat, lng: shift.locationLng },
       );
@@ -80,7 +80,7 @@ export class ClockInAndOutService {
         throw new AppError(400, 'No active clock-in found');
       }
 
-      const withinRadius = this.clockInOutService.isWithinRadius(
+      const withinRadius = this.currentClockShiftService.isWithinRadius(
         { lat: dto.lat, lng: dto.lng },
         {
           lat: activeClock.shift?.locationLat ?? 0,

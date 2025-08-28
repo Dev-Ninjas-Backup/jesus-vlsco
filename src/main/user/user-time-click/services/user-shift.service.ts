@@ -11,7 +11,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { RequestShiftDto } from '../dto/request-shift.dto';
 
 @Injectable()
-export class UserTimeClickService {
+export class UserShiftService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to request a shift')
@@ -181,10 +181,4 @@ export class UserTimeClickService {
 
     return successResponse(null, 'Shift request already approved');
   }
-
-  // * submit time clock (as payroll entry)
-  async submitTimeClock() {}
-
-  // * get all payrolls
-  async getAllPayrolls() {}
 }
