@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsDate,
   IsEmail,
@@ -9,6 +9,10 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+
+function EmptyToUndefined() {
+  return Transform(({ value }) => (value === '' ? undefined : value));
+}
 
 export class AddUserDto {
   @ApiProperty({ example: '8801234567890' })
@@ -24,67 +28,93 @@ export class AddUserDto {
   @IsEmail()
   email: string;
 
-  @ApiProperty({ enum: UserEnum, example: UserEnum.EMPLOYEE })
+  @ApiProperty({ example: 'John' })
+  @IsString()
+  firstName: string;
+
+  // Optional fields
+  @ApiPropertyOptional({ enum: UserEnum, example: UserEnum.EMPLOYEE })
+  @IsOptional()
   @IsEnum(UserEnum)
-  role: UserEnum;
+  @EmptyToUndefined()
+  role?: UserEnum;
 
   @ApiPropertyOptional({ example: 'strongpassword123' })
   @IsOptional()
   @IsString()
+  @EmptyToUndefined()
   password?: string;
 
   @ApiPropertyOptional({ example: 1234 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
+  @EmptyToUndefined()
   pinCode?: number;
-
-  // Profile fields
-  @ApiProperty({ example: 'John' })
-  @IsString()
-  firstName: string;
 
   @ApiPropertyOptional({ example: 'Doe' })
   @IsOptional()
   @IsString()
+  @EmptyToUndefined()
   lastName?: string;
 
-  @ApiProperty({ enum: Gender })
+  @ApiPropertyOptional({ enum: Gender })
+  @IsOptional()
   @IsEnum(Gender)
-  gender: Gender;
+  @EmptyToUndefined()
+  gender?: Gender;
 
-  @ApiProperty({ enum: JopTitle })
+  @ApiPropertyOptional({ enum: JopTitle })
+  @IsOptional()
   @IsEnum(JopTitle)
-  jobTitle: JopTitle;
+  @EmptyToUndefined()
+  jobTitle?: JopTitle;
 
-  @ApiProperty({ enum: Department })
+  @ApiPropertyOptional({ enum: Department })
+  @IsOptional()
   @IsEnum(Department)
-  department: Department;
-
-  @ApiProperty()
-  @IsString()
-  address: string;
-
-  @ApiProperty()
-  @IsString()
-  city: string;
-
-  @ApiProperty()
-  @IsString()
-  state: string;
-
-  @ApiProperty()
-  @Type(() => Date)
-  @IsDate()
-  dob: Date;
+  @EmptyToUndefined()
+  department?: Department;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @EmptyToUndefined()
+  address?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @EmptyToUndefined()
+  city?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @EmptyToUndefined()
+  state?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @Type(() => Date)
+  @Transform(({ value }) => {
+    // * if value is empty, return undefined
+    if (!value) return undefined;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? undefined : date.toISOString();
+  })
+  @IsDate()
+  dob?: Date;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @EmptyToUndefined()
   country?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  @EmptyToUndefined()
   nationality?: string;
 }

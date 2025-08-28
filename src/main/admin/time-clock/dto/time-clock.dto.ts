@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsDate, IsOptional } from 'class-validator';
 
 export class ApproveOrRejectShiftRequest {
   @ApiProperty({ example: true })
@@ -12,4 +12,12 @@ export class ApproveOrRejectShiftRequest {
   @Type(() => Boolean)
   @IsBoolean()
   isApproved: boolean;
+}
+
+export class GetTimeSheetDto {
+  @ApiPropertyOptional({ example: '2022-01-01T00:00:00.000Z' })
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  date?: string;
 }

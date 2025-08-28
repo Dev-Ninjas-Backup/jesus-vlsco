@@ -10,9 +10,13 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { ApproveOrRejectShiftRequest } from './dto/time-clock.dto';
+import {
+  ApproveOrRejectShiftRequest,
+  GetTimeSheetDto,
+} from './dto/time-clock.dto';
 import { PayrollService } from './services/payroll.service';
 import { TimeClockService } from './services/time-clock.service';
+import { TimeSheetService } from './services/time-sheet.service';
 
 @ApiTags('Admin -- Time Clock')
 @Controller('admin/time-clock')
@@ -22,6 +26,7 @@ export class TimeClockController {
   constructor(
     private readonly timeClockService: TimeClockService,
     private readonly payrollService: PayrollService,
+    private readonly timeSheetService: TimeSheetService,
   ) {}
 
   @ApiOperation({ summary: 'Get all pending shifts by all users' })
@@ -70,5 +75,11 @@ export class TimeClockController {
       id,
       dto.isApproved,
     );
+  }
+
+  @ApiOperation({ summary: 'Get all users time sheet by date' })
+  @Get('time-sheet')
+  async getAllUsersTimeSheetByDate(@Query() dto: GetTimeSheetDto) {
+    return await this.timeSheetService.getAllUsersTimeSheetByDate(dto);
   }
 }
