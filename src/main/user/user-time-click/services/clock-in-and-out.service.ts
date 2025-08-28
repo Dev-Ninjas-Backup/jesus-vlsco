@@ -92,13 +92,22 @@ export class ClockInAndOutService {
         throw new AppError(400, 'You are not at the shift location');
       }
 
+      // Determine clockOut time
       const clockOutAt =
         activeClock.shift?.endTime && now > new Date(activeClock.shift.endTime)
           ? new Date(activeClock.shift.endTime)
           : now;
 
-      const totalHours = clockOutAt.getTime() - clockOutAt.getTime();
-      const overTime = totalHours > 0 ? totalHours - 8 * 60 * 60 : 0;
+      // Calculate total hours worked
+      const totalMs =
+        clockOutAt.getTime() -
+        (activeClock?.clockInAt
+          ? new Date(activeClock.clockInAt).getTime()
+          : 0);
+      const totalHours = totalMs / (1000 * 60 * 60); // convert ms → hr
+
+      // Overtime (anything over 8 hrs)
+      const overtimeHours = totalHours > 8 ? totalHours - 8 : 0;
 
       const updated = await this.prisma.timeClock.update({
         where: { id: activeClock.id },
@@ -107,8 +116,8 @@ export class ClockInAndOutService {
           clockOutLat: dto.lat,
           clockOutLng: dto.lng,
           status: 'COMPLETED',
-          totalHours,
-          overtimeHours: overTime,
+          totalHours: Number(totalHours.toFixed(2)),
+          overtimeHours: Number(overtimeHours.toFixed(2)),
         },
       });
 

@@ -97,6 +97,7 @@ export class TimeClockService {
 
       dayData.entries.push({
         date: dateKey,
+        id: clock.id,
         shift: {
           id: clock.shiftId || 'N/A',
           title: clock.shift?.shiftTitle || 'N/A',
@@ -185,29 +186,46 @@ export class TimeClockService {
 
     const breakHours = getBreakHours(breakTimePerDay);
 
-    // --- calculate totals per day (break once per day) ---
-    const dailyMap = new Map<string, number>();
+    // --- calculate totals per day considering overtime ---
+    const dailyMap = new Map<
+      string,
+      { regularHours: number; overtimeHours: number }
+    >();
 
     clocks.forEach((c) => {
       if (!c.clockInAt || !c.clockOutAt) return;
 
       const worked = (c.clockOutAt.getTime() - c.clockInAt.getTime()) / 36e5;
       const dayKey = getLocalDateKey(new Date(c.clockInAt));
-      dailyMap.set(dayKey, (dailyMap.get(dayKey) || 0) + worked);
+
+      // apply break once per day
+      const netWorked = Math.max(worked - breakHours, 0);
+
+      let reg = netWorked;
+      let ot = 0;
+
+      if (c.isOvertimeAllowed) {
+        reg = netWorked > 8 ? 8 : netWorked;
+        ot = netWorked > 8 ? netWorked - 8 : 0;
+      }
+
+      if (!dailyMap.has(dayKey)) {
+        dailyMap.set(dayKey, { regularHours: 0, overtimeHours: 0 });
+      }
+
+      const current = dailyMap.get(dayKey)!;
+      current.regularHours += reg;
+      current.overtimeHours += ot;
     });
 
     let totalHours = 0,
       regularHours = 0,
       overtimeHours = 0;
 
-    dailyMap.forEach((hrs) => {
-      const net = Math.max(hrs - breakHours, 0);
-      const reg = net > 8 ? 8 : net;
-      const ot = net > 8 ? net - 8 : 0;
-
-      totalHours += net;
-      regularHours += reg;
-      overtimeHours += ot;
+    dailyMap.forEach((v) => {
+      regularHours += v.regularHours;
+      overtimeHours += v.overtimeHours;
+      totalHours += v.regularHours + v.overtimeHours;
     });
 
     totalHours = toDecimal(totalHours);
