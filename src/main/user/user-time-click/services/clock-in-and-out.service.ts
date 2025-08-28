@@ -97,6 +97,9 @@ export class ClockInAndOutService {
           ? new Date(activeClock.shift.endTime)
           : now;
 
+      const totalHours = clockOutAt.getTime() - clockOutAt.getTime();
+      const overTime = totalHours > 0 ? totalHours - 8 * 60 * 60 : 0;
+
       const updated = await this.prisma.timeClock.update({
         where: { id: activeClock.id },
         data: {
@@ -104,6 +107,8 @@ export class ClockInAndOutService {
           clockOutLat: dto.lat,
           clockOutLng: dto.lng,
           status: 'COMPLETED',
+          totalHours,
+          overtimeHours: overTime,
         },
       });
 

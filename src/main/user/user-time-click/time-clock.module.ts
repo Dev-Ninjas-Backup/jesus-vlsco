@@ -7,6 +7,7 @@ import { TimeClockService } from './services/time-clock.service';
 import { UserShiftService } from './services/user-shift.service';
 import { TimeClockController } from './time-clock.controller';
 import { TimeClockGateway } from './time-clock.gateway';
+import { ClockReportingService } from './services/clock-reporting.service';
 
 @Module({
   controllers: [TimeClockController],
@@ -18,6 +19,7 @@ import { TimeClockGateway } from './time-clock.gateway';
     JwtService,
     ClockInAndOutService,
     ClockHistoryService,
+    ClockReportingService,
   ],
 })
 export class TimeClockModule {}

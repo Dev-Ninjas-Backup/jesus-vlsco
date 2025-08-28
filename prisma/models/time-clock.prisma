@@ -44,7 +44,14 @@ model RequestOverTime {
   timeClock   TimeClock @relation(fields: [timeClockId], references: [id], onDelete: Cascade)
 
   reason String
+  status RequestOverTimeStatus @default(PENDING)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum RequestOverTimeStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
