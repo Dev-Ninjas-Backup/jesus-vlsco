@@ -14,8 +14,9 @@ import {
   ApproveOrRejectShiftRequest,
   GetTimeSheetDto,
 } from './dto/time-clock.dto';
+import { OvertimeService } from './services/overtime.service';
 import { PayrollService } from './services/payroll.service';
-import { TimeClockService } from './services/time-clock.service';
+import { ShiftRequestService } from './services/shift-request.service';
 import { TimeSheetService } from './services/time-sheet.service';
 
 @ApiTags('Admin -- Time Clock')
@@ -24,15 +25,16 @@ import { TimeSheetService } from './services/time-sheet.service';
 @ApiBearerAuth()
 export class TimeClockController {
   constructor(
-    private readonly timeClockService: TimeClockService,
+    private readonly shiftRequestService: ShiftRequestService,
     private readonly payrollService: PayrollService,
     private readonly timeSheetService: TimeSheetService,
+    private readonly overtimeService: OvertimeService,
   ) {}
 
   @ApiOperation({ summary: 'Get all pending shifts by all users' })
   @Get()
   async getAllPendingShiftsByAllUsers(@Query() pg: PaginationDto) {
-    return await this.timeClockService.getAllPendingShiftsByAllUsers(pg);
+    return await this.shiftRequestService.getAllPendingShiftsByAllUsers(pg);
   }
 
   @ApiOperation({ summary: 'Approve or reject shift request' })
@@ -41,7 +43,7 @@ export class TimeClockController {
     @Body() dto: ApproveOrRejectShiftRequest,
     @Param('shiftId') shiftId: string,
   ) {
-    return await this.timeClockService.approveOrRejectShiftRequest(
+    return await this.shiftRequestService.approveOrRejectShiftRequest(
       dto,
       shiftId,
     );
@@ -81,5 +83,26 @@ export class TimeClockController {
   @Get('time-sheet')
   async getAllUsersTimeSheetByDate(@Query() dto: GetTimeSheetDto) {
     return await this.timeSheetService.getAllUsersTimeSheetByDate(dto);
+  }
+
+  @ApiOperation({ summary: 'Get all pending overtime' })
+  @Get('overtime')
+  async getAllPendingOvertime(@Query() pg: PaginationDto) {
+    return await this.overtimeService.getAllPendingOvertime(pg);
+  }
+
+  @ApiOperation({ summary: 'Get single overtime' })
+  @Get('overtime/:id')
+  async getSingleOvertime(@Param('id') id: string) {
+    return await this.overtimeService.getSingleOvertime(id);
+  }
+
+  @ApiOperation({ summary: 'Accept or reject overtime' })
+  @Patch('overtime/:id/accept-or-reject')
+  async acceptOrRejectOvertime(
+    @Param('id') id: string,
+    @Body() dto: ApproveOrRejectShiftRequest,
+  ) {
+    return await this.overtimeService.acceptOrRejectOvertime(id, dto);
   }
 }
