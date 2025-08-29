@@ -26,10 +26,13 @@ export class TimeClockService {
   ): Promise<TResponse<any>> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { profile: true },
+      include: { profile: true, payroll: true },
     });
 
     if (!user) throw new AppError(404, 'User not found');
+    if (!user.payroll) throw new AppError(404, 'Payroll not found');
+
+    const payroll = user?.payroll;
 
     const from = dto.from
       ? new Date(dto.from)
@@ -63,6 +66,9 @@ export class TimeClockService {
       }
     >();
 
+    let totalRegularHours = 0;
+    let totalOvertimeHours = 0;
+
     clocks.forEach((clock) => {
       if (!clock.clockInAt || !clock.clockOutAt) return;
 
@@ -95,6 +101,13 @@ export class TimeClockService {
 
       const dayData = weekData.daily.get(dateKey)!;
 
+      const regularHours = hours > 8 ? 8 : hours;
+      const overtimeHours =
+        hours > 8 && clock.isOvertimeAllowed ? toDecimal(hours - 8) : 0;
+
+      totalRegularHours += regularHours;
+      totalOvertimeHours += overtimeHours;
+
       dayData.entries.push({
         date: dateKey,
         id: clock.id,
@@ -111,9 +124,10 @@ export class TimeClockService {
         start: clock.clockInAt,
         end: clock.clockOutAt,
         totalHours: hours,
-        regular: hours > 8 ? 8 : hours,
-        overtime: hours > 8 ? toDecimal(hours - 8) : 0,
+        regular: regularHours,
+        overtime: overtimeHours,
         notes: clock.shift?.note || null,
+        isOvertimeAllowed: clock.isOvertimeAllowed,
       });
 
       dayData.totalHours = toDecimal(dayData.totalHours + hours);
@@ -134,9 +148,44 @@ export class TimeClockService {
       .flatMap((week) => week.days)
       .flatMap((day) => day.entries);
 
+    const totalRegularPay = calcAmount(
+      totalRegularHours,
+      payroll.regularPayRate,
+      payroll.regularPayRateType,
+    );
+
+    const totalOvertimePay = calcAmount(
+      totalOvertimeHours,
+      payroll.overTimePayRate,
+      payroll.overTimePayRateType,
+    );
+
+    const regularPayRate = calcAmount(
+      8,
+      payroll.regularPayRate,
+      payroll.regularPayRateType,
+    );
+    const overTimePayRate = calcAmount(
+      8,
+      payroll.overTimePayRate,
+      payroll.overTimePayRateType,
+    );
+
     return successResponse(
       {
         clockSheet: {
+          dataPeriod: {
+            from,
+            to,
+          },
+          paymentData: {
+            payPerDay: {
+              regularPayRate,
+              overTimePayRate,
+            },
+            totalRegularHour: totalRegularPay,
+            totalOvertimeHour: totalOvertimePay,
+          },
           user: {
             id: user.id,
             firstName: user?.profile?.firstName || 'N/A',
