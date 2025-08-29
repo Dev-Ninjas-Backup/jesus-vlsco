@@ -236,7 +236,7 @@ export class TimeClockService {
 
     const amount = toDecimal(
       calcAmount(regularHours, regularPayRate, regularPayRateType) +
-      calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
+        calcAmount(overtimeHours, overTimePayRate, overTimePayRateType),
     );
 
     // --- idempotent payroll entry (update if exists) ---

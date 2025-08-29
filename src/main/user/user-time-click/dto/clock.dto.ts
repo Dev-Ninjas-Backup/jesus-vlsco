@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ClientDateDto } from '@project/common/dto/client-date.dto';
 import { Type } from 'class-transformer';
 import { IsDate, IsEnum, IsNumber, IsOptional } from 'class-validator';
 
@@ -7,7 +8,7 @@ export enum ClockAction {
   CLOCK_OUT = 'CLOCK_OUT',
 }
 
-export class ClockDto {
+export class ClockDto extends ClientDateDto {
   @ApiProperty({
     description: 'Latitude of the user location',
     example: 23.8103,

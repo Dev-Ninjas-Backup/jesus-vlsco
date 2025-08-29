@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ClientDateDto } from '@project/common/dto/client-date.dto';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { ClockDto, GetClockSheet, SubmitTimeSheet } from './dto/clock.dto';
@@ -55,8 +56,11 @@ export class TimeClockController {
 
   @ApiOperation({ summary: 'Get current clock with shift' })
   @Get('shift/current-clock')
-  async getCurrentClock(@GetUser('userId') userId: string) {
-    return this.currentClockShiftService.getCurrentShiftWithClock(userId);
+  async getCurrentClock(
+    @GetUser('userId') userId: string,
+    @Body() dto: ClientDateDto,
+  ) {
+    return this.currentClockShiftService.getCurrentShiftWithClock(userId, dto);
   }
 
   @ApiOperation({ summary: 'Process clock' })
