@@ -18,7 +18,7 @@ export class ClockInAndOutService {
 
   @HandleError('Clock In/Out Error')
   async processClock(userId: string, dto: ClockDto): Promise<TResponse<any>> {
-    const now = new Date();
+    const date = new Date(dto.date);
 
     // 1. Find any active clock
     const activeClock = await this.prisma.timeClock.findFirst({
@@ -31,10 +31,10 @@ export class ClockInAndOutService {
         return successResponse(activeClock, 'Already clocked in');
       }
 
-      // find today's shift
-      const startOfDay = new Date(now);
+      // find current shift of the date
+      const startOfDay = new Date(date);
       startOfDay.setUTCHours(0, 0, 0, 0);
-      const endOfDay = new Date(now);
+      const endOfDay = new Date(date);
       endOfDay.setUTCHours(23, 59, 59, 999);
 
       const shift = await this.prisma.shift.findFirst({
@@ -43,8 +43,8 @@ export class ClockInAndOutService {
           shiftStatus: 'PUBLISHED',
           users: { some: { id: userId } },
           OR: [
-            { startTime: { lte: now }, endTime: { gte: now } },
-            { startTime: { gte: now } },
+            { startTime: { lte: date }, endTime: { gte: date } },
+            { startTime: { gte: date } },
           ],
         },
         orderBy: { startTime: 'asc' },
@@ -65,7 +65,7 @@ export class ClockInAndOutService {
         data: {
           userId,
           shiftId: shift.id,
-          clockInAt: now.toISOString(),
+          clockInAt: date.toISOString(),
           clockInLat: dto.lat,
           clockInLng: dto.lng,
           status: 'ACTIVE',
@@ -94,9 +94,9 @@ export class ClockInAndOutService {
 
       // Determine clockOut time
       const clockOutAt =
-        activeClock.shift?.endTime && now > new Date(activeClock.shift.endTime)
+        activeClock.shift?.endTime && date > new Date(activeClock.shift.endTime)
           ? new Date(activeClock.shift.endTime)
-          : now;
+          : date;
 
       // Calculate total hours worked
       const totalMs =

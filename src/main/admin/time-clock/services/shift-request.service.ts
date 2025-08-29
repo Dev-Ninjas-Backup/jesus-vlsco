@@ -7,7 +7,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
 
 @Injectable()
-export class TimeClockService {
+export class ShiftRequestService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Unable to get all pending shifts by all users')

@@ -111,6 +111,8 @@ export class TimeClockService {
         start: clock.clockInAt,
         end: clock.clockOutAt,
         totalHours: hours,
+        regular: hours > 8 ? 8 : hours,
+        overtime: hours > 8 ? toDecimal(hours - 8) : 0,
         notes: clock.shift?.note || null,
       });
 

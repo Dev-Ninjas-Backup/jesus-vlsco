@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ClientDateDto } from '@project/common/dto/client-date.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -12,15 +13,18 @@ export class CurrentClockShiftService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get current shift', 'CLOCK')
-  async getCurrentShiftWithClock(userId: string): Promise<TResponse<any>> {
+  async getCurrentShiftWithClock(
+    userId: string,
+    dto: ClientDateDto,
+  ): Promise<TResponse<any>> {
     // * get current UTC date range (start and end of today)
-    const now = new Date();
+    const date = new Date(dto.date);
 
     const startOfDay = new Date(
       Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
         0,
         0,
         0,
@@ -30,9 +34,9 @@ export class CurrentClockShiftService {
 
     const endOfDay = new Date(
       Date.UTC(
-        now.getUTCFullYear(),
-        now.getUTCMonth(),
-        now.getUTCDate(),
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
         23,
         59,
         59,
