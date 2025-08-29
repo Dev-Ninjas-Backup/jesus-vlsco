@@ -19,6 +19,7 @@ export class GetShiftsService {
   ): Promise<TResponse<any>> {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
+      include: { tasks: true },
     });
 
     if (!project) {
@@ -134,6 +135,7 @@ export class GetShiftsService {
           lat: s.locationLat,
           lng: s.locationLng,
         })),
+        tasks: project.tasks,
       };
     });
 

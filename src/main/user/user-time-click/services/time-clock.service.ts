@@ -9,7 +9,7 @@ import {
   getBreakHours,
   getLocalDateKey,
   toDecimal,
-} from '../helper/helper';
+} from '../helper/timesheet.helper';
 
 @Injectable()
 export class TimeClockService {

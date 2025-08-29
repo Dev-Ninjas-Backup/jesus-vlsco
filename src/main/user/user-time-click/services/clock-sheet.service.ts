@@ -12,7 +12,7 @@ import {
   getLocalDateKey,
   getWeekStart,
   toDecimal,
-} from '../helper/helper';
+} from '../helper/timesheet.helper';
 
 @Injectable()
 export class ClockSheetService {
@@ -143,10 +143,6 @@ export class ClockSheetService {
       })),
     }));
 
-    const flatDaysEntries = result
-      .flatMap((week) => week.days)
-      .flatMap((day) => day.entries);
-
     const totalRegularPay = calcAmount(
       totalRegularHours,
       payroll.regularPayRate,
@@ -173,18 +169,6 @@ export class ClockSheetService {
     return successResponse(
       {
         clockSheet: {
-          dataPeriod: {
-            from,
-            to,
-          },
-          paymentData: {
-            payPerDay: {
-              regularPayRate,
-              overTimePayRate,
-            },
-            totalRegularHour: totalRegularPay,
-            totalOvertimeHour: totalOvertimePay,
-          },
           user: {
             id: user.id,
             firstName: user?.profile?.firstName || 'N/A',
@@ -195,7 +179,18 @@ export class ClockSheetService {
           },
           result,
         },
-        daysEntries: flatDaysEntries,
+        dataPeriod: {
+          from,
+          to,
+        },
+        paymentData: {
+          payPerDay: {
+            regularPayRate,
+            overTimePayRate,
+          },
+          totalRegularHour: totalRegularPay,
+          totalOvertimeHour: totalOvertimePay,
+        },
       },
       'Clock sheet retrieved successfully',
     );
