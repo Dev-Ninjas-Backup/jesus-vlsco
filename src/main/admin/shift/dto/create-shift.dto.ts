@@ -75,15 +75,6 @@ export class CreateShiftDto {
   @IsString({ each: true })
   userIds: string[];
 
-  // @ApiPropertyOptional({
-  //   description: 'List of Task IDs assigned to this shift',
-  //   example: ['123e4567-e89b-12d3-a456-426614174000'],
-  //   type: [String],
-  // })
-  // @IsOptional()
-  // @IsArray()
-  // taskIds?: string[];
-
   @ApiProperty({
     description: 'Location where the shift will take place',
     example: 'Building A, Floor 2',

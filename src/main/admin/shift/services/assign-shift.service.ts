@@ -85,9 +85,6 @@ export class AssignShiftService {
           users: userIds.length
             ? { set: [], connect: userIds.map((id) => ({ id })) }
             : undefined,
-          // shiftTask: taskIds.length
-          //   ? { set: [], connect: taskIds.map((id) => ({ id })) }
-          //   : undefined,
           projectId: currentProjectId,
         },
         include: {
@@ -115,28 +112,12 @@ export class AssignShiftService {
           users: userIds.length
             ? { connect: userIds.map((id) => ({ id })) }
             : undefined,
-          // shiftTask: taskIds.length
-          //   ? { connect: taskIds.map((id) => ({ id })) }
-          //   : undefined,
         },
         include: {
           users: { include: { profile: true } },
           shiftTask: true,
         },
       });
-
-      // if (userIds.length && taskIds.length) {
-      //   const shiftActivities = userIds.flatMap((userId) =>
-      //     taskIds.map((taskId) => ({
-      //       date: dto.date,
-      //       userId,
-      //       taskId,
-      //       shiftId: shift.id,
-      //       content: `${dto.shiftTitle} - Auto generated`,
-      //     })),
-      //   );
-      //   await tx.shiftActivity.createMany({ data: shiftActivities });
-      // }
 
       return shift;
     });
