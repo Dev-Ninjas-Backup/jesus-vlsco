@@ -126,6 +126,7 @@ export class GetShiftsService {
           location: s.location,
           lat: s.locationLat,
           lng: s.locationLng,
+          note: s.note,
         })),
         allShifts: shifts.map((s) => ({
           id: s.id,
