@@ -8,6 +8,7 @@ import { RequestShiftDto } from './dto/request-shift.dto';
 import { ClockHistoryService } from './services/clock-history.service';
 import { ClockInAndOutService } from './services/clock-in-and-out.service';
 import { ClockReportingService } from './services/clock-reporting.service';
+import { ClockSheetService } from './services/clock-sheet.service';
 import { CurrentClockShiftService } from './services/current-shift-clock.service';
 import { TimeClockService } from './services/time-clock.service';
 import { UserShiftService } from './services/user-shift.service';
@@ -23,7 +24,8 @@ export class TimeClockController {
     private readonly timeClockService: TimeClockService,
     private readonly clockInAndOutService: ClockInAndOutService,
     private readonly clockHistoryService: ClockHistoryService,
-    private readonly clockSheetService: ClockReportingService,
+    private readonly clockReportingService: ClockReportingService,
+    private readonly clockSheetService: ClockSheetService,
   ) {}
 
   @ApiOperation({ summary: 'Request a shift' })
@@ -75,7 +77,7 @@ export class TimeClockController {
     @GetUser('userId') userId: string,
     @Query() dto: GetClockSheet,
   ) {
-    return this.timeClockService.getMyClockSheet(userId, dto);
+    return this.clockSheetService.getMyClockSheet(userId, dto);
   }
 
   @ApiOperation({ summary: 'Submit clock sheet' })
@@ -99,12 +101,12 @@ export class TimeClockController {
     @GetUser('userId') userId: string,
     @Param('clockId') clockId: string,
   ) {
-    return this.clockSheetService.requestOvertimeOfAClock(userId, clockId);
+    return this.clockReportingService.requestOvertimeOfAClock(userId, clockId);
   }
 
   @ApiOperation({ summary: 'Get overtime requests' })
   @Get('overtime-requests')
   async getOvertimeRequests(@GetUser('userId') userId: string) {
-    return this.clockSheetService.getOvertimeRequests(userId);
+    return this.clockReportingService.getOvertimeRequests(userId);
   }
 }
