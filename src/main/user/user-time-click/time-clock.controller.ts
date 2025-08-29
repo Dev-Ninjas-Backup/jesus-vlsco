@@ -60,7 +60,7 @@ export class TimeClockController {
   @Get('shift/current-clock')
   async getCurrentClock(
     @GetUser('userId') userId: string,
-    @Body() dto: ClientDateDto,
+    @Query() dto: ClientDateDto,
   ) {
     return this.currentClockShiftService.getCurrentShiftWithClock(userId, dto);
   }
