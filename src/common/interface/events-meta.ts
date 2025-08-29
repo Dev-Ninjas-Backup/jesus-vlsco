@@ -14,7 +14,12 @@ export interface ShiftMeta {
   shiftId: string;
   userId: string;
   performedBy: string;
-  status: 'APPROVED' | 'REJECTED' | 'PENDING';
+  status:
+    | 'APPROVED'
+    | 'REJECTED'
+    | 'PENDING'
+    | 'ASSIGNED'
+    | 'URGENT_SHIFT_CHANGED';
   date: string; // ISO string
 }
 

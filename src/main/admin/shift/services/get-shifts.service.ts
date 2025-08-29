@@ -19,7 +19,11 @@ export class GetShiftsService {
   ): Promise<TResponse<any>> {
     const project = await this.prisma.project.findUnique({
       where: { id: projectId },
-      include: { tasks: true },
+      include: {
+        tasks: {
+          include: { tasksUsers: { include: { user: true } } },
+        },
+      },
     });
 
     if (!project) {
@@ -135,7 +139,10 @@ export class GetShiftsService {
           lat: s.locationLat,
           lng: s.locationLng,
         })),
-        tasks: project.tasks,
+        assignedTasks: project.tasks.filter((t) =>
+          t.tasksUsers.some((tu) => tu.userId === user.id),
+        ),
+        allTasks: project.tasks,
       };
     });
 

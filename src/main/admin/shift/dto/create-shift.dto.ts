@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { ShiftStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
@@ -6,8 +6,8 @@ import {
   IsBoolean,
   IsDate,
   IsEnum,
+  IsISO8601,
   IsNumber,
-  IsOptional,
   IsString,
 } from 'class-validator';
 
@@ -35,17 +35,15 @@ export class CreateShiftDto {
     description: 'Start time of the shift (ISO format)',
     example: '2025-08-07T08:00:00.000Z',
   })
-  @Type(() => Date)
-  @IsDate()
-  startTime: Date;
+  @IsISO8601()
+  startTime: string;
 
   @ApiProperty({
     description: 'End time of the shift (ISO format)',
     example: '2025-08-07T16:00:00.000Z',
   })
-  @Type(() => Date)
-  @IsDate()
-  endTime: Date;
+  @IsISO8601()
+  endTime: string;
 
   @ApiProperty({
     description: 'Title of the shift',
@@ -68,23 +66,23 @@ export class CreateShiftDto {
   @IsString()
   job: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'List of User IDs assigned to this shift',
     example: ['a1b2c3d4-e5f6-7890-1234-56789abcdef0'],
     type: [String],
   })
   @IsArray()
   @IsString({ each: true })
-  userIds?: string[];
+  userIds: string[];
 
-  @ApiPropertyOptional({
-    description: 'List of Task IDs assigned to this shift',
-    example: ['123e4567-e89b-12d3-a456-426614174000'],
-    type: [String],
-  })
-  @IsOptional()
-  @IsArray()
-  taskIds?: string[];
+  // @ApiPropertyOptional({
+  //   description: 'List of Task IDs assigned to this shift',
+  //   example: ['123e4567-e89b-12d3-a456-426614174000'],
+  //   type: [String],
+  // })
+  // @IsOptional()
+  // @IsArray()
+  // taskIds?: string[];
 
   @ApiProperty({
     description: 'Location where the shift will take place',
