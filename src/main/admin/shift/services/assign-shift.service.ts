@@ -3,6 +3,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ShiftType } from '@prisma/client';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
+import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { ShiftEvent } from '@project/common/interface/events-payload';
 import {
   successResponse,
   TResponse,
@@ -61,24 +63,20 @@ export class AssignShiftService {
     const existingShift = await this.prisma.shift.findFirst({
       where: {
         date: { gte: startOfDay, lte: endOfDay },
-        users: {
-          some: {
-            id: {
-              in: userIds,
-            },
-          },
-        },
+        users: { some: { id: { in: userIds } } },
       },
       orderBy: { startTime: 'asc' },
     });
 
+    let shift;
+    let eventType: string;
+
     if (existingShift) {
-      // ✅ Update the existing shift instead of creating another
-      const updatedShift = await this.prisma.shift.update({
+      shift = await this.prisma.shift.update({
         where: { id: existingShift.id },
         data: {
           ...shiftData,
-          date: date,
+          date: new Date(date).toISOString(),
           startTime,
           endTime,
           shiftType,
@@ -88,23 +86,17 @@ export class AssignShiftService {
           projectId: currentProjectId,
         },
         include: {
-          users: {
-            include: {
-              profile: true,
-            },
-          },
+          users: { include: { profile: true } },
           shiftTask: true,
         },
       });
-      return successResponse(updatedShift, 'Shift updated successfully');
-    }
 
-    // * Otherwise create new shift
-    const shift = await this.prisma.$transaction(async (tx) => {
-      const shift = await tx.shift.create({
+      eventType = EVENT_TYPES.URGENT_SHIFT_CHANGED;
+    } else {
+      shift = await this.prisma.shift.create({
         data: {
           ...shiftData,
-          date: date,
+          date: new Date(date).toISOString(),
           startTime,
           endTime,
           shiftType,
@@ -119,12 +111,34 @@ export class AssignShiftService {
         },
       });
 
-      return shift;
-    });
+      eventType = EVENT_TYPES.SHIFT_ASSIGN;
+    }
 
-    // * trigger shift event
-    this.eventEmitter.emit('shift.created', shift);
+    // build payload once
+    const payload: ShiftEvent = {
+      action:
+        eventType === EVENT_TYPES.SHIFT_ASSIGN
+          ? 'ASSIGN'
+          : 'URGENT_SHIFT_CHANGED',
+      meta: {
+        date: new Date(date).toISOString(),
+        shiftId: shift.id,
+        userId: dto.userIds[0],
+        performedBy: 'SYSTEM',
+        status:
+          eventType === EVENT_TYPES.SHIFT_ASSIGN
+            ? 'ASSIGNED'
+            : 'URGENT_SHIFT_CHANGED',
+      },
+    };
 
-    return successResponse(shift, 'Shift assigned successfully');
+    this.eventEmitter.emit(eventType, payload);
+
+    return successResponse(
+      shift,
+      existingShift
+        ? 'Shift updated successfully'
+        : 'Shift assigned successfully',
+    );
   }
 }
