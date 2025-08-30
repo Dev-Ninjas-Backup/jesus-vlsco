@@ -32,23 +32,11 @@ export class ClockInAndOutService {
       }
 
       // find current shift of the date
-      const startOfDay = new Date(date);
-      startOfDay.setUTCHours(0, 0, 0, 0);
-      const endOfDay = new Date(date);
-      endOfDay.setUTCHours(23, 59, 59, 999);
-
-      const shift = await this.prisma.shift.findFirst({
-        where: {
-          date: { gte: startOfDay, lte: endOfDay },
-          shiftStatus: 'PUBLISHED',
-          users: { some: { id: userId } },
-          OR: [
-            { startTime: { lte: date }, endTime: { gte: date } },
-            { startTime: { gte: date } },
-          ],
-        },
-        orderBy: { startTime: 'asc' },
-      });
+      const shift = await this.currentClockShiftService.getCurrentShift(
+        userId,
+        date,
+        { allowEarlyMinutes: 15 },
+      );
 
       if (!shift) throw new AppError(404, 'No active shift found for the user');
 

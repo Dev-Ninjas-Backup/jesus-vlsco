@@ -12,50 +12,16 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 export class CurrentClockShiftService {
   constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError('Failed to get current shift', 'CLOCK')
+  @HandleError('Failed to get todays shift', 'CLOCK')
   async getCurrentShiftWithClock(
     userId: string,
     dto: ClientDateDto,
   ): Promise<TResponse<any>> {
-    // * get current UTC date range (start and end of today)
     const date = new Date(dto.date);
 
-    const startOfDay = new Date(
-      Date.UTC(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate(),
-        0,
-        0,
-        0,
-        0,
-      ),
-    );
-
-    const endOfDay = new Date(
-      Date.UTC(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate(),
-        23,
-        59,
-        59,
-        999,
-      ),
-    );
-
-    const shift = await this.prisma.shift.findFirst({
-      where: {
-        date: {
-          gte: startOfDay,
-          lte: endOfDay,
-        },
-        shiftStatus: 'PUBLISHED',
-        users: { some: { id: userId } },
-      },
-      orderBy: {
-        startTime: 'asc',
-      },
+    // * find shift for that date
+    const shift = await this.getCurrentShift(userId, date, {
+      allowEarlyMinutes: 15,
     });
 
     if (!shift) {
@@ -155,5 +121,57 @@ export class CurrentClockShiftService {
 
   deg2rad(deg: number): number {
     return deg * (Math.PI / 180);
+  }
+
+  async getCurrentShift(
+    userId: string,
+    date: Date,
+    options?: { allowEarlyMinutes?: number },
+  ) {
+    const utcDate = new Date(date);
+
+    const startOfDay = new Date(
+      Date.UTC(
+        utcDate.getUTCFullYear(),
+        utcDate.getUTCMonth(),
+        utcDate.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+    const endOfDay = new Date(
+      Date.UTC(
+        utcDate.getUTCFullYear(),
+        utcDate.getUTCMonth(),
+        utcDate.getUTCDate(),
+        23,
+        59,
+        59,
+        999,
+      ),
+    );
+
+    // * early clock-in buffer
+    let bufferStart = utcDate;
+    if (options?.allowEarlyMinutes) {
+      bufferStart = new Date(
+        utcDate.getTime() - options.allowEarlyMinutes * 60 * 1000,
+      );
+    }
+
+    const shift = await this.prisma.shift.findFirst({
+      where: {
+        date: { gte: startOfDay, lte: endOfDay },
+        shiftStatus: 'PUBLISHED',
+        users: { some: { id: userId } },
+        startTime: { lte: bufferStart },
+        endTime: { gte: utcDate },
+      },
+      orderBy: { startTime: 'asc' },
+    });
+
+    return shift;
   }
 }
