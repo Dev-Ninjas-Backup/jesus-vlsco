@@ -9,6 +9,7 @@ import { TimeClockController } from './time-clock.controller';
 import { TimeClockGateway } from './time-clock.gateway';
 import { ClockReportingService } from './services/clock-reporting.service';
 import { ClockSheetService } from './services/clock-sheet.service';
+import { MissedClockRequestService } from './services/missed-clock-request.service';
 
 @Module({
   controllers: [TimeClockController],
@@ -22,6 +23,7 @@ import { ClockSheetService } from './services/clock-sheet.service';
     ClockHistoryService,
     ClockReportingService,
     ClockSheetService,
+    MissedClockRequestService,
   ],
 })
 export class TimeClockModule {}

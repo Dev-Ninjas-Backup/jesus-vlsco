@@ -39,22 +39,22 @@ export class GetShiftScheduleService {
     });
 
     // * both are optional , default is current week
-    let { startDate, endDate } = dto;
+    // let { startDate, endDate } = dto;
 
-    const today = new Date();
-    if (!startDate || !endDate) {
-      // default: current week (Mon → Sun)
-      const firstDayOfWeek = new Date(today);
-      firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Sunday = 0
-      firstDayOfWeek.setHours(0, 0, 0, 0);
+    const today = new Date(dto.date ? dto.date : new Date());
+    // if (!startDate || !endDate) {
+    //   // default: current week (Mon → Sun)
+    //   const firstDayOfWeek = new Date(today);
+    //   firstDayOfWeek.setDate(today.getDate() - today.getDay()); // Sunday = 0
+    //   firstDayOfWeek.setHours(0, 0, 0, 0);
 
-      const lastDayOfWeek = new Date(firstDayOfWeek);
-      lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
-      lastDayOfWeek.setHours(23, 59, 59, 999);
+    //   const lastDayOfWeek = new Date(firstDayOfWeek);
+    //   lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
+    //   lastDayOfWeek.setHours(23, 59, 59, 999);
 
-      startDate = startDate ?? firstDayOfWeek;
-      endDate = endDate ?? lastDayOfWeek;
-    }
+    //   startDate = startDate ?? firstDayOfWeek.toISOString();
+    //   endDate = endDate ?? lastDayOfWeek.toISOString();
+    // }
 
     const projectIds = projectUsers.map((projectUser) => projectUser.projectId);
 
@@ -90,6 +90,9 @@ export class GetShiftScheduleService {
           location: s.location,
           lat: s.locationLat,
           lng: s.locationLng,
+          note: s.note,
+          job: s.job,
+          allDay: s.allDay,
         }));
 
       return {

@@ -114,7 +114,6 @@ export class AssignShiftService {
       eventType = EVENT_TYPES.SHIFT_ASSIGN;
     }
 
-    // build payload once
     const payload: ShiftEvent = {
       action:
         eventType === EVENT_TYPES.SHIFT_ASSIGN

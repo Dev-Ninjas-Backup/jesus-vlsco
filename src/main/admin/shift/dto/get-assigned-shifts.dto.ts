@@ -1,8 +1,10 @@
+import { PartialType } from '@nestjs/mapped-types';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ClientDateDto } from '@project/common/dto/client-date.dto';
 import { Type } from 'class-transformer';
 import { IsDate, IsOptional } from 'class-validator';
 
-export class GetAssignedShiftsDto {
+export class GetAssignedShiftsDto extends PartialType(ClientDateDto) {
   @ApiPropertyOptional({
     description: 'Start time of the shift (ISO format)',
     example: '2025-08-07T08:00:00.000Z',
@@ -10,7 +12,7 @@ export class GetAssignedShiftsDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  startDate?: Date;
+  startDate?: string;
 
   @ApiPropertyOptional({
     description: 'End time of the shift (ISO format)',
@@ -19,5 +21,5 @@ export class GetAssignedShiftsDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  endDate?: Date;
+  endDate?: string;
 }
