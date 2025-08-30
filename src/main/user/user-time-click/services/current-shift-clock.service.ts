@@ -128,7 +128,7 @@ export class CurrentClockShiftService {
     date: Date,
     options?: { allowEarlyMinutes?: number },
   ) {
-    const utcDate = new Date(date);
+    const utcDate = this.toUTCDate(date);
 
     const startOfDay = new Date(
       Date.UTC(
@@ -173,5 +173,14 @@ export class CurrentClockShiftService {
     });
 
     return shift;
+  }
+
+  toUTCDate(input: string | Date): Date {
+    const d = new Date(input);
+    // If the date is invalid, throw error
+    if (isNaN(d.getTime())) {
+      throw new AppError(400, 'Invalid date provided');
+    }
+    return new Date(d.toISOString()); // ensure UTC
   }
 }

@@ -77,8 +77,8 @@ export class AssignShiftService {
         data: {
           ...shiftData,
           date: new Date(date).toISOString(),
-          startTime,
-          endTime,
+          startTime: new Date(startTime).toISOString(),
+          endTime: new Date(endTime).toISOString(),
           shiftType,
           users: userIds.length
             ? { set: [], connect: userIds.map((id) => ({ id })) }
@@ -97,8 +97,8 @@ export class AssignShiftService {
         data: {
           ...shiftData,
           date: new Date(date).toISOString(),
-          startTime,
-          endTime,
+          startTime: new Date(startTime).toISOString(),
+          endTime: new Date(endTime).toISOString(),
           shiftType,
           projectId: currentProjectId,
           users: userIds.length
