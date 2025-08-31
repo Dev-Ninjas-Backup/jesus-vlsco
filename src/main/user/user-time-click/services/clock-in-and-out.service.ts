@@ -40,6 +40,10 @@ export class ClockInAndOutService {
 
       if (!shift) throw new AppError(404, 'No active shift found for the user');
 
+      // * check if clients time in date is before shift end time
+      if (new Date(dto.date) > new Date(shift.endTime))
+        throw new AppError(400, 'Shift is over, please clock out');
+
       // Location check
       const distance = this.currentClockShiftService.getDistanceMeters(
         { lat: dto.lat, lng: dto.lng },
