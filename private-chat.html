@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Private Chat WebSocket Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    input, button { margin: 5px 0; }
+    #log { background: #f4f4f4; padding: 10px; height: 400px; overflow-y: auto; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h1>Private Chat WebSocket Test</h1>
+
+  <div>
+    <label>JWT Token:</label>
+    <input type="text" id="token" size="80" placeholder="Enter your JWT token here">
+  </div>
+
+  <div>
+    <label>Server URL:</label>
+    <input type="text" id="serverUrl" size="50" value="http://localhost:3000">
+  </div>
+
+  <div>
+    <label>Your User ID:</label>
+    <input type="text" id="userId" size="20" placeholder="Enter your user ID">
+  </div>
+
+  <div>
+    <label>Recipient ID:</label>
+    <input type="text" id="recipientId" size="20" placeholder="Enter recipient user ID">
+  </div>
+
+  <div>
+    <label>Message:</label>
+    <input type="text" id="message" size="50" placeholder="Enter message">
+  </div>
+
+  <button onclick="connectSocket()">Connect</button>
+  <button onclick="loadConversations()">Load Conversations</button>
+  <button onclick="sendMessage()">Send Message</button>
+
+  <pre id="log"></pre>
+
+  <script>
+    let socket;
+
+    function log(message) {
+      const logBox = document.getElementById('log');
+      logBox.textContent += message + '\n';
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function connectSocket() {
+      const token = document.getElementById('token').value;
+      const serverUrl = document.getElementById('serverUrl').value;
+
+      if (!token) {
+        alert("Please enter a JWT token first");
+        return;
+      }
+
+      socket = io(`${serverUrl}/js/private`, {
+        auth: { token: `Bearer ${token}` },
+      });
+
+      socket.on("connect", () => {
+        log("✅ Connected to Private Chat server");
+      });
+
+      socket.on("disconnect", (reason) => {
+        log("❌ Disconnected: " + reason);
+      });
+
+      socket.on("connect_error", (err) => {
+        log("⚠️ Connection error: " + err.message);
+      });
+
+      // Private Chat Events
+      socket.on("private:success", (userId) => {
+        log("✅ Authenticated successfully as user: " + userId);
+      });
+
+      socket.on("private:error", (err) => {
+        log("❌ Error: " + JSON.stringify(err, null, 2));
+      });
+
+      socket.on("private:conversation_list", (conversations) => {
+        log("📄 Conversation list:\n" + JSON.stringify(conversations, null, 2));
+      });
+
+      socket.on("private:new_message", (message) => {
+        log("📩 New message:\n" + JSON.stringify(message, null, 2));
+      });
+
+      socket.on("private:new_conversation", (conversations) => {
+        log("🆕 New conversation list:\n" + JSON.stringify(conversations, null, 2));
+      });
+    }
+
+    function loadConversations() {
+      if (!socket || !socket.connected) {
+        log("⚠️ Not connected to server");
+        return;
+      }
+      socket.emit("private:load_conversations");
+      log("📤 Requested conversation list");
+    }
+
+    function sendMessage() {
+      if (!socket || !socket.connected) {
+        log("⚠️ Not connected to server");
+        return;
+      }
+
+      const userId = document.getElementById('userId').value;
+      const recipientId = document.getElementById('recipientId').value;
+      const content = document.getElementById('message').value;
+
+      if (!userId || !recipientId || !content) {
+        alert("Please enter userId, recipientId, and message");
+        return;
+      }
+
+      const payload = {
+        userId,
+        recipientId,
+        dto: { content }
+      };
+
+      socket.emit("private:send_message", payload);
+      log("📤 Sent message:\n" + JSON.stringify(payload, null, 2));
+    }
+  </script>
+</body>
+</html>
