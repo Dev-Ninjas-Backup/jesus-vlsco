@@ -3,14 +3,15 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ClientDateDto } from '@project/common/dto/client-date.dto';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { ClockDto, GetClockSheet, SubmitTimeSheet } from './dto/clock.dto';
-import { RequestShiftDto } from './dto/request-shift.dto';
-import { ClockHistoryService } from './services/clock-history.service';
-import { ClockInAndOutService } from './services/clock-in-and-out.service';
-import { ClockReportingService } from './services/clock-reporting.service';
-import { CurrentClockShiftService } from './services/current-shift-clock.service';
-import { TimeClockService } from './services/time-clock.service';
-import { UserShiftService } from './services/user-shift.service';
+import { ClockDto, GetClockSheet, SubmitTimeSheet } from '../dto/clock.dto';
+import { RequestShiftDto } from '../dto/request-shift.dto';
+import { ClockHistoryService } from '../services/clock-history.service';
+import { ClockInAndOutService } from '../services/clock-in-and-out.service';
+import { ClockReportingService } from '../services/clock-reporting.service';
+import { ClockSheetService } from '../services/clock-sheet.service';
+import { CurrentClockShiftService } from '../services/current-shift-clock.service';
+import { TimeClockService } from '../services/time-clock.service';
+import { UserShiftService } from '../services/user-shift.service';
 
 @ApiTags('Employee -- Time Clock')
 @Controller('employee/time-clock')
@@ -23,7 +24,8 @@ export class TimeClockController {
     private readonly timeClockService: TimeClockService,
     private readonly clockInAndOutService: ClockInAndOutService,
     private readonly clockHistoryService: ClockHistoryService,
-    private readonly clockSheetService: ClockReportingService,
+    private readonly clockReportingService: ClockReportingService,
+    private readonly clockSheetService: ClockSheetService,
   ) {}
 
   @ApiOperation({ summary: 'Request a shift' })
@@ -58,7 +60,7 @@ export class TimeClockController {
   @Get('shift/current-clock')
   async getCurrentClock(
     @GetUser('userId') userId: string,
-    @Body() dto: ClientDateDto,
+    @Query() dto: ClientDateDto,
   ) {
     return this.currentClockShiftService.getCurrentShiftWithClock(userId, dto);
   }
@@ -75,7 +77,7 @@ export class TimeClockController {
     @GetUser('userId') userId: string,
     @Query() dto: GetClockSheet,
   ) {
-    return this.timeClockService.getMyClockSheet(userId, dto);
+    return this.clockSheetService.getMyClockSheet(userId, dto);
   }
 
   @ApiOperation({ summary: 'Submit clock sheet' })
@@ -99,12 +101,12 @@ export class TimeClockController {
     @GetUser('userId') userId: string,
     @Param('clockId') clockId: string,
   ) {
-    return this.clockSheetService.requestOvertimeOfAClock(userId, clockId);
+    return this.clockReportingService.requestOvertimeOfAClock(userId, clockId);
   }
 
   @ApiOperation({ summary: 'Get overtime requests' })
   @Get('overtime-requests')
   async getOvertimeRequests(@GetUser('userId') userId: string) {
-    return this.clockSheetService.getOvertimeRequests(userId);
+    return this.clockReportingService.getOvertimeRequests(userId);
   }
 }

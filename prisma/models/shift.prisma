@@ -27,6 +27,7 @@ model Shift {
   shiftTask     Task[]
   shiftActivity ShiftActivity[]
   timeClock     TimeClock[]
+  missedClockRequest MissedClockRequest[]
 }
 
 model ShiftActivity {

@@ -14,7 +14,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { GetUser, ValidateEmployee } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 import { GetUserService } from '@project/main/admin/user/services/get-user.service';
 import { UpdateUserService } from '@project/main/admin/user/services/update-user.service';
@@ -25,7 +25,7 @@ import {
 
 @ApiTags('Employee -- Settings')
 @Controller('employee/user')
-@ValidateEmployee()
+@ValidateAuth()
 @ApiBearerAuth()
 export class EmployeeController {
   constructor(

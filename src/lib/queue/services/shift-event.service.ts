@@ -47,4 +47,15 @@ export class ShiftEventService {
     // Enqueue for processing by worker
     await this.notificationQueue.add(EVENT_TYPES.SHIFT_STATUS_UPDATE, payload);
   }
+
+  /**
+   * Handles urgent shift change events.
+   */
+  @OnEvent(EVENT_TYPES.URGENT_SHIFT_CHANGED)
+  async handleUrgentShiftChange(
+    payload: EventPayloadMap[typeof EVENT_TYPES.URGENT_SHIFT_CHANGED],
+  ) {
+    // Enqueue for processing by worker
+    await this.notificationQueue.add(EVENT_TYPES.URGENT_SHIFT_CHANGED, payload);
+  }
 }

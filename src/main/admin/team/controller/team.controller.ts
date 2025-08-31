@@ -29,6 +29,7 @@ import {
 } from '../dto/team.dto';
 import { GetAllTeamsService } from '../services/get-all-team.service';
 import { TeamService } from '../services/team.service';
+import { UpdateTeamService } from '../services/update-team.service';
 
 @ApiTags('Admin -- Team')
 @Controller('admin/team')
@@ -39,6 +40,7 @@ export class TeamController {
     private readonly teamService: TeamService,
     private readonly getAllTeamsService: GetAllTeamsService,
     private readonly cloudinaryService: CloudinaryService,
+    private readonly updateTeamService: UpdateTeamService,
   ) {}
 
   @ApiOperation({ summary: 'Get all teams' })
@@ -83,7 +85,7 @@ export class TeamController {
     @Body() dto: UpdateTeamDto,
     @Param('teamId') teamId: string,
   ) {
-    return this.teamService.updateATeam(teamId, dto);
+    return this.updateTeamService.updateATeam(teamId, dto);
   }
 
   @ApiOperation({ summary: 'Delete a team' })

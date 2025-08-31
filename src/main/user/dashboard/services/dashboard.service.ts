@@ -16,6 +16,8 @@ export class DashboardService {
     const upcomingTasks = await this.getUserUpcomingTasks(userId);
     const companyUpdates = await this.getCompanyUpdateNotifications(userId);
     const recognitions = await this.getRecognitionsNotifications(userId);
+    const urgentShiftChange =
+      await this.getUrgentShiftChangeNotifications(userId);
 
     return successResponse(
       {
@@ -23,6 +25,7 @@ export class DashboardService {
         upcomingTasks,
         companyUpdates,
         recognitions,
+        urgentShiftChange,
       },
       'Dashboard fetched successfully',
     );
@@ -83,5 +86,16 @@ export class DashboardService {
       },
     });
     return recognitionsNotifications;
+  }
+
+  async getUrgentShiftChangeNotifications(userId: string) {
+    const urgentShiftChangeNotifications =
+      await this.prisma.notification.findMany({
+        where: {
+          type: 'UrgentShiftChanged',
+          users: { some: { userId } },
+        },
+      });
+    return urgentShiftChangeNotifications;
   }
 }
