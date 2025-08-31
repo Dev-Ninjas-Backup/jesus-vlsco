@@ -33,17 +33,26 @@ export class ClockSheetService {
 
     const payroll = user?.payroll;
 
-    const from = dto.from
-      ? new Date(dto.from)
-      : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+    const fromDate = dto.from
+      ? new Date(new Date(dto.from).setUTCHours(0, 0, 0, 0))
+      : new Date(new Date().getFullYear(), new Date().getMonth(), 1); // first day of month, midnight
 
-    const to = dto.to
-      ? new Date(dto.to)
-      : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+    const toDate = dto.to
+      ? new Date(new Date(dto.to).setUTCHours(23, 59, 59, 999))
+      : new Date(
+          new Date(
+            new Date().getFullYear(),
+            new Date().getMonth() + 1,
+            0,
+          ).setUTCHours(23, 59, 59, 999),
+        ); // last day of month, end of day
 
     const clocks = await this.prisma.timeClock.findMany({
       orderBy: { createdAt: 'asc' },
-      where: { userId, createdAt: { gte: from, lte: to } },
+      where: {
+        userId,
+        createdAt: { gte: fromDate, lte: toDate },
+      },
       include: { shift: true },
     });
 
@@ -180,8 +189,8 @@ export class ClockSheetService {
           result,
         },
         dataPeriod: {
-          from,
-          to,
+          from: fromDate,
+          to: toDate,
         },
         paymentData: {
           payPerDay: {
