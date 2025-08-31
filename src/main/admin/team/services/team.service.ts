@@ -7,7 +7,7 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { CreateTeamDto, UpdateTeamDto } from '../dto/team.dto';
+import { CreateTeamDto } from '../dto/team.dto';
 
 @Injectable()
 export class TeamService {
@@ -39,7 +39,7 @@ export class TeamService {
         creator: { connect: { id: creatorId } },
       },
     });
-    console.log(team);
+    // console.log(team);
 
     // 2. Add members to the TeamMembers table
     const uniqueMembers = [...new Set(members ?? [])];
@@ -59,63 +59,6 @@ export class TeamService {
     });
 
     return successResponse(fullTeam, 'Team added successfully');
-  }
-
-  @HandleError('Failed to update team')
-  async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
-    const team = await this.prisma.team.findUnique({
-      where: { id },
-      include: { members: true },
-    });
-
-    if (!team) {
-      throw new AppError(404, 'Team not found');
-    }
-
-    const result = await this.prisma.$transaction(async (tx) => {
-      // 1. Update basic fields
-      await tx.team.update({
-        where: { id },
-        data: {
-          title: dto.title,
-          description: dto.description,
-          department: dto.department,
-        },
-      });
-
-      // 2. Update members if provided
-      if (dto.members) {
-        const uniqueMembers = [...new Set(dto.members)];
-        const existingMembers = team.members.map((m) => m.userId);
-
-        const newMembers = uniqueMembers.filter(
-          (m) => !existingMembers.includes(m),
-        );
-        const removedMembers = existingMembers.filter(
-          (m) => !uniqueMembers.includes(m),
-        );
-
-        if (removedMembers.length > 0) {
-          await tx.teamMembers.deleteMany({
-            where: { teamId: id, userId: { in: removedMembers } },
-          });
-        }
-
-        if (newMembers.length > 0) {
-          await tx.teamMembers.createMany({
-            data: newMembers.map((userId) => ({ teamId: id, userId })),
-          });
-        }
-      }
-
-      // 3. Return fully updated team
-      return tx.team.findUnique({
-        where: { id },
-        include: { members: true },
-      });
-    });
-
-    return successResponse(result, 'Team updated successfully');
   }
 
   @HandleError('Failed to delete team')
