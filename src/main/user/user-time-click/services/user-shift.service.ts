@@ -53,6 +53,32 @@ export class UserShiftService {
       throw new AppError(404, 'User not found');
     }
 
+    const { startTime, endTime } = dto;
+
+    // * Ensure endTime is after startTime (single day shift only)
+    if (new Date(endTime) <= new Date(startTime)) {
+      throw new AppError(400, 'Shift end time must be after start time');
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    if (start.toDateString() !== end.toDateString()) {
+      throw new AppError(400, 'Shift must start and end on the same day');
+    }
+
+    // * Decide shift type based on time
+    const shiftType =
+      new Date(startTime).getHours() < 12
+        ? ShiftType.MORNING
+        : ShiftType.AFTERNOON;
+
+    // * Get start and end of day
+    const date = new Date(startTime);
+    const startOfDay = new Date(date);
+    startOfDay.setUTCHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setUTCHours(23, 59, 59, 999);
+
     const shift = await this.prisma.shift.create({
       data: {
         job: `${projects?.title}` || 'Unknown',
@@ -60,19 +86,13 @@ export class UserShiftService {
         location: dto.location,
         locationLat: dto.locationLat,
         locationLng: dto.locationLng,
-        shiftType:
-          dto.startTime < dto.endTime ? ShiftType.EVENING : ShiftType.AFTERNOON,
+        shiftType,
         shiftStatus: ShiftStatus.DRAFT,
-        startTime: dto.startTime,
-        endTime: dto.endTime,
+        date: new Date(date).toISOString(),
+        startTime: new Date(startTime).toISOString(),
+        endTime: new Date(endTime).toISOString(),
         note: dto.note,
-        date: dto.startTime,
         allDay: true,
-        shiftTask: {
-          connect: projects?.tasks?.map((task) => ({
-            id: task.id,
-          })),
-        },
         projectId: dto.projectId,
         users: {
           connect: {
@@ -81,7 +101,6 @@ export class UserShiftService {
         },
       },
       include: {
-        shiftTask: true,
         users: {
           include: {
             profile: true,
