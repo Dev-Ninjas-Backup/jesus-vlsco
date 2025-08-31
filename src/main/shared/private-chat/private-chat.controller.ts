@@ -25,7 +25,7 @@ import { sendPrivateMessageSwaggerSchema } from './dto/privateChatGateway.swagge
 import { PrivateChatService } from './private-chat.service';
 import { PrivateChatGateway } from './privateChatGateway/privateChatGateway';
 
-@ApiTags('Private Chat')
+@ApiTags('Private Chat --> One to One Chat')
 @Controller('private-chat')
 @ValidateAuth()
 @ApiBearerAuth()

@@ -1,42 +1,75 @@
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
-  WebSocketGateway,
-  WebSocketServer,
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import * as jwt from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
-import { PrivateChatService } from '../private-chat.service';
+import { PrismaService } from '@project/lib/prisma/prisma.service';
+import * as jwt from 'jsonwebtoken';
+import { Server, Socket } from 'socket.io';
 import { SendPrivateMessageDto } from '../dto/privateChatGateway.dto';
+import { PrivateChatService } from '../private-chat.service';
+
+enum PrivateChatEvents {
+  ERROR = 'private:error',
+  SUCCESS = 'private:success',
+  NEW_MESSAGE = 'private:new_message',
+  SEND_MESSAGE = 'private:send_message',
+  NEW_CONVERSATION = 'private:new_conversation',
+  CONVERSATION_LIST = 'private:conversation_list',
+  LOAD_CONVERSATIONS = 'private:load_conversations',
+}
 
 @WebSocketGateway({
-  cors: {
-    origin: '*',
-  },
+  cors: { origin: '*' },
   namespace: '/js/private',
 })
 export class PrivateChatGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer()
-  server: Server;
+  private readonly logger = new Logger(PrivateChatGateway.name);
 
   constructor(
     private readonly privateChatService: PrivateChatService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
+
+  @WebSocketServer()
+  server: Server;
+
+  afterInit(server: Server) {
+    this.logger.log(
+      'Socket.IO server initialized FOR PRIVATE CHAT',
+      server.adapter.name,
+    );
+  }
 
   /** Handle socket connection and authentication */
   async handleConnection(client: Socket) {
-    const token = client.handshake.headers.authorization?.split(' ')[1];
+    const authHeader =
+      client.handshake.headers.authorization || client.handshake.auth?.token;
+    if (!authHeader) {
+      client.emit(PrivateChatEvents.ERROR, {
+        message: 'Missing authorization header',
+      });
+      client.disconnect(true);
+      this.logger.warn('Missing auth header');
+      return;
+    }
+
+    const token = authHeader.split(' ')[1];
     if (!token) {
-      client.disconnect();
-      console.log('Missing token');
+      client.emit(PrivateChatEvents.ERROR, { message: 'Missing token' });
+      client.disconnect(true);
+      this.logger.warn('Missing token');
       return;
     }
 
@@ -45,38 +78,58 @@ export class PrivateChatGateway
       const payload: any = jwt.verify(token, jwtSecret as string);
       const userId = payload.sub;
 
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, email: true },
+      });
+      if (!user) {
+        client.emit(PrivateChatEvents.ERROR, {
+          message: 'User not found in database',
+        });
+        client.disconnect(true);
+        this.logger.warn(`User not found: ${userId}`);
+        return;
+      }
+
       client.data.userId = userId;
       client.join(userId);
-
-      console.log(
+      client.emit(PrivateChatEvents.SUCCESS, userId);
+      this.logger.log(
         `Private chat: User ${userId} connected, socket ${client.id}`,
       );
     } catch (err) {
-      client.disconnect();
-      console.log(`Authentication failed: ${err.message}`);
+      client.emit(PrivateChatEvents.ERROR, { message: err.message });
+      client.disconnect(true);
+      this.logger.warn(`Authentication failed: ${err.message}`);
     }
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Private chat disconnected: ${client.id}`);
+    client.leave(client.data.userId);
+    client.emit(PrivateChatEvents.ERROR, { message: 'Disconnected' });
+    this.logger.log(`Private chat disconnected: ${client.id}`);
   }
 
   /** Load all conversations for the connected user */
-  @SubscribeMessage('private:load_conversations')
+  @SubscribeMessage(PrivateChatEvents.LOAD_CONVERSATIONS)
   async handleLoadConversations(@ConnectedSocket() client: Socket) {
     const userId = client.data.userId;
     if (!userId) {
-      console.log('User not authenticated');
+      client.emit(PrivateChatEvents.ERROR, {
+        message: 'User not authenticated',
+      });
+      client.disconnect(true);
+      this.logger.log('User not authenticated');
       return;
     }
 
     const conversations =
       await this.privateChatService.getUserConversations(userId);
-    client.emit('private:conversation_list', conversations);
+    client.emit(PrivateChatEvents.CONVERSATION_LIST, conversations);
   }
 
   /** Send a message (create conversation if new) */
-  @SubscribeMessage('private:send_message')
+  @SubscribeMessage(PrivateChatEvents.SEND_MESSAGE)
   async handleMessage(
     @MessageBody()
     payload: {
@@ -91,7 +144,8 @@ export class PrivateChatGateway
 
     // Validate sender matches token
     if (client.data.userId !== userId) {
-      console.log(
+      client.emit(PrivateChatEvents.ERROR, { message: 'User ID mismatch' });
+      this.logger.warn(
         `User ID mismatch: client ${client.data.userId} vs payload ${userId}`,
       );
       return;
@@ -99,7 +153,10 @@ export class PrivateChatGateway
 
     // Prevent sending to self
     if (userId === recipientId) {
-      console.log(`User ${userId} cannot send message to themselves`);
+      client.emit(PrivateChatEvents.ERROR, {
+        message: 'Cannot send message to yourself',
+      });
+      this.logger.log(`User ${userId} cannot send message to themselves`);
       return;
     }
 
@@ -127,8 +184,8 @@ export class PrivateChatGateway
     );
 
     // Emit new message to both users
-    this.server.to(userId).emit('private:new_message', message);
-    this.server.to(recipientId).emit('private:new_message', message);
+    this.server.to(userId).emit(PrivateChatEvents.NEW_MESSAGE, message);
+    this.server.to(recipientId).emit(PrivateChatEvents.NEW_MESSAGE, message);
 
     // If this was a new conversation, refresh both users' chat lists
     if (isNewConversation) {
@@ -139,15 +196,15 @@ export class PrivateChatGateway
 
       this.server
         .to(userId)
-        .emit('private:new_conversation', senderConversations);
+        .emit(PrivateChatEvents.NEW_CONVERSATION, senderConversations);
       this.server
         .to(recipientId)
-        .emit('private:new_conversation', recipientConversations);
+        .emit(PrivateChatEvents.NEW_CONVERSATION, recipientConversations);
     }
   }
 
   /** Helper for external services to emit new messages */
   emitNewMessage(userId: string, message: any) {
-    this.server.to(userId).emit('private:new_message', message);
+    this.server.to(userId).emit(PrivateChatEvents.NEW_MESSAGE, message);
   }
 }

@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { FileService } from '@project/lib/utils/file.service';
@@ -14,6 +15,7 @@ export class PrivateChatService {
   /**
    * Load all chats (private + team) with last message for chat list
    */
+  @HandleError('Failed to get all chats with last message')
   async getAllChatsWithLastMessage(userId: string) {
     // 1️⃣ Private chats
     const privateChats = await this.prisma.privateConversation.findMany({
@@ -141,6 +143,7 @@ export class PrivateChatService {
   /**
    * Find existing conversation between two users or create one
    */
+  @HandleError('Failed to find conversation', 'PRIVATE_CHAT')
   async findConversation(userA: string, userB: string) {
     const [user1Id, user2Id] = [userA, userB].sort();
     return this.prisma.privateConversation.findUnique({
@@ -153,6 +156,10 @@ export class PrivateChatService {
     });
   }
 
+  /**
+   * Create new conversation between two users
+   */
+  @HandleError('Failed to create conversation', 'PRIVATE_CHAT')
   async createConversation(userA: string, userB: string) {
     const [user1Id, user2Id] = [userA, userB].sort();
     return this.prisma.privateConversation.create({
@@ -160,6 +167,10 @@ export class PrivateChatService {
     });
   }
 
+  /**
+   * Find existing conversation between two users or create one
+   */
+  @HandleError('Failed to find or create conversation', 'PRIVATE_CHAT')
   async findOrCreateConversation(userA: string, userB: string) {
     let conversation = await this.findConversation(userA, userB);
     if (!conversation) {
@@ -171,6 +182,7 @@ export class PrivateChatService {
   /**
    * Send a private message and update lastMessage in conversation
    */
+  @HandleError('Failed to send private message', 'PRIVATE_CHAT')
   async sendPrivateMessage(
     conversationId: string,
     senderId: string,
@@ -248,6 +260,7 @@ export class PrivateChatService {
   /**
    * Get all conversations for a user
    */
+  @HandleError("Error getting user's conversations", 'PRIVATE_CHAT')
   async getUserConversations(userId: string) {
     const conversations = await this.prisma.privateConversation.findMany({
       where: {
@@ -315,6 +328,7 @@ export class PrivateChatService {
   /**
    * Get all messages for a conversation
    */
+  @HandleError("Conversation doesn't exist", 'PRIVATE_CHAT')
   async getConversationMessages(conversationId: string) {
     return this.prisma.privateMessage.findMany({
       where: { conversationId },
@@ -329,6 +343,7 @@ export class PrivateChatService {
   /**
    * Get a conversation with messages (validate access)
    */
+  @HandleError("Conversation doesn't exist", 'PRIVATE_CHAT')
   async getPrivateConversationWithMessages(
     conversationId: string,
     userId: string,
@@ -395,6 +410,10 @@ export class PrivateChatService {
     };
   }
 
+  /**
+   * Mark a message as read
+   */
+  @HandleError('Failed to mark message as read', 'PRIVATE_CHAT')
   async makePrivateMassageReadTrue(id: string) {
     return this.prisma.privateMessage.updateMany({
       where: { id },
@@ -402,6 +421,10 @@ export class PrivateChatService {
     });
   }
 
+  /**
+   * Delete a conversation
+   */
+  @HandleError('Failed to delete conversation', 'PRIVATE_CHAT')
   async deleteConversation(conversationId: string) {
     return this.prisma.privateConversation.deleteMany({
       where: { id: conversationId },
