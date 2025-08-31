@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
-import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
 import { ManageClockRequestService } from '../services/manage-clock-request.service';
 
@@ -33,10 +33,12 @@ export class ManageClockRequestController {
   async acceptOrRejectClockRequest(
     @Param('requestId') requestId: string,
     @Body() dto: ApproveOrRejectShiftRequest,
+    @GetUser('userId') adminId: string,
   ) {
     return await this.manageClockRequestService.acceptOrRejectClockRequest(
       requestId,
       dto,
+      adminId,
     );
   }
 }

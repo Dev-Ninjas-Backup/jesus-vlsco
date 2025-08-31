@@ -51,7 +51,9 @@ export class ManageClockRequestService {
   async acceptOrRejectClockRequest(
     id: string,
     dto: ApproveOrRejectShiftRequest,
+    adminId: string,
   ) {
+    // * check if request exists
     const request = await this.prisma.missedClockRequest.findUnique({
       where: { id },
     });
@@ -60,15 +62,75 @@ export class ManageClockRequestService {
       throw new AppError(404, 'Clock request not found');
     }
 
-    await this.prisma.missedClockRequest.update({
-      where: { id },
-      data: {
-        status: dto.isApproved ? 'APPROVED' : 'REJECTED',
-      },
+    // * check if request has already been processed
+    if (request.status !== 'PENDING') {
+      throw new AppError(400, 'Request has already been processed');
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      // update and return request
+      const updatedRequest = await tx.missedClockRequest.update({
+        where: { id },
+        data: {
+          status: dto.isApproved ? 'APPROVED' : 'REJECTED',
+          reviewedAt: new Date().toISOString(),
+          reviewedBy: adminId,
+        },
+      });
+
+      let clock: any = null;
+
+      if (dto.isApproved) {
+        const {
+          requestedClockInAt,
+          requestedClockOutAt,
+          locationLat,
+          locationLng,
+          userId,
+          shiftId,
+        } = updatedRequest;
+
+        if (!requestedClockInAt || !requestedClockOutAt) {
+          throw new AppError(
+            400,
+            'Clock in/out times are required for approval',
+          );
+        }
+
+        // Calculate total hours
+        const totalMs =
+          requestedClockOutAt.getTime() - requestedClockInAt.getTime();
+        const totalHours = Math.max(totalMs / (1000 * 60 * 60), 0);
+
+        // Overtime = total - 8
+        const overtimeHours = Math.max(totalHours - 8, 0);
+
+        clock = await tx.timeClock.create({
+          data: {
+            userId,
+            shiftId,
+            clockInAt: requestedClockInAt,
+            clockOutAt: requestedClockOutAt,
+            clockInLat: locationLat,
+            clockInLng: locationLng,
+            clockOutLat: locationLat,
+            clockOutLng: locationLng,
+            isOvertimeAllowed: overtimeHours > 0,
+            totalHours,
+            overtimeHours,
+            status: 'COMPLETED',
+          },
+        });
+      }
+
+      return {
+        request: updatedRequest,
+        clockData: clock,
+      };
     });
 
     return successResponse(
-      null,
+      result,
       `Clock request ${dto.isApproved ? 'approved' : 'rejected'} successfully`,
     );
   }
