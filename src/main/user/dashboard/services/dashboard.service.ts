@@ -50,6 +50,7 @@ export class DashboardService {
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
       },
+      orderBy: { startTime: 'asc' },
     });
 
     return shifts;
@@ -61,6 +62,7 @@ export class DashboardService {
         startTime: { gte: new Date() },
         tasksUsers: { some: { userId: userid } },
       },
+      orderBy: { startTime: 'asc' },
     });
 
     return tasks;
@@ -73,6 +75,7 @@ export class DashboardService {
           type: 'Announcement',
           users: { some: { userId } },
         },
+        orderBy: { createdAt: 'desc' },
       },
     );
     return companyUpdatesNotifications;
@@ -84,6 +87,7 @@ export class DashboardService {
         type: 'Recognition',
         users: { some: { userId } },
       },
+      orderBy: { createdAt: 'desc' },
     });
     return recognitionsNotifications;
   }
@@ -95,6 +99,7 @@ export class DashboardService {
           type: 'UrgentShiftChanged',
           users: { some: { userId } },
         },
+        orderBy: { createdAt: 'desc' },
       });
     return urgentShiftChangeNotifications;
   }

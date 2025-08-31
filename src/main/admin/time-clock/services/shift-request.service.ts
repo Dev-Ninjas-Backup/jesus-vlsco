@@ -29,6 +29,7 @@ export class ShiftRequestService {
       },
       skip,
       take: limit,
+      orderBy: { createdAt: 'desc' },
     });
 
     return successResponse(shifts, 'Shifts found successfully');
