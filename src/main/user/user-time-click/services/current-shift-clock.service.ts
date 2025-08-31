@@ -167,7 +167,7 @@ export class CurrentClockShiftService {
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
         startTime: { lte: bufferStart },
-        endTime: { gte: utcDate },
+        // endTime: { gte: utcDate },
       },
       orderBy: { startTime: 'asc' },
     });
