@@ -3,15 +3,15 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ClientDateDto } from '@project/common/dto/client-date.dto';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { ClockDto, GetClockSheet, SubmitTimeSheet } from './dto/clock.dto';
-import { RequestShiftDto } from './dto/request-shift.dto';
-import { ClockHistoryService } from './services/clock-history.service';
-import { ClockInAndOutService } from './services/clock-in-and-out.service';
-import { ClockReportingService } from './services/clock-reporting.service';
-import { ClockSheetService } from './services/clock-sheet.service';
-import { CurrentClockShiftService } from './services/current-shift-clock.service';
-import { TimeClockService } from './services/time-clock.service';
-import { UserShiftService } from './services/user-shift.service';
+import { ClockDto, GetClockSheet, SubmitTimeSheet } from '../dto/clock.dto';
+import { RequestShiftDto } from '../dto/request-shift.dto';
+import { ClockHistoryService } from '../services/clock-history.service';
+import { ClockInAndOutService } from '../services/clock-in-and-out.service';
+import { ClockReportingService } from '../services/clock-reporting.service';
+import { ClockSheetService } from '../services/clock-sheet.service';
+import { CurrentClockShiftService } from '../services/current-shift-clock.service';
+import { TimeClockService } from '../services/time-clock.service';
+import { UserShiftService } from '../services/user-shift.service';
 
 @ApiTags('Employee -- Time Clock')
 @Controller('employee/time-clock')
