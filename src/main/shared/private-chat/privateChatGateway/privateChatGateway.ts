@@ -25,6 +25,7 @@ enum PrivateChatEvents {
   NEW_CONVERSATION = 'private:new_conversation',
   CONVERSATION_LIST = 'private:conversation_list',
   LOAD_CONVERSATIONS = 'private:load_conversations',
+  LOAD_SINGLE_CONVERSATION = 'private:load_single_conversation',
 }
 
 @WebSocketGateway({
@@ -126,6 +127,30 @@ export class PrivateChatGateway
     const conversations =
       await this.privateChatService.getUserConversations(userId);
     client.emit(PrivateChatEvents.CONVERSATION_LIST, conversations);
+  }
+
+  /** Load a single conversation */
+  @SubscribeMessage(PrivateChatEvents.LOAD_SINGLE_CONVERSATION)
+  async handleLoadSingleConversation(
+    @MessageBody() conversationId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const userId = client.data.userId;
+    if (!userId) {
+      client.emit(PrivateChatEvents.ERROR, {
+        message: 'User not authenticated',
+      });
+      client.disconnect(true);
+      this.logger.log('User not authenticated');
+      return;
+    }
+
+    const conversation =
+      await this.privateChatService.getPrivateConversationWithMessages(
+        conversationId,
+        userId,
+      );
+    client.emit(PrivateChatEvents.NEW_CONVERSATION, conversation);
   }
 
   /** Send a message (create conversation if new) */

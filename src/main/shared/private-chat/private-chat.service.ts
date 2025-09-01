@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
@@ -400,7 +401,7 @@ export class PrivateChatService {
     });
 
     if (!conversation) {
-      throw new NotFoundException(`Conversation not found or access denied`);
+      throw new AppError(404, `Conversation not found or access denied`);
     }
 
     return {
