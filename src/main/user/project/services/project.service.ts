@@ -49,7 +49,7 @@ export class ProjectService {
 
   @HandleError('Failed to get a task')
   async getATask(taskId: string, userId: string): Promise<TResponse<any>> {
-    console.log(taskId, userId);
+    console.info(taskId, userId);
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -74,7 +74,7 @@ export class ProjectService {
 
   @HandleError('Failed to start a task')
   async startATask(taskId: string, userId: string): Promise<TResponse<any>> {
-    console.log(taskId, userId);
+    console.info(taskId, userId);
     await this.prisma.task.update({
       where: { id: taskId },
       data: { status: 'STARTED' },

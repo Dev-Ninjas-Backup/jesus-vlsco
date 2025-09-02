@@ -7,7 +7,7 @@ import {
 } from '@project/common/utils/response.util';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { FileService } from '@project/lib/utils/file.service';
+import { FileService } from '@project/lib/file/file.service';
 
 @Injectable()
 export class TeamchatService {

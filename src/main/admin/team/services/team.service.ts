@@ -43,7 +43,6 @@ export class TeamService {
 
     // 2. Add members to the TeamMembers table
     const uniqueMembers = [...new Set(members ?? [])];
-    console.log(uniqueMembers);
 
     await this.prisma.teamMembers.createMany({
       data: uniqueMembers.map((userId) => ({ teamId: team.id, userId })),

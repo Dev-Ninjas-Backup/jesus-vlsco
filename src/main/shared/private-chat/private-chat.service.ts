@@ -3,8 +3,9 @@ import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { FileService } from '@project/lib/utils/file.service';
+
 import { SendPrivateMessageDto } from './dto/privateChatGateway.dto';
+import { FileService } from '@project/lib/file/file.service';
 
 @Injectable()
 export class PrivateChatService {

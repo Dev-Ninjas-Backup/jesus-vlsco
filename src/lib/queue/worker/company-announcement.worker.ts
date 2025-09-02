@@ -24,7 +24,6 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
     new Worker<AnnouncementEvent>(
       QueueName.ANNOUNCEMENT,
       async (job) => {
-        console.log('job in announcement worker', job);
         if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
         const {

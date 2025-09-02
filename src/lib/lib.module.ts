@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { FileModule } from './file/file.module';
 import { MailModule } from './mail/mail.module';
 import { MulterModule } from './multer/multer.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -16,6 +17,7 @@ import { UtilsModule } from './utils/utils.module';
     CloudinaryModule,
     MulterModule,
     QueueModule,
+    FileModule,
   ],
   exports: [],
   providers: [],

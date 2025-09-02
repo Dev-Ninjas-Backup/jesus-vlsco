@@ -39,7 +39,7 @@ export class SuperAdminService implements OnModuleInit {
 
     // * create super admin
     if (!superAdminExists) {
-      const user = await this.prisma.user.create({
+      await this.prisma.user.create({
         data: {
           email: superAdminEmail,
           employeeID: Number(superAdminEmployeeID),
@@ -53,14 +53,14 @@ export class SuperAdminService implements OnModuleInit {
       });
       console.info(
         chalk.bgGreen.white.bold(
-          `🚀 Super Admin user created with email: ${superAdminEmail} and id ${user.id}`,
+          `🚀 Super Admin user created with email: ${superAdminEmail}`,
         ),
       );
       return;
     }
 
     // * update login
-    const superAdmin = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         email: superAdminEmail,
       },
@@ -72,7 +72,7 @@ export class SuperAdminService implements OnModuleInit {
     });
     console.info(
       chalk.bgGreen.white.bold(
-        `🚀 Super Admin user updated with email: ${superAdminEmail} and id ${superAdmin.id}`,
+        `🚀 Super Admin user updated with email: ${superAdminEmail}`,
       ),
     );
   }
