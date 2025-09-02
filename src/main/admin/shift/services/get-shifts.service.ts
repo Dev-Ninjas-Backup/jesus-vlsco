@@ -31,7 +31,7 @@ export class GetShiftsService {
     }
 
     // * both are optional , default is current week
-    const { startDate, endDate } = dto;
+    // const { startDate, endDate } = dto;
 
     const today = new Date(dto.date ? dto.date : new Date());
     // if (!startDate || !endDate) {
@@ -67,13 +67,7 @@ export class GetShiftsService {
 
     // 2. Get all shifts within range for this project, including assigned users
     const shifts = await this.prisma.shift.findMany({
-      where: {
-        projectId,
-        date: {
-          ...(startDate && { gte: startDate }),
-          ...(endDate && { lte: endDate }),
-        },
-      },
+      where: { projectId },
       include: {
         users: {
           include: {
