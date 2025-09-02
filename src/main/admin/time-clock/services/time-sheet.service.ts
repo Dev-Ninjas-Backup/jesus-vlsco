@@ -91,6 +91,8 @@ export class TimeSheetService {
           : null,
         clockIn: tc.clockInAt,
         clockOut: tc.clockOutAt,
+        clockInLng: tc.clockInLng,
+        clockInLat: tc.clockInLat,
         totalHours: totalHours.toFixed(2),
         regularHours: regularHours.toFixed(2),
         overTime: overTime.toFixed(2),
