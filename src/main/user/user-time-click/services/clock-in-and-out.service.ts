@@ -78,7 +78,7 @@ export class ClockInAndOutService {
           lat: activeClock.shift?.locationLat ?? 0,
           lng: activeClock.shift?.locationLng ?? 0,
         },
-        150,
+        500,
       );
       if (!withinRadius) {
         throw new AppError(400, 'You are not at the shift location');

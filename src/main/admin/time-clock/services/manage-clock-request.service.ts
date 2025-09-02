@@ -16,7 +16,7 @@ export class ManageClockRequestService {
   @HandleError('Failed to get clock request')
   async getClockRequest(pg: PaginationDto): Promise<TResponse<any>> {
     const page = pg.page && pg.page > 0 ? pg.page : 1;
-    const limit = pg.limit && pg.limit > 0 ? pg.limit : 10;
+    const limit = pg.limit && pg.limit > 0 ? pg.limit : 20;
     const skip = (page - 1) * limit;
 
     const requests = await this.prisma.missedClockRequest.findMany({
@@ -25,6 +25,7 @@ export class ManageClockRequestService {
       orderBy: { createdAt: 'desc' },
       include: {
         user: true,
+        shift: true,
       },
     });
 
