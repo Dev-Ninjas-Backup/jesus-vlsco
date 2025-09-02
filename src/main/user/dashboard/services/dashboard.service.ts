@@ -45,30 +45,26 @@ export class DashboardService {
 
     const searchTerm = dto.searchTerm?.trim();
 
+    const where: any = {
+      users: { some: { id: userId } },
+      shiftStatus: 'PUBLISHED',
+    };
+
+    if (searchTerm) {
+      where.OR = [
+        { shiftTitle: { contains: searchTerm, mode: 'insensitive' } },
+        { location: { contains: searchTerm, mode: 'insensitive' } },
+      ];
+    }
+
     const [shifts, totalCount] = await this.prisma.$transaction([
       this.prisma.shift.findMany({
-        where: {
-          users: { some: { id: userId } },
-          shiftStatus: 'PUBLISHED',
-          OR: [
-            { shiftTitle: { contains: searchTerm } },
-            { location: { contains: searchTerm } },
-          ],
-        },
+        where,
         skip,
         take: limit,
         orderBy: { startTime: 'asc' },
       }),
-      this.prisma.shift.count({
-        where: {
-          users: { some: { id: userId } },
-          shiftStatus: 'PUBLISHED',
-          OR: [
-            { shiftTitle: { contains: searchTerm } },
-            { location: { contains: searchTerm } },
-          ],
-        },
-      }),
+      this.prisma.shift.count({ where }),
     ]);
 
     return successPaginatedResponse(
