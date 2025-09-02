@@ -35,15 +35,19 @@ export class AssignShiftService {
       throw new AppError(400, 'Project ID is required');
     }
 
-    // * Ensure endTime is after startTime (single day shift only)
-    if (new Date(endTime) <= new Date(startTime)) {
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    // must be after
+    if (end <= start) {
       throw new AppError(400, 'Shift end time must be after start time');
     }
 
-    const start = new Date(startTime);
-    const end = new Date(endTime);
-    if (start.toDateString() !== end.toDateString()) {
-      throw new AppError(400, 'Shift must start and end on the same day');
+    // must not exceed 24 hours
+    const diffInMs = end.getTime() - start.getTime();
+    const diffInHours = diffInMs / (1000 * 60 * 60);
+    if (diffInHours > 24) {
+      throw new AppError(400, 'Shift cannot be longer than 24 hours');
     }
 
     // * Decide shift type based on time
