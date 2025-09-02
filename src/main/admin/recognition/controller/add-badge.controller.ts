@@ -8,10 +8,11 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { addBadgeSwaggerSchema } from '../dto/add-badge.swagger';
+import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { AddBadgeDto } from '../dto/add-badge.dto';
+import { addBadgeSwaggerSchema } from '../dto/add-badge.swagger';
 import { AddBadgeService } from '../services/add-badge.service';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 
 @ApiTags('Admin -- Recognition')
 @Controller('admin/recognition')
@@ -19,12 +20,17 @@ import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
 @ApiBearerAuth()
 export class AddBadgeController {
   constructor(
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
     private readonly addBadgeService: AddBadgeService,
   ) {}
 
   @Post('add-badge')
-  @UseInterceptors(FileInterceptor('iconImage'))
+  @UseInterceptors(
+    FileInterceptor(
+      'iconImage',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Badge creation with icon image',
@@ -48,11 +54,8 @@ export class AddBadgeController {
       throw new Error('Image file (iconImage) is required.');
     }
 
-    const uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-      file.buffer,
-      file.originalname,
-    );
+    const uploadedUrl = await this.fileService.processUploadedFile(file);
 
-    return await this.addBadgeService.addBadge(dto, uploadedUrl.secure_url);
+    return await this.addBadgeService.addBadge(dto, uploadedUrl.url);
   }
 }

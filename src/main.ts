@@ -11,12 +11,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // app.enableCors({
-  //   origin: ['*'],
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  //   credentials: true,
-  // });
-
   app.enableCors({
     origin: [
       'http://localhost:5173',
@@ -49,7 +43,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('js');
 
-  // ✅ Swagger config with Bearer Auth
+  // * Swagger config with Bearer Auth
   const config = new DocumentBuilder()
     .setTitle('Jesus VLSCO')
     .setDescription('Jesus VLSCO API description')
@@ -59,8 +53,6 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('js/docs', app, document);
-
-  // app.useWebSocketAdapter(new WsAdapter(app));
 
   const port = parseInt(configService.get<string>(ENVEnum.PORT) ?? '5000', 10);
   await app.listen(port);
