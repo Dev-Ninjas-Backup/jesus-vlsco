@@ -1,10 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { GetUserShiftsDto } from '../dto/get-user-shifts.dto';
 
 @Injectable()
 export class DashboardService {
@@ -28,6 +31,54 @@ export class DashboardService {
         urgentShiftChange,
       },
       'Dashboard fetched successfully',
+    );
+  }
+
+  @HandleError('Failed to fetch shifts')
+  async getAllShiftsAssignedToUser(
+    userId: string,
+    dto: GetUserShiftsDto,
+  ): Promise<TPaginatedResponse<any>> {
+    const page = dto.page && dto.page > 0 ? dto.page : 1;
+    const limit = dto.limit && dto.limit > 0 ? dto.limit : 20;
+    const skip = (page - 1) * limit;
+
+    const searchTerm = dto.searchTerm?.trim();
+
+    const [shifts, totalCount] = await this.prisma.$transaction([
+      this.prisma.shift.findMany({
+        where: {
+          users: { some: { id: userId } },
+          shiftStatus: 'PUBLISHED',
+          OR: [
+            { shiftTitle: { contains: searchTerm } },
+            { location: { contains: searchTerm } },
+          ],
+        },
+        skip,
+        take: limit,
+        orderBy: { startTime: 'asc' },
+      }),
+      this.prisma.shift.count({
+        where: {
+          users: { some: { id: userId } },
+          shiftStatus: 'PUBLISHED',
+          OR: [
+            { shiftTitle: { contains: searchTerm } },
+            { location: { contains: searchTerm } },
+          ],
+        },
+      }),
+    ]);
+
+    return successPaginatedResponse(
+      shifts,
+      {
+        page,
+        limit,
+        total: totalCount,
+      },
+      'Shifts fetched successfully',
     );
   }
 

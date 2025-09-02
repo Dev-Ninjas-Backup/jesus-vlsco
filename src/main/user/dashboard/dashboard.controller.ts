@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { GetShiftsService } from '@project/main/admin/shift/services/get-shifts.service';
 import { GetAssignedShiftsDto } from './../../admin/shift/dto/get-assigned-shifts.dto';
+import { GetUserShiftsDto } from './dto/get-user-shifts.dto';
 import { DashboardService } from './services/dashboard.service';
 import { GetShiftScheduleService } from './services/get-shift-schedule.service';
 
@@ -42,6 +43,15 @@ export class DashboardController {
     @Query() dto: GetAssignedShiftsDto,
   ) {
     return this.getShiftScheduleService.getUserShiftSchedule(userId, dto);
+  }
+
+  @ApiOperation({ summary: 'Get user shifts' })
+  @Get('user-shifts')
+  async getAllShiftsAssignedToUser(
+    @GetUser('userId') userId: string,
+    @Query() dto: GetUserShiftsDto,
+  ) {
+    return this.dashboardService.getAllShiftsAssignedToUser(userId, dto);
   }
 
   @ApiOperation({ summary: 'Get user notifications' })
