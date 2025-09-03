@@ -8,10 +8,14 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { ClockSheetService } from '@project/main/user/user-time-click/services/clock-sheet.service';
 
 @Injectable()
 export class PayrollService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly clockSheetService: ClockSheetService,
+  ) {}
 
   @HandleError('Failed to get payroll entries', 'Payroll Entries')
   async getPayRollEntries(pg: PaginationDto): Promise<TPaginatedResponse<any>> {
@@ -48,7 +52,27 @@ export class PayrollService {
       },
     });
 
-    return successResponse(payroll, 'Payroll Entry found successfully');
+    const userId = payroll?.userId;
+
+    if (!userId) {
+      return successResponse(null, 'Payroll Entry found successfully');
+    }
+
+    const from = new Date(payroll?.startDate || '');
+    const to = new Date(payroll?.endDate || '');
+
+    const payrollSheet = await this.clockSheetService.getMyClockSheet(userId, {
+      from,
+      to,
+    });
+
+    return successResponse(
+      {
+        payroll,
+        payrollSheet: payrollSheet.data,
+      },
+      'Payroll Entry found successfully',
+    );
   }
 
   @HandleError('Failed to delete payroll entry', 'Payroll Entry')

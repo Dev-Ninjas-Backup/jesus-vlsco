@@ -26,6 +26,7 @@ export class ManageClockRequestService {
           user: {
             include: { profile: true },
           },
+          shift: true,
         },
         skip,
         take: limit,
