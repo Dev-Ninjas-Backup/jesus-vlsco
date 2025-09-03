@@ -3,7 +3,9 @@ import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
@@ -16,7 +18,7 @@ export class SurveyService {
   async getAllAssignedSurveys(
     userId: string,
     query: PaginationDto,
-  ): Promise<TResponse<any>> {
+  ): Promise<TPaginatedResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit && query.limit >= 0 ? query.limit : 5;
 
@@ -59,8 +61,17 @@ export class SurveyService {
       surveyUsers: undefined, // remove nested if not needed
     }));
 
-    return successResponse(
+    return successPaginatedResponse(
       surveysWithResponse,
+      {
+        page,
+        limit,
+        total: await this.prisma.survey.count({
+          where: {
+            OR: [{ surveyUsers: { some: { userId } } }, { isForAll: true }],
+          },
+        }),
+      },
       'Assigned Surveys found successfully',
     );
   }

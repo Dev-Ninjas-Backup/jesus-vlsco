@@ -37,6 +37,15 @@ export class ClockReportingService {
       throw new AppError(400, 'Overtime already allowed');
     }
 
+    // * Check if an overtime request already exists for this clock
+    const existingRequest = await this.prisma.requestOverTime.findFirst({
+      where: { timeClockId: clockId, userId },
+    });
+
+    if (existingRequest) {
+      throw new AppError(400, 'Overtime request already exists for this clock');
+    }
+
     // * Create request
     const request = await this.prisma.requestOverTime.create({
       data: {

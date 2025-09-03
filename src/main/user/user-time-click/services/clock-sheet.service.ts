@@ -56,6 +56,12 @@ export class ClockSheetService {
       include: { shift: true },
     });
 
+    const overTimeRequestOfClocks = await this.prisma.requestOverTime.findMany({
+      where: {
+        timeClockId: { in: clocks.map((c) => c.id) },
+      },
+    });
+
     // --- weekly grouping ---
     const groupedByWeek = new Map<
       string,
@@ -136,6 +142,9 @@ export class ClockSheetService {
         overtime: overtimeHours,
         notes: clock.shift?.note || null,
         isOvertimeAllowed: clock.isOvertimeAllowed,
+        overTimeRequestStatus:
+          overTimeRequestOfClocks.find((r) => r.timeClockId === clock.id)
+            ?.status || 'N/A',
       });
 
       dayData.totalHours = toDecimal(dayData.totalHours + hours);

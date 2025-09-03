@@ -15,7 +15,7 @@ import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
 export class OvertimeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  @HandleError('Error getting all pending overtime')
+  @HandleError('Error getting all overtime requests')
   async getAllPendingOvertime(
     pg: PaginationDto,
   ): Promise<TPaginatedResponse<any>> {
@@ -31,10 +31,11 @@ export class OvertimeService {
         orderBy: { createdAt: 'desc' },
         include: {
           timeClock: true,
-          user: true,
-        },
-        where: {
-          status: RequestOverTimeStatus.PENDING,
+          user: {
+            include: {
+              profile: true,
+            },
+          },
         },
       }),
     ]);

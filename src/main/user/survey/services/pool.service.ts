@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
+  successPaginatedResponse,
   successResponse,
+  TPaginatedResponse,
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
@@ -17,7 +19,7 @@ export class PoolService {
   async getAllAssignedPools(
     userId: string,
     query: GetAssignedSurveyDto,
-  ): Promise<TResponse<any>> {
+  ): Promise<TPaginatedResponse<any>> {
     const page = query.page || 1;
     const limit = query.limit && query.limit >= 0 ? query.limit : 5;
     // const searchTerm = query.searchTerm?.trim();
@@ -46,7 +48,18 @@ export class PoolService {
       isResponded: pool.poolResponse.length > 0,
     }));
 
-    return successResponse(result, 'Pools retrieved successfully');
+    const totalCount = await this.prisma.pool.count({
+      where: {
+        OR: [{ poolUser: { some: { userId } } }, { isForAll: true }],
+      },
+    });
+
+    return successPaginatedResponse(
+      result,
+      { page, limit, total: totalCount },
+      'Pools retrieved successfully',
+    );
+    // return successResponse(result, 'Pools retrieved successfully');
   }
 
   @HandleError('Error getting single pool')
