@@ -84,6 +84,7 @@ export class DashboardService {
       where: {
         users: { some: { userId } },
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     return successResponse(notifications, 'Notifications fetched successfully');
