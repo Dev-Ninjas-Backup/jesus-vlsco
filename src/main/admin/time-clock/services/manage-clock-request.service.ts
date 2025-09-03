@@ -3,8 +3,9 @@ import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
+  successPaginatedResponse,
   successResponse,
-  TResponse,
+  TPaginatedResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
@@ -14,22 +15,35 @@ export class ManageClockRequestService {
   constructor(private readonly prisma: PrismaService) {}
 
   @HandleError('Failed to get clock request')
-  async getClockRequest(pg: PaginationDto): Promise<TResponse<any>> {
+  async getClockRequest(pg: PaginationDto): Promise<TPaginatedResponse<any>> {
     const page = pg.page && pg.page > 0 ? pg.page : 1;
     const limit = pg.limit && pg.limit > 0 ? pg.limit : 20;
     const skip = (page - 1) * limit;
 
-    const requests = await this.prisma.missedClockRequest.findMany({
-      skip,
-      take: limit,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        user: true,
-        shift: true,
-      },
-    });
+    const [requests, totalCount] = await this.prisma.$transaction([
+      this.prisma.missedClockRequest.findMany({
+        where: {
+          status: 'PENDING',
+        },
+        include: {
+          user: true,
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.missedClockRequest.count({
+        where: {
+          status: 'PENDING',
+        },
+      }),
+    ]);
 
-    return successResponse(requests, 'Clock request found successfully');
+    return successPaginatedResponse(
+      requests,
+      { page, limit, total: totalCount },
+      'Clock request found successfully',
+    );
   }
 
   @HandleError('Failed to get single clock request')
