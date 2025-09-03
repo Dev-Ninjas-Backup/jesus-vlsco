@@ -31,10 +31,10 @@ export class MissedClockRequestService {
       this.prisma.missedClockRequest.findMany({
         where: {
           userId,
-          status: 'PENDING',
         },
         include: {
           user: true,
+          shift: true,
         },
         skip,
         take: limit,
@@ -43,7 +43,6 @@ export class MissedClockRequestService {
       this.prisma.missedClockRequest.count({
         where: {
           userId,
-          status: 'PENDING',
         },
       }),
     ]);

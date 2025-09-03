@@ -29,11 +29,40 @@ export class PayrollService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            include: {
+              profile: true,
+            },
+          },
+        },
       }),
     ]);
 
+    // Map payroll entries to include formatted profile info
+    const formattedEntries = payrollEntries.map((entry) => {
+      const profile = entry.user?.profile;
+      const firstName = profile?.firstName || 'N/A';
+      const lastName = profile?.lastName || 'User';
+      const profileUrl =
+        profile?.profileUrl ||
+        `https://ui-avatars.com/api/?name=${encodeURIComponent(firstName + ' ' + lastName)}`;
+
+      return {
+        ...entry,
+        user: {
+          ...entry.user,
+          profile: {
+            firstName,
+            lastName,
+            profileUrl,
+          },
+        },
+      };
+    });
+
     return successPaginatedResponse(
-      payrollEntries,
+      formattedEntries,
       { page, limit, total: totalCount },
       'Payroll Entries retrieved successfully',
     );
