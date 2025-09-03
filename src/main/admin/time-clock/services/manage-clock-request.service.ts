@@ -22,21 +22,16 @@ export class ManageClockRequestService {
 
     const [requests, totalCount] = await this.prisma.$transaction([
       this.prisma.missedClockRequest.findMany({
-        where: {
-          status: 'PENDING',
-        },
         include: {
-          user: true,
+          user: {
+            include: { profile: true },
+          },
         },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.missedClockRequest.count({
-        where: {
-          status: 'PENDING',
-        },
-      }),
+      this.prisma.missedClockRequest.count(),
     ]);
 
     return successPaginatedResponse(
