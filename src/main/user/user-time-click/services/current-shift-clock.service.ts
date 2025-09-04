@@ -33,7 +33,7 @@ export class CurrentClockShiftService {
         shiftId: shift.id,
       },
       orderBy: {
-        clockInAt: 'desc',
+        createdAt: 'desc',
       },
     });
 

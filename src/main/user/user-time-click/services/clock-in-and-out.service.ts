@@ -24,7 +24,7 @@ export class ClockInAndOutService {
     const activeClock = await this.prisma.timeClock.findFirst({
       where: { userId, status: 'ACTIVE', shiftId: { not: null } },
       include: { shift: true },
-      orderBy: { clockInAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (dto.action === 'CLOCK_IN') {
