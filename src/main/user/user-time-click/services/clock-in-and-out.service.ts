@@ -51,7 +51,7 @@ export class ClockInAndOutService {
         );
 
       // * check if clients time in date is before shift end time
-      if (new Date(dto.date) > new Date(shift.endTime))
+      if (new Date(now) > new Date(shift.endTime))
         throw new AppError(400, 'Shift is over, please clock out');
 
       // Location check
@@ -67,7 +67,7 @@ export class ClockInAndOutService {
         data: {
           userId,
           shiftId: shift.id,
-          clockInAt: date.toISOString(),
+          clockInAt: now.toISOString(),
           clockInLat: dto.lat,
           clockInLng: dto.lng,
           status: 'ACTIVE',
