@@ -85,6 +85,9 @@ export class CurrentClockShiftService {
         shift,
         clock,
         teamMembers,
+        isClockedIn: clock?.status === 'ACTIVE',
+        canClockIn:
+          new Date() >= new Date(shift.startTime.getTime() - 15 * 60 * 1000), // 15 minutes before shift start time
       },
       'Current shift',
     );
