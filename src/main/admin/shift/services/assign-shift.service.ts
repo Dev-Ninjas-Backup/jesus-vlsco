@@ -100,7 +100,7 @@ export class AssignShiftService {
       shift = await this.prisma.shift.create({
         data: {
           ...shiftData,
-          date: new Date(date).toISOString(),
+          date: new Date(startTime).toISOString(),
           startTime: new Date(startTime).toISOString(),
           endTime: new Date(endTime).toISOString(),
           shiftType,

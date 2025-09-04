@@ -88,7 +88,7 @@ export class UserShiftService {
         locationLng: dto.locationLng,
         shiftType,
         shiftStatus: ShiftStatus.DRAFT,
-        date: new Date(date).toISOString(),
+        date: new Date(startTime).toISOString(),
         startTime: new Date(startTime).toISOString(),
         endTime: new Date(endTime).toISOString(),
         note: dto.note,
