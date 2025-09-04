@@ -28,13 +28,8 @@ export class CurrentClockShiftService {
 
     // * get latest clockInAt of that user for that shift
     const clock = await this.prisma.timeClock.findFirst({
-      where: {
-        userId,
-        shiftId: shift.id,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      where: { userId, shiftId: { not: null } },
+      orderBy: { createdAt: 'desc' },
     });
 
     const team = await this.prisma.team.findFirst({
