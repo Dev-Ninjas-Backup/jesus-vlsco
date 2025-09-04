@@ -20,9 +20,7 @@ export class CurrentClockShiftService {
     const date = new Date(dto.date);
 
     // * find shift for that date
-    const shift = await this.getCurrentShift(userId, date, {
-      allowEarlyMinutes: 15,
-    });
+    const shift = await this.getCurrentShift(userId, date);
 
     if (!shift) {
       throw new AppError(404, 'No active shift found for the user');
@@ -123,11 +121,7 @@ export class CurrentClockShiftService {
     return deg * (Math.PI / 180);
   }
 
-  async getCurrentShift(
-    userId: string,
-    date: Date,
-    options?: { allowEarlyMinutes?: number },
-  ) {
+  async getCurrentShift(userId: string, date: Date) {
     const utcDate = this.toUTCDate(date);
 
     const startOfDay = new Date(
@@ -153,21 +147,11 @@ export class CurrentClockShiftService {
       ),
     );
 
-    // * early clock-in buffer
-    let bufferStart = utcDate;
-    if (options?.allowEarlyMinutes) {
-      bufferStart = new Date(
-        utcDate.getTime() - options.allowEarlyMinutes * 60 * 1000,
-      );
-    }
-
     const shift = await this.prisma.shift.findFirst({
       where: {
         date: { gte: startOfDay, lte: endOfDay },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
-        startTime: { lte: bufferStart },
-        // endTime: { gte: utcDate },
       },
       orderBy: { startTime: 'asc' },
     });

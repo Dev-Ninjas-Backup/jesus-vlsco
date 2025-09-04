@@ -84,6 +84,7 @@ export class DashboardService {
       where: {
         users: { some: { userId } },
       },
+      take: 100,
       orderBy: { createdAt: 'desc' },
     });
 

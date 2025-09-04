@@ -35,10 +35,20 @@ export class ClockInAndOutService {
       const shift = await this.currentClockShiftService.getCurrentShift(
         userId,
         date,
-        { allowEarlyMinutes: 15 },
       );
 
       if (!shift) throw new AppError(404, 'No active shift found for the user');
+
+      // * early clock-in buffer applied on "now"
+      const utcDate = this.currentClockShiftService.toUTCDate(date);
+
+      const bufferStart = new Date(utcDate.getTime() - 15 * 60 * 1000);
+
+      if (shift.startTime > bufferStart)
+        throw new AppError(
+          400,
+          `Too early to clock in. You can clock in 15 minutes before shift start time.`,
+        );
 
       // * check if clients time in date is before shift end time
       if (new Date(dto.date) > new Date(shift.endTime))

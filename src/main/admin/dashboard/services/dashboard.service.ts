@@ -16,6 +16,7 @@ export class DashboardService {
       orderBy: {
         createdAt: 'desc',
       },
+      take: 100,
     });
 
     return successResponse(notifications, 'Notifications fetched successfully');
