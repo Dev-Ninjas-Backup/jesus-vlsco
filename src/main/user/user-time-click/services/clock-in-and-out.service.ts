@@ -27,18 +27,18 @@ export class ClockInAndOutService {
       orderBy: { createdAt: 'desc' },
     });
 
+    // Find current shift (UTC-safe)
+    const shift = await this.currentClockShiftService.getCurrentShift(
+      userId,
+      date,
+    );
+
+    if (!shift) throw new AppError(404, 'No active shift found for the user');
+
     if (dto.action === 'CLOCK_IN') {
       if (activeClock) {
         return successResponse(activeClock, 'Already clocked in');
       }
-
-      // Find current shift (UTC-safe)
-      const shift = await this.currentClockShiftService.getCurrentShift(
-        userId,
-        date,
-      );
-
-      if (!shift) throw new AppError(404, 'No active shift found for the user');
 
       // Use actual current time for buffer calculation
       const now = new Date(); // server current time
@@ -59,7 +59,7 @@ export class ClockInAndOutService {
         { lat: dto.lat, lng: dto.lng },
         { lat: shift.locationLat, lng: shift.locationLng },
       );
-      if (distance > 100)
+      if (distance > 700)
         throw new AppError(400, 'You are not at the shift location');
 
       // Create clock-in record
@@ -85,19 +85,17 @@ export class ClockInAndOutService {
       const withinRadius = this.currentClockShiftService.isWithinRadius(
         { lat: dto.lat, lng: dto.lng },
         {
-          lat: activeClock.shift?.locationLat ?? 0,
-          lng: activeClock.shift?.locationLng ?? 0,
+          lat: shift?.locationLat ?? 0,
+          lng: shift?.locationLng ?? 0,
         },
-        500,
+        700,
       );
       if (!withinRadius) {
         throw new AppError(400, 'You are not at the shift location');
       }
 
       // Determine clock-out time (UTC-safe)
-      const shiftEnd = activeClock.shift?.endTime
-        ? new Date(activeClock.shift.endTime)
-        : date;
+      const shiftEnd = shift?.endTime ? new Date(shift.endTime) : date;
       const clockOutAt = date > shiftEnd ? shiftEnd : date;
 
       // Calculate total hours worked
