@@ -39,10 +39,9 @@ export class ClockInAndOutService {
 
       if (!shift) throw new AppError(404, 'No active shift found for the user');
 
-      // * early clock-in buffer applied on "now"
-      const utcDate = this.currentClockShiftService.toUTCDate(date);
-
-      const bufferStart = new Date(utcDate.getTime() - 15 * 60 * 1000);
+      // Use actual current time for buffer calculation
+      const now = new Date(); // server current time
+      const bufferStart = new Date(now.getTime() - 15 * 60 * 1000);
 
       if (shift.startTime > bufferStart)
         throw new AppError(
