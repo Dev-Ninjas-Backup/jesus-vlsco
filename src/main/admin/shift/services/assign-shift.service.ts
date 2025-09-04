@@ -57,17 +57,23 @@ export class AssignShiftService {
         : ShiftType.AFTERNOON;
 
     // * Get start and end of day
-    const now = new Date(date);
-    const startOfDay = new Date(now);
+    // const now = new Date(date);
+    const startOfDay = new Date(startTime);
     startOfDay.setUTCHours(0, 0, 0, 0);
-    const endOfDay = new Date(now);
+    const endOfDay = new Date(endTime);
     endOfDay.setUTCHours(23, 59, 59, 999);
 
-    // * Check if a shift already exists on the same date for these users
+    // * Check if a shift already exists on the same date for these users with overlapping time
     const existingShift = await this.prisma.shift.findFirst({
       where: {
         date: { gte: startOfDay, lte: endOfDay },
         users: { some: { id: { in: userIds } } },
+        OR: [
+          {
+            startTime: { lte: end },
+            endTime: { gte: start },
+          },
+        ],
       },
       orderBy: { startTime: 'asc' },
     });
