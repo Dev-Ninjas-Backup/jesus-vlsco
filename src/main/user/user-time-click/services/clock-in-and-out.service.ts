@@ -18,95 +18,149 @@ export class ClockInAndOutService {
 
   @HandleError('Clock In/Out Error')
   async processClock(userId: string, dto: ClockDto): Promise<TResponse<any>> {
-    const date = new Date(dto.date);
+    // Normalize DTO date for UTC-consistent handling (useful for clock-out)
+    const clientDate = new Date(dto.date);
+    if (isNaN(clientDate.getTime())) throw new AppError(400, 'Invalid date');
 
-    // 1. Find any active clock
-    const activeClock = await this.prisma.timeClock.findFirst({
-      where: { userId, status: 'ACTIVE', shiftId: { not: null } },
-      include: { shift: true },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    // Find current shift (UTC-safe)
+    // Find the shift (UTC-safe) for the provided client date
     const shift = await this.currentClockShiftService.getCurrentShift(
       userId,
-      date,
+      clientDate,
     );
-
     if (!shift) throw new AppError(404, 'No active shift found for the user');
 
+    // Use server time consistently for buffer checks and creation timestamps
+    const now = new Date();
+
+    // Process actions in transactions to avoid race conditions
     if (dto.action === 'CLOCK_IN') {
-      if (activeClock) {
-        return successResponse(activeClock, 'Already clocked in');
+      return this.handleClockIn(userId, dto, shift, now);
+    }
+
+    if (dto.action === 'CLOCK_OUT') {
+      return this.handleClockOut(userId, dto, shift, clientDate);
+    }
+
+    throw new AppError(400, 'Invalid clock action');
+  }
+
+  private async handleClockIn(
+    userId: string,
+    dto: ClockDto,
+    shift: any,
+    serverNow: Date,
+  ): Promise<TResponse<any>> {
+    // Buffer start: 15 minutes before shift start (server time)
+    const bufferStart = new Date(serverNow.getTime() - 15 * 60 * 1000);
+    if (shift.startTime > bufferStart) {
+      throw new AppError(
+        400,
+        'Too early to clock in. You can clock in 15 minutes before shift start time.',
+      );
+    }
+
+    // If shift already ended
+    if (serverNow > new Date(shift.endTime)) {
+      throw new AppError(400, 'Shift is over, cannot clock in');
+    }
+
+    // Location check
+    const distance = this.currentClockShiftService.getDistanceMeters(
+      { lat: dto.lat, lng: dto.lng },
+      { lat: shift.locationLat, lng: shift.locationLng },
+    );
+    if (distance > 700) {
+      throw new AppError(400, 'You are not at the shift location');
+    }
+
+    // Use transaction to ensure there isn't an ACTIVE clock already for this user+shift
+    const result = await this.prisma.$transaction(async (tx) => {
+      // double-check active clock for this shift only
+      const existingActive = await tx.timeClock.findFirst({
+        where: { userId, shiftId: shift.id, status: 'ACTIVE' },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (existingActive) {
+        return { already: true, payload: existingActive };
       }
 
-      // Use actual current time for buffer calculation
-      const now = new Date(); // server current time
-      const bufferStart = new Date(now.getTime() - 15 * 60 * 1000);
-
-      if (shift.startTime > bufferStart)
-        throw new AppError(
-          400,
-          `Too early to clock in. You can clock in 15 minutes before shift start time.`,
-        );
-
-      // * check if clients time in date is before shift end time
-      if (new Date(now) > new Date(shift.endTime))
-        throw new AppError(400, 'Shift is over, please clock out');
-
-      // Location check
-      const distance = this.currentClockShiftService.getDistanceMeters(
-        { lat: dto.lat, lng: dto.lng },
-        { lat: shift.locationLat, lng: shift.locationLng },
-      );
-      if (distance > 700)
-        throw new AppError(400, 'You are not at the shift location');
-
-      // Create clock-in record
-      const newClock = await this.prisma.timeClock.create({
+      const newClock = await tx.timeClock.create({
         data: {
           userId,
           shiftId: shift.id,
-          clockInAt: now.toISOString(),
+          clockInAt: serverNow.toISOString(),
           clockInLat: dto.lat,
           clockInLng: dto.lng,
           status: 'ACTIVE',
         },
       });
 
-      return successResponse(newClock, `Clocked in to ${shift.shiftTitle}`);
+      return { already: false, payload: newClock };
+    });
+
+    if (result.already) {
+      return successResponse(result.payload, 'Already clocked in');
     }
 
-    if (dto.action === 'CLOCK_OUT') {
-      if (!activeClock) {
-        throw new AppError(400, 'No active clock-in found');
-      }
+    return successResponse(result.payload, `Clocked in to ${shift.shiftTitle}`);
+  }
 
-      const withinRadius = this.currentClockShiftService.isWithinRadius(
-        { lat: dto.lat, lng: dto.lng },
-        {
-          lat: shift?.locationLat ?? 0,
-          lng: shift?.locationLng ?? 0,
-        },
-        700,
+  private async handleClockOut(
+    userId: string,
+    dto: ClockDto,
+    shift: any,
+    clientDate: Date, // user-provided date/time for clock-out intent
+  ): Promise<TResponse<any>> {
+    // Ensure there is an active clock for this user + shift
+    const activeClock =
+      await this.currentClockShiftService.getLatestClockForShift(
+        userId,
+        shift.id,
       );
-      if (!withinRadius) {
-        throw new AppError(400, 'You are not at the shift location');
+
+    if (!activeClock || activeClock.status !== 'ACTIVE') {
+      throw new AppError(400, 'No active clock-in found');
+    }
+
+    // Validate location (within radius)
+    const withinRadius = this.currentClockShiftService.isWithinRadius(
+      { lat: dto.lat, lng: dto.lng },
+      {
+        lat: shift?.locationLat ?? 0,
+        lng: shift?.locationLng ?? 0,
+      },
+      700,
+    );
+    if (!withinRadius) {
+      throw new AppError(400, 'You are not at the shift location');
+    }
+
+    // Determine clock-out instant: cannot be after shift end
+    const shiftEnd = shift?.endTime ? new Date(shift.endTime) : clientDate;
+    const clockOutAt = clientDate > shiftEnd ? shiftEnd : clientDate;
+
+    // Use transaction to update the same active clock (prevents races)
+    const updated = await this.prisma.$transaction(async (tx) => {
+      // Re-fetch and lock the clock record for update consistency
+      const clockForUpdate = await tx.timeClock.findUnique({
+        where: { id: activeClock.id },
+      });
+
+      if (!clockForUpdate || clockForUpdate.status !== 'ACTIVE') {
+        // someone else already clocked out or changed it
+        throw new AppError(400, 'Active clock is no longer available');
       }
 
-      // Determine clock-out time (UTC-safe)
-      const shiftEnd = shift?.endTime ? new Date(shift.endTime) : date;
-      const clockOutAt = date > shiftEnd ? shiftEnd : date;
-
-      // Calculate total hours worked
       const totalMs =
         clockOutAt.getTime() -
-        (activeClock.clockInAt ? new Date(activeClock.clockInAt).getTime() : 0);
-      const totalHours = totalMs / (1000 * 60 * 60); // convert ms → hr
+        (clockForUpdate.clockInAt
+          ? new Date(clockForUpdate.clockInAt).getTime()
+          : 0);
+      const totalHours = totalMs / (1000 * 60 * 60); // ms → hr
       const overtimeHours = totalHours > 8 ? totalHours - 8 : 0;
 
-      const updated = await this.prisma.timeClock.update({
-        where: { id: activeClock.id },
+      const updatedClock = await tx.timeClock.update({
+        where: { id: clockForUpdate.id },
         data: {
           clockOutAt: clockOutAt.toISOString(),
           clockOutLat: dto.lat,
@@ -117,9 +171,9 @@ export class ClockInAndOutService {
         },
       });
 
-      return successResponse(updated, 'Clocked out successfully');
-    }
+      return updatedClock;
+    });
 
-    throw new AppError(400, 'Invalid clock action');
+    return successResponse(updated, 'Clocked out successfully');
   }
 }

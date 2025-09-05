@@ -18,19 +18,14 @@ export class CurrentClockShiftService {
     dto: ClientDateDto,
   ): Promise<TResponse<any>> {
     const date = new Date(dto.date);
-
-    // * find shift for that date
     const shift = await this.getCurrentShift(userId, date);
 
     if (!shift) {
       throw new AppError(404, 'No active shift found for the user');
     }
 
-    // * get latest clockInAt of that user for that shift
-    const clock = await this.prisma.timeClock.findFirst({
-      where: { userId, shiftId: { not: null } },
-      orderBy: { createdAt: 'desc' },
-    });
+    // Get latest clock specifically for this shift (keeps services synchronized)
+    const clock = await this.getLatestClockForShift(userId, shift.id);
 
     const team = await this.prisma.team.findFirst({
       where: {
@@ -82,13 +77,66 @@ export class CurrentClockShiftService {
         teamMembers,
         isClockedIn: clock?.status === 'ACTIVE',
         canClockIn:
-          new Date() >= new Date(shift.startTime.getTime() - 15 * 60 * 1000), // 15 minutes before shift start time
+          new Date() >= new Date(shift.startTime.getTime() - 15 * 60 * 1000), // 15 minutes before shift start time (server time)
       },
       'Current shift',
     );
   }
 
-  // Helpers
+  async getCurrentShift(userId: string, date: Date) {
+    // Normalize to UTC midnight range for that date
+    const utcDate = this.toUTCDate(date);
+
+    const startOfDay = new Date(
+      Date.UTC(
+        utcDate.getUTCFullYear(),
+        utcDate.getUTCMonth(),
+        utcDate.getUTCDate(),
+        0,
+        0,
+        0,
+        0,
+      ),
+    );
+    const endOfDay = new Date(
+      Date.UTC(
+        utcDate.getUTCFullYear(),
+        utcDate.getUTCMonth(),
+        utcDate.getUTCDate(),
+        23,
+        59,
+        59,
+        999,
+      ),
+    );
+
+    // Find the earliest published shift for that day that includes the user
+    const shift = await this.prisma.shift.findFirst({
+      where: {
+        date: { gte: startOfDay, lte: endOfDay },
+        shiftStatus: 'PUBLISHED',
+        users: { some: { id: userId } },
+      },
+      orderBy: { startTime: 'asc' },
+    });
+
+    return shift;
+  }
+
+  /**
+   * Get the latest timeClock for a specific user + shift
+   * This ensures we don't accidentally look at a clock for a different shift.
+   */
+  async getLatestClockForShift(userId: string, shiftId: string) {
+    return this.prisma.timeClock.findFirst({
+      where: { userId, shiftId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Determine if a point is within radius (meters) of center.
+   */
   isWithinRadius(
     point: { lat: number; lng: number },
     center: { lat: number; lng: number },
@@ -119,50 +167,16 @@ export class CurrentClockShiftService {
     return deg * (Math.PI / 180);
   }
 
-  async getCurrentShift(userId: string, date: Date) {
-    const utcDate = this.toUTCDate(date);
-
-    const startOfDay = new Date(
-      Date.UTC(
-        utcDate.getUTCFullYear(),
-        utcDate.getUTCMonth(),
-        utcDate.getUTCDate(),
-        0,
-        0,
-        0,
-        0,
-      ),
-    );
-    const endOfDay = new Date(
-      Date.UTC(
-        utcDate.getUTCFullYear(),
-        utcDate.getUTCMonth(),
-        utcDate.getUTCDate(),
-        23,
-        59,
-        59,
-        999,
-      ),
-    );
-
-    const shift = await this.prisma.shift.findFirst({
-      where: {
-        date: { gte: startOfDay, lte: endOfDay },
-        shiftStatus: 'PUBLISHED',
-        users: { some: { id: userId } },
-      },
-      orderBy: { startTime: 'asc' },
-    });
-
-    return shift;
-  }
-
+  /**
+   * Convert input into a UTC Date object safely.
+   * Accepts Date or ISO/string. Returns a Date that represents the same instant in UTC.
+   */
   toUTCDate(input: string | Date): Date {
     const d = new Date(input);
-    // If the date is invalid, throw error
     if (isNaN(d.getTime())) {
       throw new AppError(400, 'Invalid date provided');
     }
-    return new Date(d.toISOString()); // ensure UTC
+    // d.toISOString() forces UTC representation; new Date of that keeps the same instant
+    return new Date(d.toISOString());
   }
 }
