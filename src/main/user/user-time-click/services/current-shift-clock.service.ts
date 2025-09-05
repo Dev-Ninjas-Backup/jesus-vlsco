@@ -84,38 +84,23 @@ export class CurrentClockShiftService {
   }
 
   async getCurrentShift(userId: string, date: Date) {
-    // Normalize to UTC midnight range for that date
     const utcDate = this.toUTCDate(date);
 
-    const startOfDay = new Date(
-      Date.UTC(
-        utcDate.getUTCFullYear(),
-        utcDate.getUTCMonth(),
-        utcDate.getUTCDate(),
-        0,
-        0,
-        0,
-        0,
-      ),
-    );
-    const endOfDay = new Date(
-      Date.UTC(
-        utcDate.getUTCFullYear(),
-        utcDate.getUTCMonth(),
-        utcDate.getUTCDate(),
-        23,
-        59,
-        59,
-        999,
-      ),
-    );
-
-    // Find the earliest published shift for that day that includes the user
     const shift = await this.prisma.shift.findFirst({
       where: {
-        date: { gte: startOfDay, lte: endOfDay },
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
+        OR: [
+          // case 1: already active
+          {
+            startTime: { lte: utcDate },
+            endTime: { gte: utcDate },
+          },
+          // case 2: upcoming shift later today
+          {
+            startTime: { gte: utcDate },
+          },
+        ],
       },
       orderBy: { startTime: 'asc' },
     });
