@@ -9,6 +9,7 @@ import { NotificationGateway } from '@project/lib/notification/notification.gate
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { Worker } from 'bullmq';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class ShiftWorker implements OnModuleInit {
@@ -108,38 +109,52 @@ export class ShiftWorker implements OnModuleInit {
     shift: any,
     meta: any,
   ): string {
+    const start = this.formatShiftTime(new Date(shift.startTime));
+    const end = this.formatShiftTime(new Date(shift.endTime));
+
+    // Build optional fields
+    const jobLine = shift.job
+      ? `<li><strong>Job:</strong> ${shift.job}</li>`
+      : '';
+    const locationLine = shift.location
+      ? `<li><strong>Location:</strong> ${shift.location}</li>`
+      : '';
+    const noteLine = shift.note
+      ? `<li><strong>Note:</strong> ${shift.note}</li>`
+      : '';
+
+    const baseDetails = `
+    <ul>
+      <li><strong>Shift:</strong> ${shift.shiftTitle}</li>
+      <li><strong>Start:</strong> ${start.mountain} (${start.utc})</li>
+      <li><strong>End:</strong> ${end.mountain} (${end.utc})</li>
+      ${jobLine}
+      ${locationLine}
+      ${noteLine}
+    </ul>
+  `;
+
     switch (action) {
       case 'ASSIGN':
         return `
-          <p>You have been assigned a new shift.</p>
-          <ul>
-            <li><strong>Shift:</strong> ${shift.shiftTitle}</li>
-            <li><strong>Start:</strong> ${new Date(shift.startTime).toLocaleString()}</li>
-            <li><strong>End:</strong> ${new Date(shift.endTime).toLocaleString()}</li>
-          </ul>
-        `;
+        <p>You have been assigned a new shift.</p>
+        ${baseDetails}
+      `;
       case 'STATUS_UPDATE':
         return `
-          <p>Your shift status has been updated to: <strong>${meta.status || shift.status}</strong>.</p>
-          <p>Shift starts at ${new Date(shift.startTime).toLocaleString()}</p>
-        `;
+        <p>Your shift status has been updated to: <strong>${meta.status || shift.status}</strong>.</p>
+        ${baseDetails}
+      `;
       case 'CHANGE':
         return `
-          <p>Your shift has been updated with new details.</p>
-          <ul>
-            <li><strong>Start:</strong> ${new Date(shift.startTime).toLocaleString()}</li>
-            <li><strong>End:</strong> ${new Date(shift.endTime).toLocaleString()}</li>
-          </ul>
-        `;
+        <p>Your shift has been updated with new details.</p>
+        ${baseDetails}
+      `;
       case 'URGENT_SHIFT_CHANGED':
         return `
-          <p>Your shift has been updated with new details.</p>
-          <ul>
-            <li><strong>Shift:</strong> ${shift.shiftTitle}</li>
-            <li><strong>Start:</strong> ${new Date(shift.startTime).toLocaleString()}</li>
-            <li><strong>End:</strong> ${new Date(shift.endTime).toLocaleString()}</li>
-          </ul>
-        `;
+        <p><strong>Urgent:</strong> Your shift has been changed!</p>
+        ${baseDetails}
+      `;
       default:
         return `<p>You have a shift update.</p>`;
     }
@@ -158,5 +173,16 @@ export class ShiftWorker implements OnModuleInit {
       default:
         return 'shift.unknown';
     }
+  }
+
+  private formatShiftTime(date: Date) {
+    const dt = DateTime.fromJSDate(date).toUTC();
+
+    return {
+      utc: dt.toFormat("yyyy-LL-dd HH:mm 'UTC'"),
+      mountain: dt
+        .setZone('America/Denver')
+        .toFormat("yyyy-LL-dd hh:mm a 'MT'"),
+    };
   }
 }
