@@ -16,4 +16,8 @@ enum FileType {
   image
   docs
   link
+  document
+  any
+  video
+  audio
 }

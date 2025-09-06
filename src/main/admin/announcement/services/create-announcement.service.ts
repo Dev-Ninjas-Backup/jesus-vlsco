@@ -57,6 +57,7 @@ export class CreateAnnouncementService {
             }
           : {}),
       },
+      include: { attachments: true },
     });
 
     const members = await this.prisma.teamMembers.findMany({

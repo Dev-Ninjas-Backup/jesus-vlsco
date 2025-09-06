@@ -90,4 +90,43 @@ export class MulterService {
       },
     };
   }
+
+  public createMultipleFileOptions(
+    options: MultipleFileOptions,
+  ): MulterOptions {
+    const {
+      destinationFolder,
+      prefix,
+      fileType = FileType.ANY,
+      fileSizeLimit = 10 * 1024 * 1024,
+      maxFileCount = 5,
+      customMimeTypes,
+    } = options;
+
+    const allowedMimeTypes =
+      fileType === FileType.ANY
+        ? null
+        : customMimeTypes || this.mimeTypesMap[fileType] || [];
+
+    return {
+      storage: diskStorage({
+        destination: destinationFolder,
+        filename: (req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          cb(null, `${prefix}-${uuid()}${ext}`);
+        },
+      }),
+      limits: {
+        fileSize: fileSizeLimit,
+        files: maxFileCount,
+      },
+      fileFilter: (req, file, cb) => {
+        if (!allowedMimeTypes || allowedMimeTypes.includes(file.mimetype)) {
+          cb(null, true);
+        } else {
+          cb(new Error(`Unsupported file type: ${file.mimetype}`), false);
+        }
+      },
+    };
+  }
 }

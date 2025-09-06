@@ -18,7 +18,8 @@ import {
   ValidateAdmin,
   ValidateAuth,
 } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { CreateAnnouncementDto } from './dto/createAnnouncement.dto';
 import { createAnnouncementSwagger } from './dto/createAnnouncement.swagger';
 import { CreateAnnouncementCategoryDto } from './dto/createAnnouncementCategory.dto';
@@ -40,7 +41,7 @@ export class AnnouncementController {
     private readonly getAnnouncementCategoryService: GetAnnouncementCategoryService,
     private readonly updateAnnouncementCategoryService: UpdateAnnouncementCategoryService,
     private readonly deleteAnnouncementCategoryService: DeleteAnnouncementCategoryService,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
     private readonly createAnnouncementService: CreateAnnouncementService,
     private readonly announcementService: AnnouncementService,
   ) {}
@@ -48,7 +49,19 @@ export class AnnouncementController {
   // Create a new announcement category
   @Post('create-announcement')
   @ValidateAdmin()
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(
+    FilesInterceptor(
+      'files',
+      5, // max file count
+      new MulterService().createMultipleFileOptions({
+        destinationFolder: './temp',
+        prefix: 'temp',
+        fileType: FileType.ANY,
+        maxFileCount: 5,
+        fileSizeLimit: 10 * 1024 * 1024, // 10MB
+      }),
+    ),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Announcement creation with file uploads',
@@ -77,10 +90,7 @@ export class AnnouncementController {
     if (files && files.length > 0) {
       uploadedUrls = await Promise.all(
         files.map(async (file) => {
-          return await this.cloudinaryService.uploadImageFromBuffer(
-            file.buffer,
-            file.originalname,
-          );
+          return await this.fileService.processUploadedFile(file);
         }),
       );
     }
