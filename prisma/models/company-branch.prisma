@@ -1,12 +1,13 @@
 model CompaniesBranch {
   id        String   @id @default(uuid())
-  companyId String
   name      String
   location  String
-  managerId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  manager User?     @relation(fields: [managerId], references: [id], onDelete: NoAction)
+  managerId String?
+  manager User?     @relation(fields: [managerId], references: [id], onDelete: SetNull)
+
+  companyId String
   company Companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }

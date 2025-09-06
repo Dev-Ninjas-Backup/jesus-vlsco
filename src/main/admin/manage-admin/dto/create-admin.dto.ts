@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
+import { Department, Gender, UserEnum } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsDate,
@@ -53,9 +53,9 @@ export class CreateAdminDto {
   @IsEnum(Gender)
   gender: Gender;
 
-  @ApiProperty({ enum: JopTitle })
-  @IsEnum(JopTitle)
-  jobTitle: JopTitle;
+  @ApiProperty({ example: 'Software Engineer' })
+  @IsString()
+  jobTitle: string;
 
   @ApiProperty({ enum: Department })
   @IsEnum(Department)

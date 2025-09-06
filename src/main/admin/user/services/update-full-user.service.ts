@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Department, Gender, JopTitle } from '@prisma/client';
+import { Department, Gender } from '@prisma/client';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -43,8 +43,8 @@ export class UpdateFullUserService {
     // * data from dto from profile
     const firstName = dto?.profile?.firstName?.trim();
     const lastName = dto?.profile?.lastName?.trim();
+    const jobTitle = dto?.profile?.jobTitle?.trim();
     const gender = dto?.profile?.gender?.trim() as Gender;
-    const jobTitle = dto?.profile?.jobTitle?.trim() as JopTitle;
     const department = dto?.profile?.department?.trim() as Department;
     const dob = dto?.profile?.dob?.trim();
     const address = dto?.profile?.address?.trim();

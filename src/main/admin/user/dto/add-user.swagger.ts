@@ -1,4 +1,4 @@
-import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
+import { Department, Gender, UserEnum } from '@prisma/client';
 
 export const swaggerSchema = {
   type: 'object',
@@ -25,8 +25,7 @@ export const swaggerSchema = {
     },
     jobTitle: {
       type: 'string',
-      enum: [JopTitle.DATA_ENGINEER, JopTitle.DATA_SCIENTIST],
-      example: JopTitle.DATA_ENGINEER,
+      example: 'Software Engineer',
     },
     department: {
       type: 'string',
@@ -62,7 +61,7 @@ export const updateUserSwaggerSchema = {
     firstName: { type: 'string' },
     lastName: { type: 'string' },
     gender: { type: 'string', enum: [Gender.MALE, Gender.FEMALE] },
-    jobTitle: { type: 'string', enum: Object.values(JopTitle) },
+    jobTitle: { type: 'string', example: 'Software Engineer' },
     department: { type: 'string', enum: Object.values(Department) },
     address: { type: 'string' },
     city: { type: 'string' },
