@@ -8,6 +8,7 @@ import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { Worker } from 'bullmq';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class TimeOffWorker implements OnModuleInit {
@@ -87,17 +88,37 @@ export class TimeOffWorker implements OnModuleInit {
     action: TimeOffEvent['action'],
     timeOff: TimeOffEvent['meta'],
   ): string {
+    const start = this.formatDate(timeOff.startDate);
+    const end = this.formatDate(timeOff.endDate);
+
     switch (action) {
       case 'CREATE':
-        return `Your time off request for ${timeOff.startDate} to ${timeOff.endDate} has been created.`;
+        return `
+        <p>Your time off request has been created.</p>
+        <p><strong>From:</strong> ${start.mountain} (${start.utc})</p>
+        <p><strong>To:</strong> ${end.mountain} (${end.utc})</p>
+      `;
       case 'DELETE':
-        return `Your time off request for ${timeOff.startDate} to ${timeOff.endDate} has been deleted.`;
+        return `
+        <p>Your time off request has been deleted.</p>
+        <p><strong>From:</strong> ${start.mountain} (${start.utc})</p>
+        <p><strong>To:</strong> ${end.mountain} (${end.utc})</p>
+      `;
       case 'UPDATE':
-        return `Your time off request has been updated. New dates: ${timeOff.startDate} to ${timeOff.endDate}.`;
+        return `
+        <p>Your time off request has been updated.</p>
+        <p><strong>New From:</strong> ${start.mountain} (${start.utc})</p>
+        <p><strong>New To:</strong> ${end.mountain} (${end.utc})</p>
+      `;
       case 'STATUS_CHANGE':
-        return `The status of your time off request has changed to ${timeOff.status}.`;
+        return `
+        <p>The status of your time off request has changed to: 
+        <strong>${timeOff.status}</strong>.</p>
+        <p><strong>From:</strong> ${start.mountain} (${start.utc})</p>
+        <p><strong>To:</strong> ${end.mountain} (${end.utc})</p>
+      `;
       default:
-        return 'You have a new time off notification.';
+        return `<p>You have a new time off notification.</p>`;
     }
   }
 
@@ -114,5 +135,15 @@ export class TimeOffWorker implements OnModuleInit {
       default:
         return 'timeoff.unknown';
     }
+  }
+  private formatDate(date: string | Date) {
+    const dt = DateTime.fromJSDate(new Date(date)).toUTC();
+
+    return {
+      utc: dt.toFormat("yyyy-LL-dd HH:mm 'UTC'"),
+      mountain: dt
+        .setZone('America/Denver')
+        .toFormat("yyyy-LL-dd hh:mm a 'MT'"),
+    };
   }
 }

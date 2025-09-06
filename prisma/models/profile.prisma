@@ -4,9 +4,11 @@ model Profile {
   firstName   String
   lastName    String?
   profileUrl  String?
+  jobTitle    String
+  
   gender      Gender
-  jobTitle    JopTitle
   department  Department
+  
   address     String
   city        String
   state       String
@@ -27,22 +29,6 @@ enum Gender {
   PREFER_NOT_TO_SAY
 }
 
-enum JopTitle {
-  BACK_END_DEVELOPER
-  FRONT_END_DEVELOPER
-  FULL_STACK_DEVELOPER
-  MOBILE_DEVELOPER
-  UI_DEVELOPER
-  UX_DEVELOPER
-  SEALS_ENGINEER
-  DATA_SCIENTIST
-  DATA_ANALYST
-  DATA_ENGINEER
-  HR_MANAGER
-  FINANCE_MANAGER
-  MARKETING_MANAGER
-}
-
 enum Department {
   IT
   DEVELOPMENT
@@ -50,4 +36,8 @@ enum Department {
   FINANCE
   MARKETING
   SEALS
+  LABOURER
+  CARPENTER
+  ELECTRICIAN
+  DRIVER
 }

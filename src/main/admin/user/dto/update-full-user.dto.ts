@@ -3,7 +3,6 @@ import {
   BreakTimePerDay,
   Department,
   Gender,
-  JopTitle,
   PayRateType,
   Weekdays,
 } from '@prisma/client';
@@ -64,11 +63,11 @@ export class UpdateProfileDto {
   @EmptyToUndefined()
   gender?: Gender;
 
-  @ApiPropertyOptional({ enum: JopTitle })
+  @ApiPropertyOptional({ example: 'Software Engineer' })
   @IsOptional()
-  @IsEnum(JopTitle)
+  @IsString()
   @EmptyToUndefined()
-  jobTitle?: JopTitle;
+  jobTitle?: string;
 
   @ApiPropertyOptional({ enum: Department })
   @IsOptional()

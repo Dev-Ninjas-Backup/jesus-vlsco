@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Department, Gender, JopTitle, UserEnum } from '@prisma/client';
+import { Department, Gender, UserEnum } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
   IsEmail,
@@ -64,11 +64,11 @@ export class AddUserDto {
   @EmptyToUndefined()
   gender?: Gender;
 
-  @ApiPropertyOptional({ enum: JopTitle })
+  @ApiPropertyOptional({ example: 'Software Engineer' })
   @IsOptional()
-  @IsEnum(JopTitle)
+  @IsString()
   @EmptyToUndefined()
-  jobTitle?: JopTitle;
+  jobTitle?: string;
 
   @ApiPropertyOptional({ enum: Department })
   @IsOptional()
