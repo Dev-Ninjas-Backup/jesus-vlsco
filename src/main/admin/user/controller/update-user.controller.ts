@@ -15,12 +15,13 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { updateUserSwaggerSchema } from '../dto/add-user.swagger';
 import { UpdateFullUserDto } from '../dto/update-full-user.dto';
 import { UpdateProfileDto, UpdateRoleDto } from '../dto/update-profile.dto';
-import { UpdateUserService } from '../services/update-user.service';
 import { UpdateFullUserService } from '../services/update-full-user.service';
+import { UpdateUserService } from '../services/update-user.service';
 
 @ApiTags('Admin -- User')
 @Controller('admin/user')
@@ -29,7 +30,7 @@ import { UpdateFullUserService } from '../services/update-full-user.service';
 export class UpdateUserController {
   constructor(
     private readonly updateUserService: UpdateUserService,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
     private readonly updateFullUserService: UpdateFullUserService,
   ) {}
 
@@ -41,7 +42,12 @@ export class UpdateUserController {
   @ApiBody({
     schema: { type: 'object', properties: updateUserSwaggerSchema.properties },
   })
-  @UseInterceptors(FileInterceptor('profileUrl'))
+  @UseInterceptors(
+    FileInterceptor(
+      'profileUrl',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   async updateUser(
     @Param('userId') userId: string,
     @Body() dto: UpdateProfileDto,
@@ -49,12 +55,7 @@ export class UpdateUserController {
   ) {
     let uploadedUrl: string | null = null;
     if (file) {
-      uploadedUrl = (
-        await this.cloudinaryService.uploadImageFromBuffer(
-          file.buffer,
-          file.originalname,
-        )
-      ).url;
+      uploadedUrl = (await this.fileService.processUploadedFile(file)).url;
     }
     return this.updateUserService.updateUser(userId, dto, uploadedUrl);
   }

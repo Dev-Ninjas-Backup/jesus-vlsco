@@ -1,11 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { Gender } from '@prisma/client';
+import { Department, Gender } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
 import {
-  IsDate,
   IsEmail,
   IsEnum,
   IsInt,
+  IsISO8601,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -56,16 +56,19 @@ export class UpdateProfileDto {
   state?: string;
 
   @ApiPropertyOptional()
-  @Transform(({ value }) => {
-    // * if value is empty, return undefined
-    if (!value) return undefined;
-    const date = new Date(value);
-    return isNaN(date.getTime()) ? undefined : date.toISOString();
-  })
   @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  dob?: Date;
+  @IsISO8601()
+  dob?: string;
+
+  @ApiPropertyOptional({ example: 'Software Engineer' })
+  @IsOptional()
+  @IsString()
+  jobTitle?: string;
+
+  @ApiPropertyOptional({ enum: Department })
+  @IsOptional()
+  @IsEnum(Department)
+  department?: Department;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -85,9 +88,33 @@ export const updateUserSwaggerSchema = {
     phone: { type: 'string', example: '+8801234567890' },
     firstName: { type: 'string' },
     lastName: { type: 'string' },
-    gender: { type: 'string', enum: [Gender.MALE, Gender.FEMALE] },
+    gender: {
+      type: 'string',
+      enum: [
+        Gender.MALE,
+        Gender.FEMALE,
+        Gender.OTHER,
+        Gender.PREFER_NOT_TO_SAY,
+      ],
+    },
     address: { type: 'string' },
     state: { type: 'string' },
+    jobTitle: { type: 'string' },
+    department: {
+      type: 'string',
+      enum: [
+        Department.CARPENTER,
+        Department.ELECTRICIAN,
+        Department.DEVELOPMENT,
+        Department.HR,
+        Department.FINANCE,
+        Department.MARKETING,
+        Department.LABOURER,
+        Department.IT,
+        Department.SEALS,
+        Department.DRIVER,
+      ],
+    },
     dob: { type: 'string', format: 'date-time' },
     country: { type: 'string' },
     nationality: { type: 'string' },

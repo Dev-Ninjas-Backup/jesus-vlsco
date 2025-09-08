@@ -16,7 +16,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { AddUserDto } from '../dto/add-user.dto';
 import { swaggerSchema } from '../dto/add-user.swagger';
 import { AddUserService } from '../services/add-user.service';
@@ -28,7 +29,7 @@ import { AddUserService } from '../services/add-user.service';
 export class AddUserController {
   constructor(
     private readonly addUserService: AddUserService,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
   ) {}
 
   @Post()
@@ -47,7 +48,12 @@ export class AddUserController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('profileUrl'))
+  @UseInterceptors(
+    FileInterceptor(
+      'profileUrl',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   async createUser(
     @Body() dto: AddUserDto,
     @UploadedFile() file: Express.Multer.File,
@@ -55,10 +61,7 @@ export class AddUserController {
     let uploadedUrl = null;
 
     if (file) {
-      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      );
+      uploadedUrl = await this.fileService.processUploadedFile(file);
     }
 
     return this.addUserService.createUserWithProfile(

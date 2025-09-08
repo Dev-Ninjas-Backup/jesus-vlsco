@@ -1,4 +1,4 @@
-import { Gender } from '@prisma/client';
+import { Department, Gender } from '@prisma/client';
 
 export const updateProfileSwaggerSchema = {
   type: 'object',
@@ -12,6 +12,8 @@ export const updateProfileSwaggerSchema = {
     city: { type: 'string' },
     state: { type: 'string' },
     dob: { type: 'string', format: 'date-time' },
+    jobTitle: { type: 'string' },
+    department: { type: 'string', enum: Department },
     country: { type: 'string' },
     nationality: { type: 'string' },
     password: { type: 'string' },
