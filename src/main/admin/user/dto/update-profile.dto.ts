@@ -1,7 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Department, Gender, UserEnum } from '@prisma/client';
 import { Transform, Type } from 'class-transformer';
-import { IsEmail, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsISO8601,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 /**
  * Transforms empty string values into `undefined` so `@IsOptional()` will skip validation.
@@ -66,6 +73,12 @@ export class UpdateProfileDto {
   @IsEnum(Gender)
   @EmptyToUndefined()
   gender?: Gender;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsISO8601()
+  @EmptyToUndefined()
+  dob?: string;
 
   @ApiPropertyOptional({ example: 'Software Engineer' })
   @IsOptional()

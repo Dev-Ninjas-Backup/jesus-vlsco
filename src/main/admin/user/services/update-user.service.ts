@@ -87,6 +87,7 @@ export class UpdateUserService {
       state: dto.state ?? existingProfile?.state ?? defaults.state,
       country: dto.country ?? existingProfile?.country ?? null,
       nationality: dto.nationality ?? existingProfile?.nationality ?? null,
+      dob: dto.dob ?? existingProfile?.dob ?? defaults.dob,
       profileUrl:
         profileUrl !== null
           ? profileUrl
