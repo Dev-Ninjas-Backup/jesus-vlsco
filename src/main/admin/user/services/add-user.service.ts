@@ -5,7 +5,9 @@ import {
   successResponse,
   TResponse,
 } from '@project/common/utils/response.util';
+import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { TwilioService } from '@project/lib/twilio/twilio.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { AddUserDto } from '../dto/add-user.dto';
 
@@ -14,6 +16,8 @@ export class AddUserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
+    private readonly mailService: MailService,
+    private readonly twilioService: TwilioService,
   ) {}
 
   @HandleError('Error creating user')
@@ -78,33 +82,36 @@ export class AddUserService {
             nationality: dto.nationality,
           },
         },
+        payroll: {
+          create: {
+            regularPayRate: 10,
+            breakTimePerDay: 'ONE_HOUR',
+            regularPayRateType: 'DAY',
+            overTimePayRate: 10,
+            overTimePayRateType: 'DAY',
+            casualLeave: 10,
+            sickLeave: 14,
+            numberOffDay: 1,
+            offDay: ['SUNDAY'],
+          },
+        },
       },
-    });
-
-    // * create payroll with default values
-    await this.prisma.payroll.create({
-      data: {
-        userId: user.id,
-        regularPayRate: 10,
-        regularPayRateType: 'DAY',
-        overTimePayRate: 10,
-        overTimePayRateType: 'DAY',
-        casualLeave: 10,
-        sickLeave: 14,
-        numberOffDay: 1,
-        offDay: ['SUNDAY'],
-      },
-    });
-
-    const result = await this.prisma.user.findUnique({
-      where: { id: user.id },
       include: {
         profile: true,
         payroll: true,
       },
     });
 
-    return successResponse(result, 'User created successfully');
+    // * send email to user
+    await this.mailService.sendWelcomeEmail({
+      email: user.email,
+      phone: user.phone,
+    });
+
+    // * send sms to user
+    await this.twilioService.sendWelcomeSms(user.phone, user.email);
+
+    return successResponse(user, 'User created successfully');
   }
 
   @HandleError('Error creating user')
