@@ -56,31 +56,30 @@ enum RequestOverTimeStatus {
   REJECTED
 }
 
-
 model MissedClockRequest {
-  id          String   @id @default(uuid())
-  
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id String @id @default(uuid())
 
-  shiftId     String?  
-  shift       Shift?   @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  requestedClockInAt   DateTime?
-  requestedClockOutAt  DateTime?
+  shiftId String?
+  shift   Shift?  @relation(fields: [shiftId], references: [id], onDelete: SetNull)
+
+  requestedClockInAt  DateTime?
+  requestedClockOutAt DateTime?
 
   location    String?
   locationLat Float?
   locationLng Float?
 
-  reason      String
-  status      MissedClockStatus @default(PENDING)
+  reason String
+  status MissedClockStatus @default(PENDING)
 
-  reviewedBy  String?   // adminId
-  reviewedAt  DateTime?
+  reviewedBy String? // adminId
+  reviewedAt DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum MissedClockStatus {

@@ -1,22 +1,22 @@
 model Profile {
   id String @id @default(uuid())
 
-  firstName   String
-  lastName    String?
-  profileUrl  String?
-  jobTitle    String
-  
-  gender      Gender
-  department  Department
-  
+  firstName  String
+  lastName   String?
+  profileUrl String?
+  jobTitle   String
+
+  gender     Gender
+  department Department
+
   address     String
   city        String
   state       String
   dob         DateTime
   country     String?
   nationality String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -18,14 +18,6 @@ export class GetUsersDto {
   @IsString()
   searchTerm?: string;
 
-  @ApiPropertyOptional({
-    description: 'Filter by employee Assigned to',
-  })
-  @IsOptional()
-  @IsBoolean()
-  @Type(() => Boolean)
-  assigned?: boolean;
-
   @ApiPropertyOptional({ enum: UserEnum, description: 'Filter by user role' })
   @IsOptional()
   @IsEnum(UserEnum)
@@ -42,16 +34,6 @@ export class GetUsersDto {
   @IsBoolean()
   @Type(() => Boolean)
   isVerified?: boolean;
-
-  @ApiPropertyOptional({ description: 'Sort by field (e.g. createdAt, email)' })
-  @IsOptional()
-  @IsString()
-  sortBy?: string;
-
-  @ApiPropertyOptional({ description: 'Sort order: ASC or DESC' })
-  @IsOptional()
-  @IsString()
-  sortOrder?: 'asc' | 'desc';
 
   @ApiPropertyOptional({
     description: 'Filter by department(s) in profile',

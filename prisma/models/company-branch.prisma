@@ -6,8 +6,8 @@ model CompaniesBranch {
   updatedAt DateTime @updatedAt
 
   managerId String?
-  manager User?     @relation(fields: [managerId], references: [id], onDelete: SetNull)
+  manager   User?   @relation(fields: [managerId], references: [id], onDelete: SetNull)
 
   companyId String
-  company Companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }

@@ -25,9 +25,19 @@ export class PrismaUserQueryBuilder {
         if (field === 'employeeID') {
           const parsed = Number(searchTerm);
           if (!isNaN(parsed)) {
-            return { [field]: parsed }; // ✅ numeric match
+            return { [field]: parsed }; // ✅ numeric match for employeeID
           }
-          return null; // skip if input is not a number
+          return null; // skip if not a number
+        }
+
+        if (field === 'phone') {
+          //  ensure phone search always string-based
+          return {
+            [field]: {
+              contains: String(searchTerm), // cast to string
+              mode: Prisma.QueryMode.insensitive,
+            },
+          };
         }
 
         // Handle nested profile fields
@@ -35,12 +45,20 @@ export class PrismaUserQueryBuilder {
           const nestedField = field.split('.')[1];
           return {
             profile: {
-              [nestedField]: { contains: searchTerm, mode: 'insensitive' },
+              [nestedField]: {
+                contains: String(searchTerm),
+                mode: 'insensitive',
+              },
             },
           };
         }
 
-        return { [field]: { contains: searchTerm, mode: 'insensitive' } };
+        return {
+          [field]: {
+            contains: String(searchTerm),
+            mode: 'insensitive',
+          },
+        };
       });
 
       this.where.OR = orConditions.filter((cond) => cond !== null);
@@ -61,21 +79,6 @@ export class PrismaUserQueryBuilder {
       // Ensure array if multiple values are passed
       if (Array.isArray(value)) {
         value = value.map((v) => v.toString());
-      }
-
-      /**
-       * ✅ Special case: assigned filter
-       * - true  → user has at least one project
-       * - false → user has no projects
-       */
-      if (key === 'assigned') {
-        if (value === true || value === 'true') {
-          this.where.projects = { some: {} };
-          this.where.shift = { some: {} };
-        } else {
-          this.where.projects = { none: {} };
-        }
-        continue;
       }
 
       // Handle department in profile

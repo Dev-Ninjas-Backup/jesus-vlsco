@@ -47,7 +47,7 @@ model User {
   timeClock              TimeClock[]
   payrollEntry           PayrollEntries[]
   requestOverTime        RequestOverTime[]
-  missedClockRequest MissedClockRequest[]
+  missedClockRequest     MissedClockRequest[]
 }
 
 enum UserEnum {

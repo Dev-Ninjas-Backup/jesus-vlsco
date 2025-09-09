@@ -77,7 +77,7 @@ export class GetUserService {
     return successResponse(data, 'User data fetched successfully');
   }
 
-  // Get All users (employee)
+  // Get All users
   @HandleError('Failed to fetch users')
   async getAllUsers(dto: GetUsersDto): Promise<TPaginatedResponse<any>> {
     const builder = new PrismaUserQueryBuilder(dto)
@@ -89,10 +89,9 @@ export class GetUserService {
         'profile.lastName',
       ])
       .filter()
-      .sort(['email', 'createdAt', 'employeeID'])
       .paginate();
 
-    const queryOptions = await builder.build();
+    const queryOptions = builder.build();
 
     const [users, meta] = await Promise.all([
       this.prisma.user.findMany({
@@ -123,13 +122,9 @@ export class GetUserService {
         projectUsers,
         ...mainUser
       } = user;
-      const sanitizedUser = this.utils.sanitizedResponse(
-        UserResponseDto,
-        mainUser,
-      );
 
       return {
-        ...sanitizedUser,
+        ...this.utils.sanitizedResponse(UserResponseDto, mainUser),
         profile,
         educations,
         experience,
