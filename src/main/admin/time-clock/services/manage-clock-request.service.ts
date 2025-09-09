@@ -47,7 +47,10 @@ export class ManageClockRequestService {
     const request = await this.prisma.missedClockRequest.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: {
+          include: { profile: true },
+        },
+        shift: true,
       },
     });
 

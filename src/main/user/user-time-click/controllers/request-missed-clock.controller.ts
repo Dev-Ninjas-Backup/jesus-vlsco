@@ -10,7 +10,10 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { CreateMissedClockRequestDto } from '../dto/request-clock.dto';
+import {
+  CreateMissedClockRequestDto,
+  UpdateClockRequestDto,
+} from '../dto/request-clock.dto';
 import { MissedClockRequestService } from '../services/missed-clock-request.service';
 
 @ApiTags('Employee -- Request Time Clock')
@@ -66,7 +69,7 @@ export class RequestMissedClockController {
   async updateAPendingRequest(
     @GetUser('userId') userId: string,
     @Param('requestId') requestId: string,
-    @Body() dto: CreateMissedClockRequestDto,
+    @Body() dto: UpdateClockRequestDto,
   ) {
     return this.missedClockRequestService.updateAPendingRequest(
       userId,

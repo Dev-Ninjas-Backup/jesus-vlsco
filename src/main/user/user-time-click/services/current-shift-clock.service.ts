@@ -86,7 +86,8 @@ export class CurrentClockShiftService {
   async getCurrentShift(userId: string, date: Date) {
     const utcDate = this.toUTCDate(date);
 
-    const shift = await this.prisma.shift.findFirst({
+    // Case 1 & 2: Active or upcoming shifts
+    const activeOrUpcomingShift = await this.prisma.shift.findFirst({
       where: {
         shiftStatus: 'PUBLISHED',
         users: { some: { id: userId } },
@@ -105,7 +106,20 @@ export class CurrentClockShiftService {
       orderBy: { startTime: 'asc' },
     });
 
-    return shift;
+    if (activeOrUpcomingShift) return activeOrUpcomingShift;
+
+    // Case 3: latest ended shift (delayed clock out)
+    const latestEndedShift = await this.prisma.shift.findFirst({
+      where: {
+        shiftStatus: 'PUBLISHED',
+        users: { some: { id: userId } },
+        startTime: { lte: utcDate },
+        endTime: { lte: utcDate },
+      },
+      orderBy: { endTime: 'desc' },
+    });
+
+    return latestEndedShift;
   }
 
   /**

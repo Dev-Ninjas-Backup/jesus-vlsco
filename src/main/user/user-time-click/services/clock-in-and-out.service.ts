@@ -50,14 +50,14 @@ export class ClockInAndOutService {
     shift: any,
     serverNow: Date,
   ): Promise<TResponse<any>> {
-    // Buffer start: 15 minutes before shift start (server time)
-    const bufferStart = new Date(serverNow.getTime() - 15 * 60 * 1000);
-    if (shift.startTime > bufferStart) {
-      throw new AppError(
-        400,
-        'Too early to clock in. You can clock in 15 minutes before shift start time.',
-      );
-    }
+    // // Buffer start: 15 minutes before shift start (server time)
+    // const bufferStart = new Date(serverNow.getTime() - 15 * 60 * 1000);
+    // if (shift.startTime > bufferStart) {
+    //   throw new AppError(
+    //     400,
+    //     'Too early to clock in. You can clock in 15 minutes before shift start time.',
+    //   );
+    // }
 
     // If shift already ended
     if (serverNow > new Date(shift.endTime)) {

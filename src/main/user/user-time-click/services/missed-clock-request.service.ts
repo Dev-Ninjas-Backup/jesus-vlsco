@@ -165,6 +165,7 @@ export class MissedClockRequestService {
     return successResponse(null, 'Request cancelled successfully');
   }
 
+  @HandleError('Failed to update missed clock request', 'MISSED_CLOCK_REQUEST')
   async updateAPendingRequest(
     userId: string,
     requestId: string,
@@ -178,22 +179,20 @@ export class MissedClockRequestService {
       throw new AppError(404, 'Request not found');
     }
 
-    if (request.userId !== userId) {
-      throw new AppError(
-        403,
-        'You do not have permission to update this request',
-      );
-    }
-
     if (request.status !== 'PENDING') {
       throw new AppError(400, 'Request has already been processed');
     }
 
+    // Remove null, undefined, and empty string values from dto
+    const cleanDto = Object.fromEntries(
+      Object.entries(dto).filter(
+        ([, value]) => value !== null && value !== undefined && value !== '',
+      ),
+    );
+
     const updatedRequest = await this.prisma.missedClockRequest.update({
       where: { id: requestId },
-      data: {
-        ...dto,
-      },
+      data: cleanDto,
     });
 
     return successResponse(updatedRequest, 'Request updated successfully');

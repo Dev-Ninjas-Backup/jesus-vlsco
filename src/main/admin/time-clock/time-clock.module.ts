@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClockSheetService } from '@project/main/user/user-time-click/services/clock-sheet.service';
+import { MissedClockRequestService } from '@project/main/user/user-time-click/services/missed-clock-request.service';
 import { ManageClockRequestController } from './controllers/manage-clock-request.controller';
 import { TimeClockController } from './controllers/time-clock.controller';
 import { ManageClockRequestService } from './services/manage-clock-request.service';
@@ -17,6 +18,7 @@ import { TimeSheetService } from './services/time-sheet.service';
     OvertimeService,
     ManageClockRequestService,
     ClockSheetService,
+    MissedClockRequestService,
   ],
 })
 export class TimeClockModule {}
