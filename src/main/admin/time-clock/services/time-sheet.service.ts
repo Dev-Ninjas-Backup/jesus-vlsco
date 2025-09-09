@@ -5,6 +5,7 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { DateTime } from 'luxon';
 import { GetTimeSheetDto } from '../dto/time-clock.dto';
 
 @Injectable()
@@ -15,27 +16,23 @@ export class TimeSheetService {
   async getAllUsersTimeSheetByDate(
     dto: GetTimeSheetDto,
   ): Promise<TResponse<any>> {
-    const date = dto.date ? new Date(dto.date) : new Date();
+    const { date, timezone = 'America/Edmonton' } = dto;
 
-    // Start and end of the given date
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
+    // user-provided date or "today" in that timezone
+    const baseDate = date
+      ? DateTime.fromISO(date).setZone(timezone)
+      : DateTime.now().setZone(timezone);
 
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
+    // Convert local day boundaries → UTC for DB query
+    const startOfDay = baseDate.startOf('day').toUTC().toJSDate();
+    const endOfDay = baseDate.endOf('day').toUTC().toJSDate();
 
-    // Fetch all time clocks for that date
     const timeClocks = await this.prisma.timeClock.findMany({
       where: {
         clockInAt: { gte: startOfDay, lte: endOfDay },
       },
       include: {
-        user: {
-          include: {
-            profile: true,
-            payroll: true,
-          },
-        },
+        user: { include: { profile: true, payroll: true } },
         shift: true,
       },
     });
@@ -93,6 +90,7 @@ export class TimeSheetService {
         clockOut: tc.clockOutAt,
         clockInLng: tc.clockInLng,
         clockInLat: tc.clockInLat,
+        location: tc.shift?.location || 'Unknown Location',
         totalHours: totalHours.toFixed(2),
         regularHours: regularHours.toFixed(2),
         overTime: overTime.toFixed(2),
@@ -102,6 +100,9 @@ export class TimeSheetService {
       };
     });
 
-    return successResponse(outputData, `Time sheet for ${date.toDateString()}`);
+    return successResponse(
+      outputData,
+      `Time sheet for ${baseDate.toFormat('yyyy-MM-dd')}`,
+    );
   }
 }

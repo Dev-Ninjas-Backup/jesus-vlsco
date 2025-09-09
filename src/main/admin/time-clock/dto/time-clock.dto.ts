@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsDate, IsOptional } from 'class-validator';
+import { IsBoolean, IsISO8601, IsOptional, IsString } from 'class-validator';
 
 export class ApproveOrRejectShiftRequest {
   @ApiProperty({ example: true })
@@ -17,7 +17,14 @@ export class ApproveOrRejectShiftRequest {
 export class GetTimeSheetDto {
   @ApiPropertyOptional({ example: '2022-01-01T00:00:00.000Z' })
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
+  @IsISO8601()
   date?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by timezone',
+    example: 'America/Los_Angeles',
+  })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }
