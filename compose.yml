@@ -1,44 +1,14 @@
 services:
   server:
+    image: arafat2025/jesusu-server:latest
+    platform: linux/amd64
     container_name: jesus-server-api
     restart: always
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/jesus_db
-
-      JWT_SECRET: asdfkamskfmasklfmaksmfaskfmaksfaopsfmpaomsfpaf
-      JWT_EXPIRES_IN: 90d
-
-      BASE_URL: https://lgcglobalcontractingltd.com/js
-      PORT: 5005
-
-      MAIL_USER: jaranzov0107@gmail.com
-      MAIL_PASS: auxd gcmn apfk cibl
-
-      SUPER_ADMIN_EMAIL: 'jesus.vlsco@gmail.com'
-      SUPER_ADMIN_PASS: 'superadmin'
-      SUPER_ADMIN_PHONE: 9999999999999
-      SUPER_ADMIN_EMPLOYEE_ID: 100000
-
-      ADMIN_EMAIL: 'arafatmannan9@gmail.com'
-      ADMIN_PASS: 'admin1234'
-      ADMIN_PHONE: 9999999999991
-      ADMIN_EMPLOYEE_ID: 100001
-
-      REDIS_URL: redis://redis:6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-
-      CLOUDINARY_CLOUD_NAME: dajbvml9v
-      CLOUDINARY_API_KEY: 446326388615888
-      CLOUDINARY_API_SECRET: h-2JuLgUmuCN-crXiY-JKdcPyxE
-
-      TWILIO_ACCOUNT_SID: ACd694ffdbf32281b95c8cbf5adc844719
-      TWILIO_AUTH_TOKEN: efa5b0c1c86f9784b255ffe07497c618
-      TWILIO_PHONE_NUMBER: +12543554726
+    env_file:
+      - .env
     ports:
       - 5005:5005
     depends_on:

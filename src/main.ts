@@ -47,7 +47,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Jesus VLSCO')
     .setDescription('Jesus VLSCO API description')
-    .setVersion('1.0')
+    .setVersion('1.1')
     .addBearerAuth()
     .build();
 
