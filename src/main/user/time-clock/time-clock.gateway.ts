@@ -12,7 +12,6 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-
 import { ENVEnum } from '@project/common/enum/env.enum';
 import { JWTPayload } from '@project/common/jwt/jwt.interface';
 import { Server, Socket } from 'socket.io';

@@ -2,8 +2,8 @@ import { Body, Controller, Get, Param, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { UpdateClockRequestDto } from '@project/main/user/user-time-click/dto/request-clock.dto';
-import { MissedClockRequestService } from '@project/main/user/user-time-click/services/missed-clock-request.service';
+import { UpdateClockRequestDto } from '@project/main/user/time-clock/dto/request-clock.dto';
+import { MissedClockRequestService } from '@project/main/user/time-clock/services/missed-clock-request.service';
 import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
 import { ManageClockRequestService } from '../services/manage-clock-request.service';
 
@@ -15,7 +15,7 @@ export class ManageClockRequestController {
   constructor(
     private readonly manageClockRequestService: ManageClockRequestService,
     private readonly missedClockRequestService: MissedClockRequestService,
-  ) {}
+  ) { }
 
   @ApiOperation({ summary: 'Get clock request' })
   @Get()

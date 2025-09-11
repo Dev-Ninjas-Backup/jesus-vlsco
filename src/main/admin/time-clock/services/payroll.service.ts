@@ -8,14 +8,14 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { ClockSheetService } from '@project/main/user/user-time-click/services/clock-sheet.service';
+import { ClockSheetService } from '@project/main/user/time-clock/services/clock-sheet.service';
 
 @Injectable()
 export class PayrollService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly clockSheetService: ClockSheetService,
-  ) {}
+  ) { }
 
   @HandleError('Failed to get payroll entries', 'Payroll Entries')
   async getPayRollEntries(pg: PaginationDto): Promise<TPaginatedResponse<any>> {
@@ -95,8 +95,8 @@ export class PayrollService {
         payroll.user?.profile?.profileUrl ||
         `https://ui-avatars.com/api/?name=${encodeURIComponent(
           (payroll.user?.profile?.firstName || 'N/A') +
-            ' ' +
-            (payroll.user?.profile?.lastName || 'User'),
+          ' ' +
+          (payroll.user?.profile?.lastName || 'User'),
         )}`,
     };
 

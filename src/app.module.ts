@@ -8,7 +8,6 @@ import { PassportModule } from '@nestjs/passport';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { AppController } from './app.controller';
 import { ENVEnum } from './common/enum/env.enum';
 import { JwtStrategy } from './common/jwt/jwt.strategy';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
@@ -70,7 +69,6 @@ import { MainModule } from './main/main.module';
 
     LibModule,
   ],
-  controllers: [AppController],
   providers: [JwtStrategy],
 })
 export class AppModule implements NestModule {

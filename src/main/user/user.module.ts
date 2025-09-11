@@ -5,8 +5,8 @@ import { EmployeeModule } from './employee/employee.module';
 import { ProjectModule } from './project/project.module';
 import { RecognitionModule } from './recognition/recognition.module';
 import { SurveyModule } from './survey/survey.module';
+import { TimeClockModule } from './time-clock/time-clock.module';
 import { TimeoffRequestModule } from './time-off-request/timeoff-request.module';
-import { TimeClockModule } from './user-time-click/time-clock.module';
 
 @Module({
   imports: [
@@ -20,4 +20,4 @@ import { TimeClockModule } from './user-time-click/time-clock.module';
     DashboardModule,
   ],
 })
-export class UserModule {}
+export class UserModule { }
