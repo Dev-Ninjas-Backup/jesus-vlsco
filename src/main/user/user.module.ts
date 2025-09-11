@@ -20,4 +20,4 @@ import { TimeoffRequestModule } from './time-off-request/timeoff-request.module'
     DashboardModule,
   ],
 })
-export class UserModule { }
+export class UserModule {}

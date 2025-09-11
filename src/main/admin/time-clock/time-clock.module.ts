@@ -21,4 +21,4 @@ import { TimeSheetService } from './services/time-sheet.service';
     MissedClockRequestService,
   ],
 })
-export class TimeClockModule { }
+export class TimeClockModule {}

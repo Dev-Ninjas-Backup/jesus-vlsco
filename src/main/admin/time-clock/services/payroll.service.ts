@@ -15,7 +15,7 @@ export class PayrollService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly clockSheetService: ClockSheetService,
-  ) { }
+  ) {}
 
   @HandleError('Failed to get payroll entries', 'Payroll Entries')
   async getPayRollEntries(pg: PaginationDto): Promise<TPaginatedResponse<any>> {
@@ -95,8 +95,8 @@ export class PayrollService {
         payroll.user?.profile?.profileUrl ||
         `https://ui-avatars.com/api/?name=${encodeURIComponent(
           (payroll.user?.profile?.firstName || 'N/A') +
-          ' ' +
-          (payroll.user?.profile?.lastName || 'User'),
+            ' ' +
+            (payroll.user?.profile?.lastName || 'User'),
         )}`,
     };
 

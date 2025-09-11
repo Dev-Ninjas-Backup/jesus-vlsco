@@ -15,7 +15,7 @@ export class ManageClockRequestController {
   constructor(
     private readonly manageClockRequestService: ManageClockRequestService,
     private readonly missedClockRequestService: MissedClockRequestService,
-  ) { }
+  ) {}
 
   @ApiOperation({ summary: 'Get clock request' })
   @Get()
