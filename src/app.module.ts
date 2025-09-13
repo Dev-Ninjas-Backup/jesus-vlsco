@@ -27,7 +27,7 @@ import { MainModule } from './main/main.module';
 
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
-      serveRoot: '/files',
+      serveRoot: '/js/files',
     }),
 
     EventEmitterModule.forRoot(),

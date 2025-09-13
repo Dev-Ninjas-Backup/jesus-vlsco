@@ -31,6 +31,7 @@ services:
       POSTGRES_DB: jesus_db
     volumes:
       - db-data:/var/lib/postgresql/data
+      - files-data:/app/uploads
     ports:
       - '5400:5432'
 
@@ -43,3 +44,4 @@ services:
 
 volumes:
   db-data:
+  files-data:
