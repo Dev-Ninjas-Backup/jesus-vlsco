@@ -12,8 +12,8 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreatePoolDto, UpdatePoolDto } from '../dto/pool.dto';
-import { PoolService } from '../services/pool.service';
 import { GetPoolResponseService } from '../services/get-pool-response.service';
+import { PoolService } from '../services/pool.service';
 
 @ApiTags('Admin -- Pool')
 @ValidateAdmin()
@@ -51,7 +51,7 @@ export class PoolController {
 
   @ApiOperation({ summary: 'Delete pool by id' })
   @Delete('delete/:id')
-  deletePoolById(@Body('id') id: string) {
+  deletePoolById(@Param('id') id: string) {
     return this.poolService.deletePool(id);
   }
 
