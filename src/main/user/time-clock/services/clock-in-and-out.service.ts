@@ -50,6 +50,17 @@ export class ClockInAndOutService {
     shift: any,
     serverNow: Date,
   ): Promise<TResponse<any>> {
+    const shiftStart = new Date(shift.startTime);
+    const sixHours = 6 * 60 * 60 * 1000;
+
+    // Prevent clock-in earlier than 6 hours before shift starts
+    if (serverNow < new Date(shiftStart.getTime() - sixHours)) {
+      throw new AppError(
+        400,
+        'You cannot clock in more than 6 hours before the shift starts',
+      );
+    }
+
     // If shift already ended
     if (serverNow > new Date(shift.endTime)) {
       throw new AppError(400, 'Shift is over, cannot clock in');
