@@ -196,6 +196,12 @@ export class UtilsService {
     return user.email;
   }
 
+  async getPhoneById(id: string): Promise<string> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) throw new AppError(404, 'User not found');
+    return user.phone;
+  }
+
   async getShiftById(id: string): Promise<Shift> {
     const shift = await this.prisma.shift.findUnique({ where: { id } });
     if (!shift) throw new AppError(404, 'Shift not found');

@@ -7,6 +7,7 @@ import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { TwilioService } from '@project/lib/twilio/twilio.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { Worker } from 'bullmq';
 import { DateTime } from 'luxon';
@@ -21,6 +22,7 @@ export class ShiftWorker implements OnModuleInit {
     private readonly mailService: MailService,
     private readonly utils: UtilsService,
     private readonly prisma: PrismaService,
+    private readonly twilio: TwilioService,
   ) {}
 
   onModuleInit() {
@@ -34,23 +36,35 @@ export class ShiftWorker implements OnModuleInit {
 
         try {
           const userEmail = await this.utils.getEmailById(userId);
+          const userPhone = await this.utils.getPhoneById(userId);
           const shift = await this.utils.getShiftById(shiftId);
 
-          const message = this.generateMessage(action, shift, meta);
           const title = this.generateTitle(action);
           const eventName = this.generateShiftEventName(action);
 
-          this.logger.log(`Processing shift event: ${action} for ${userEmail}`);
+          this.logger.log(
+            `Processing shift event: ${action} for ${userEmail} ${userPhone}`,
+          );
+
+          const htmlMessage = this.generateMessage(action, shift, meta); // for email
+          const textMessage = this.generatePlainTextMessage(
+            action,
+            shift,
+            meta,
+          ); // for SMS
 
           // Send Email
-          await this.mailService.sendEmail(userEmail, title, message);
+          await this.mailService.sendEmail(userEmail, title, htmlMessage);
 
-          // Send Socket Notification
+          // Send SMS
+          await this.twilio.sendSms(userPhone, title, textMessage);
+
+          // Send Socket Notification (use short text to avoid HTML clutter)
           this.gateway.notifySingleUser(userId, eventName, {
             type: eventName,
             title,
             message:
-              'Shift Notification. Pls check your dashboard for more details',
+              'Shift Notification. Please check your dashboard for more details',
             createdAt: new Date(),
             meta,
           });
@@ -101,6 +115,37 @@ export class ShiftWorker implements OnModuleInit {
         return 'Urgent Shift Changed';
       default:
         return 'Shift Notification';
+    }
+  }
+
+  private generatePlainTextMessage(
+    action: ShiftEvent['action'],
+    shift: any,
+    meta: any,
+  ): string {
+    const start = this.formatShiftTime(new Date(shift.startTime));
+    const end = this.formatShiftTime(new Date(shift.endTime));
+
+    const jobLine = shift.job ? `Job: ${shift.job}\n` : '';
+    const locationLine = shift.location ? `Location: ${shift.location}\n` : '';
+    const noteLine = shift.note ? `Note: ${shift.note}\n` : '';
+
+    const baseDetails = `Shift: ${shift.shiftTitle}
+Start: ${start.mountain} (${start.utc})
+End: ${end.mountain} (${end.utc})
+${jobLine}${locationLine}${noteLine}`;
+
+    switch (action) {
+      case 'ASSIGN':
+        return `You have been assigned a new shift.\n\n${baseDetails}`;
+      case 'STATUS_UPDATE':
+        return `Your shift status has been updated to: ${meta.status || shift.status}.\n\n${baseDetails}`;
+      case 'CHANGE':
+        return `Your shift has been updated with new details.\n\n${baseDetails}`;
+      case 'URGENT_SHIFT_CHANGED':
+        return `URGENT: Your shift has been changed!\n\n${baseDetails}`;
+      default:
+        return `You have a shift update.\n\n${baseDetails}`;
     }
   }
 

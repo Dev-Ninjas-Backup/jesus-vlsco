@@ -44,4 +44,26 @@ An OTP will be sent during login.
       // no throw — just log
     }
   }
+
+  async sendSms(to: string, title: string, message: string): Promise<void> {
+    // Ensure phone number has '+' prefix
+    if (!to.startsWith('+')) {
+      to = `+${to}`;
+    }
+
+    const body = `${title}\n\n${message}`;
+
+    try {
+      const message = await this.twilio.messages.create({
+        body,
+        from: this.fromPhone, // Twilio-verified number
+        to,
+      });
+
+      this.logger.log(`SMS sent: ${message.sid}`);
+    } catch (error) {
+      this.logger.error(`Failed to send SMS: ${error.message}`);
+      // no throw — just log
+    }
+  }
 }
