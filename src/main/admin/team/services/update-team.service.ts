@@ -11,6 +11,7 @@ import { UpdateTeamDto } from '../dto/team.dto';
 @Injectable()
 export class UpdateTeamService {
   constructor(private readonly prisma: PrismaService) {}
+
   @HandleError('Failed to update team')
   async updateATeam(id: string, dto: UpdateTeamDto): Promise<TResponse<any>> {
     const team = await this.prisma.team.findUnique({
@@ -56,19 +57,43 @@ export class UpdateTeamService {
           await tx.teamMembers.createMany({
             data: newMembers.map((userId) => ({ teamId: id, userId })),
           });
+
           // * Get all the projects with this team id
           const projects = await tx.project.findMany({
             where: { teamId: id },
+            select: { id: true },
           });
-          // * Add the new members to all the projects
-          await tx.projectUser.createMany({
-            data: projects.flatMap((project) =>
-              newMembers.map((userId) => ({
-                projectId: project.id,
-                userId,
-              })),
-            ),
-          });
+
+          if (projects.length > 0) {
+            // * Find existing project-user relations to avoid duplicates
+            const existingProjectUsers = await tx.projectUser.findMany({
+              where: {
+                projectId: { in: projects.map((p) => p.id) },
+                userId: { in: newMembers },
+              },
+              select: { projectId: true, userId: true },
+            });
+
+            const existingPairs = new Set(
+              existingProjectUsers.map((pu) => `${pu.projectId}:${pu.userId}`),
+            );
+
+            // * Only insert missing relations
+            const toCreate = projects.flatMap((project) =>
+              newMembers
+                .filter(
+                  (userId) => !existingPairs.has(`${project.id}:${userId}`),
+                )
+                .map((userId) => ({
+                  projectId: project.id,
+                  userId,
+                })),
+            );
+
+            if (toCreate.length > 0) {
+              await tx.projectUser.createMany({ data: toCreate });
+            }
+          }
         }
       }
 
