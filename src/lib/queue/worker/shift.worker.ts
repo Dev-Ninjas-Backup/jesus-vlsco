@@ -42,7 +42,9 @@ export class ShiftWorker implements OnModuleInit {
           const title = this.generateTitle(action);
           const eventName = this.generateShiftEventName(action);
 
-          this.logger.log(`Processing shift event: ${action} for ${userEmail} ${userPhone}`);
+          this.logger.log(
+            `Processing shift event: ${action} for ${userEmail} ${userPhone}`,
+          );
 
           const htmlMessage = this.generateMessage(action, shift, meta); // for email
           const textMessage = this.generatePlainTextMessage(
