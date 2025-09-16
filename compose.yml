@@ -19,6 +19,8 @@ services:
         npx prisma migrate deploy &&
         npm run start:prod
       "
+    volumes:
+      - files-data:/app/uploads
 
   db:
     image: postgres:16
@@ -31,7 +33,6 @@ services:
       POSTGRES_DB: jesus_db
     volumes:
       - db-data:/var/lib/postgresql/data
-      - files-data:/app/uploads
     ports:
       - '5400:5432'
 
