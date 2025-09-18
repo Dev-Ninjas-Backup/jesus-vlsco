@@ -44,20 +44,16 @@ export class ShiftTemplateService {
     const page = params.page && params.page > 0 ? params.page : 1;
     const limit = params.limit && params.limit > 0 ? params.limit : 50;
 
-    const { search, location, job } = params;
+    const search = params.search?.trim();
 
     const where: any = {};
 
     if (search) {
-      where.templateTitle = { contains: search, mode: 'insensitive' };
-    }
-
-    if (location) {
-      where.location = { contains: location, mode: 'insensitive' };
-    }
-
-    if (job) {
-      where.job = { contains: job, mode: 'insensitive' };
+      where.OR = [
+        { templateTitle: { contains: search, mode: 'insensitive' } },
+        { location: { contains: search, mode: 'insensitive' } },
+        { job: { contains: search, mode: 'insensitive' } },
+      ];
     }
 
     const [total, data] = await this.prisma.$transaction([

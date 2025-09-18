@@ -79,20 +79,4 @@ export class GetAllShiftTemplateDto extends PaginationDto {
   @IsOptional()
   @IsString()
   search?: string;
-
-  @ApiPropertyOptional({
-    description: 'Filter by location name',
-    example: 'Head Office, Dhaka',
-  })
-  @IsOptional()
-  @IsString()
-  location?: string;
-
-  @ApiPropertyOptional({
-    description: 'Filter by job title',
-    example: 'Cashier',
-  })
-  @IsOptional()
-  @IsString()
-  job?: string;
 }

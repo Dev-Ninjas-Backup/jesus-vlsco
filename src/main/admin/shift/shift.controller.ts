@@ -83,7 +83,7 @@ export class ShiftController {
   }
 
   @ApiOperation({ summary: 'Get all shift templates' })
-  @Get('templates')
+  @Get('templates/all')
   async findAllTemplates(@Query() params: GetAllShiftTemplateDto) {
     console.log(params);
     return await this.shiftTemplateService.findAll(params);
