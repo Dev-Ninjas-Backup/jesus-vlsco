@@ -14,14 +14,6 @@ import {
   UpdateShiftTemplateDto,
 } from '../dto/shift-template.dto';
 
-interface PaginationParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  location?: string;
-  job?: string;
-}
-
 @Injectable()
 export class ShiftTemplateService {
   constructor(private readonly prisma: PrismaService) {}
@@ -40,7 +32,6 @@ export class ShiftTemplateService {
   async findAll(
     params: GetAllShiftTemplateDto,
   ): Promise<TPaginatedResponse<any>> {
-    console.log(params);
     const page = params.page && params.page > 0 ? params.page : 1;
     const limit = params.limit && params.limit > 0 ? params.limit : 50;
 

@@ -1,19 +1,20 @@
 // team.gateway.ts
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
-  WebSocketGateway,
-  WebSocketServer,
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
-  MessageBody,
-  ConnectedSocket,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { TeamchatService } from '../teamchat.service';
-import { SendTeamMessageDto } from '../dto/send-team-message.dto';
-import * as jwt from 'jsonwebtoken'; // or use your JwtService
-import { ConfigService } from '@nestjs/config';
 import { ENVEnum } from '@project/common/enum/env.enum';
+import * as jwt from 'jsonwebtoken'; // or use your JwtService
+import { Server, Socket } from 'socket.io';
+import { SendTeamMessageDto } from '../dto/send-team-message.dto';
+import { TeamchatService } from '../teamchat.service';
 
 @WebSocketGateway({
   cors: {
@@ -25,6 +26,8 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
+  private readonly logger = new Logger(TeamGateway.name);
+
   constructor(
     private readonly teamService: TeamchatService,
     private readonly configService: ConfigService, // to access JWT_SECRET
@@ -32,12 +35,12 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   async handleConnection(client: Socket) {
     // const { teamId, token } = client.handshake.query;
-    // console.log(client.handshake.headers.authorization,'token',client.handshake.query.teamId,'query')
+    // this.logger.log(client.handshake.headers.authorization,'token',client.handshake.query.teamId,'query')
     const token = client.handshake.headers.authorization?.split(' ')[1];
     const teamId = client.handshake.query.teamId;
     if (!token || !teamId) {
       client.disconnect();
-      console.log(`Missing token or teamId`);
+      this.logger.log(`Missing token or teamId`);
       return;
     }
 
@@ -46,7 +49,7 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const jwtSecret = this.configService.get<string>(ENVEnum.JWT_SECRET);
       if (!jwtSecret) {
         client.disconnect();
-        console.log('JWT secret is not configured');
+        this.logger.log('JWT secret is not configured');
         return;
       }
       const payload: any = jwt.verify(token as string, jwtSecret);
@@ -59,24 +62,24 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
       );
       if (!isMember) {
         client.disconnect();
-        console.log(`Access denied: User ${userId} not in team ${teamId}`);
+        this.logger.log(`Access denied: User ${userId} not in team ${teamId}`);
         return;
       }
 
       client.data.userId = userId;
       client.join(teamId as string);
 
-      console.log(
+      this.logger.log(
         `Client ${userId} connected: ${client.id} joined team ${teamId}`,
       );
     } catch (err) {
       client.disconnect();
-      console.log(`Authentication failed: ${err.message}`);
+      this.logger.log(`Authentication failed: ${err.message}`);
     }
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`Client disconnected: ${client.id}`);
+    this.logger.log(`Client disconnected: ${client.id}`);
   }
 
   @SubscribeMessage('team:send_message')
@@ -94,7 +97,7 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // Make sure the userId in payload matches the one from the socket
     if (client.data.userId !== userId) {
-      console.log(
+      this.logger.log(
         `User ID mismatch: client ${client.data.userId} vs payload ${userId}`,
       );
       return;
@@ -103,7 +106,7 @@ export class TeamGateway implements OnGatewayConnection, OnGatewayDisconnect {
     // Verify again for added safety
     const isMember = await this.teamService.checkUserInTeam(teamId, userId);
     if (!isMember) {
-      console.log(
+      this.logger.log(
         `Unauthorized message attempt by user ${userId} in team ${teamId}`,
       );
       return;
