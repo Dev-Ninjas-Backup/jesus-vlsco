@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
   Query,
 } from '@nestjs/common';
@@ -12,7 +11,6 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { GetAssignedShiftsDto } from './dto/get-assigned-shifts.dto';
-import { UpdateShiftDto } from './dto/update-shift.dto';
 import { AssignShiftService } from './services/assign-shift.service';
 import { GetShiftsService } from './services/get-shifts.service';
 import { ShiftLogService } from './services/shift.service';
@@ -48,21 +46,24 @@ export class ShiftController {
     );
   }
 
+  @ApiOperation({ summary: 'Get all shifts' })
   @Get()
   async findAll() {
     return await this.shiftLogService.findAll();
   }
 
+  @ApiOperation({ summary: 'Get shift by id' })
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.shiftLogService.findOne(id);
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateShiftDto) {
-    return await this.shiftLogService.update(id, dto);
-  }
+  // @Patch(':id')
+  // async update(@Param('id') id: string, @Body() dto: UpdateShiftDto) {
+  //   return await this.shiftLogService.update(id, dto);
+  // }
 
+  @ApiOperation({ summary: 'Delete shift by id' })
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.shiftLogService.remove(id);

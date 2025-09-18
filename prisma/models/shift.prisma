@@ -9,7 +9,7 @@ model Shift {
   locationLng Float  @default(0.0)
 
   date       DateTime
-  allDay     Boolean
+  allDay     Boolean @default(false)
   shiftTitle String
   job        String
   note       String
@@ -38,4 +38,22 @@ enum ShiftStatus {
   PUBLISHED
   DRAFT
   REJECTED
+}
+
+model ShiftTemplate {
+  id String @id @default(uuid())
+
+  startTime DateTime
+  endTime   DateTime
+
+  location    String
+  locationLat Float  @default(0.0)
+  locationLng Float  @default(0.0)
+
+  templateTitle String
+  job           String?
+  note          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 }
