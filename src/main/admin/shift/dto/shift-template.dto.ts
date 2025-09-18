@@ -1,27 +1,22 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
-import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsISO8601, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class ShiftTemplateDto {
   @ApiProperty({
-    description: 'Unique identifier of the shift template',
-    example: 'd290f1ee-6c54-4b01-90e6-d701748f0851',
+    description: 'Start time of the shift in ISO 8601 format',
+    example: '2025-09-18T08:00:00Z',
   })
-  id: string;
+  @IsISO8601()
+  startTime: string;
 
   @ApiProperty({
-    description: 'Start time of the shift',
-    example: '2025-09-18T09:00:00Z',
-  })
-  @IsDate()
-  startTime: Date;
-
-  @ApiProperty({
-    description: 'End time of the shift',
+    description: 'End time of the shift in ISO 8601 format',
     example: '2025-09-18T17:00:00Z',
   })
-  @IsDate()
-  endTime: Date;
+  @IsISO8601()
+  endTime: string;
 
   @ApiProperty({
     description: 'Location name of the shift',
@@ -35,6 +30,7 @@ export class ShiftTemplateDto {
     example: 23.8103,
     default: 0.0,
   })
+  @Type(() => Number)
   @IsNumber()
   locationLat: number;
 
@@ -43,6 +39,7 @@ export class ShiftTemplateDto {
     example: 90.4125,
     default: 0.0,
   })
+  @Type(() => Number)
   @IsNumber()
   locationLng: number;
 
@@ -70,18 +67,6 @@ export class ShiftTemplateDto {
   @IsOptional()
   @IsString()
   note?: string;
-
-  @ApiProperty({
-    description: 'Timestamp when the shift template was created',
-    example: '2025-09-18T00:00:00Z',
-  })
-  createdAt: Date;
-
-  @ApiProperty({
-    description: 'Timestamp when the shift template was last updated',
-    example: '2025-09-18T12:00:00Z',
-  })
-  updatedAt: Date;
 }
 
 export class UpdateShiftTemplateDto extends PartialType(ShiftTemplateDto) {}

@@ -11,8 +11,14 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { GetAssignedShiftsDto } from './dto/get-assigned-shifts.dto';
+import {
+  GetAllShiftTemplateDto,
+  ShiftTemplateDto,
+  UpdateShiftTemplateDto,
+} from './dto/shift-template.dto';
 import { AssignShiftService } from './services/assign-shift.service';
 import { GetShiftsService } from './services/get-shifts.service';
+import { ShiftTemplateService } from './services/shift-template.service';
 import { ShiftLogService } from './services/shift.service';
 
 @ApiTags('Admin -- Shift')
@@ -24,6 +30,7 @@ export class ShiftController {
     private readonly shiftLogService: ShiftLogService,
     private readonly getShiftsService: GetShiftsService,
     private readonly assignShiftService: AssignShiftService,
+    private readonly shiftTemplateService: ShiftTemplateService,
   ) {}
 
   @ApiOperation({ summary: 'Assign Shift' })
@@ -67,5 +74,39 @@ export class ShiftController {
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return await this.shiftLogService.remove(id);
+  }
+
+  @ApiOperation({ summary: 'Create shift template' })
+  @Post('templates')
+  async createTemplate(@Body() dto: ShiftTemplateDto) {
+    return await this.shiftTemplateService.create(dto);
+  }
+
+  @ApiOperation({ summary: 'Get all shift templates' })
+  @Get('templates')
+  async findAllTemplates(@Query() params: GetAllShiftTemplateDto) {
+    console.log(params);
+    return await this.shiftTemplateService.findAll(params);
+  }
+
+  @ApiOperation({ summary: 'Get a shift template' })
+  @Get('templates/:id')
+  async findOneTemplate(@Param('id') id: string) {
+    return await this.shiftTemplateService.findOne(id);
+  }
+
+  @ApiOperation({ summary: 'Update a shift template' })
+  @Post('templates/:id')
+  async updateTemplate(
+    @Param('id') id: string,
+    @Body() dto: UpdateShiftTemplateDto,
+  ) {
+    return await this.shiftTemplateService.update(id, dto);
+  }
+
+  @ApiOperation({ summary: 'Delete a shift template' })
+  @Delete('templates/:id')
+  async removeTemplate(@Param('id') id: string) {
+    return await this.shiftTemplateService.remove(id);
   }
 }

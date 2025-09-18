@@ -40,7 +40,11 @@ export class ShiftTemplateService {
   async findAll(
     params: GetAllShiftTemplateDto,
   ): Promise<TPaginatedResponse<any>> {
-    const { page = 1, limit = 10, search, location, job } = params;
+    console.log(params);
+    const page = params.page && params.page > 0 ? params.page : 1;
+    const limit = params.limit && params.limit > 0 ? params.limit : 50;
+
+    const { search, location, job } = params;
 
     const where: any = {};
 
