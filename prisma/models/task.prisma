@@ -19,8 +19,6 @@ model Task {
 
   tasksUsers    TaskUser[]
   taskComments  TaskComment[]
-  ShiftActivity ShiftActivity[]
-  Shift         Shift[]
 }
 
 enum Labels {

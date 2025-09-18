@@ -65,7 +65,6 @@ export class GetShiftScheduleService {
       },
       include: {
         project: true,
-        shiftTask: true,
       },
     });
 

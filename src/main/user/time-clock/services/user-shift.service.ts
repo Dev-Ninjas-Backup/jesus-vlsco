@@ -120,7 +120,6 @@ export class UserShiftService {
 
     const shifts = await this.prisma.shift.findMany({
       include: {
-        shiftTask: true,
         users: {
           where: { id: userId },
           include: {
@@ -148,11 +147,6 @@ export class UserShiftService {
       startTime: shift.startTime,
       endTime: shift.endTime,
       note: shift.note,
-      tasks: shift.shiftTask.map((task) => ({
-        id: task.id,
-        title: task.title,
-        description: task.description,
-      })),
       user:
         shift.users.length > 0
           ? {

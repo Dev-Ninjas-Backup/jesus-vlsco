@@ -97,7 +97,6 @@ export class AssignShiftService {
         },
         include: {
           users: { include: { profile: true } },
-          shiftTask: true,
         },
       });
 
@@ -117,7 +116,6 @@ export class AssignShiftService {
         },
         include: {
           users: { include: { profile: true } },
-          shiftTask: true,
         },
       });
 

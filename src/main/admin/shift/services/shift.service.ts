@@ -14,8 +14,6 @@ export class ShiftLogService {
             profile: true,
           },
         },
-        shiftTask: true,
-        shiftActivity: true,
       },
     });
   }
@@ -29,8 +27,6 @@ export class ShiftLogService {
             profile: true,
           },
         },
-        shiftTask: true,
-        shiftActivity: true,
       },
     });
   }
@@ -61,8 +57,6 @@ export class ShiftLogService {
             profile: true,
           },
         },
-        shiftTask: true,
-        shiftActivity: true,
       },
     });
   }
