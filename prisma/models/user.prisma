@@ -40,7 +40,6 @@ model User {
   privateMessageStatus   PrivateMessageStatus[]
   taskComments           TaskComment[]
   notifications          UserNotification[]
-  ShiftActivity          ShiftActivity[]
   poolUser               poolUser[]
   poolResponse           poolResponse[]
   recognitionLikeComment RecognitionLikeComment[]
