@@ -9,6 +9,7 @@ import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { GetClockSheet } from '../dto/clock.dto';
 import {
   calcAmount,
+  getBreakHours,
   getLocalDateKey,
   getWeekStart,
   toDecimal,
@@ -83,12 +84,14 @@ export class ClockSheetService {
     let totalRegularHours = 0;
     let totalOvertimeHours = 0;
 
+    const breakHours = getBreakHours(payroll.breakTimePerDay);
+
     clocks.forEach((clock) => {
       if (!clock.clockInAt || !clock.clockOutAt) return;
 
       const start = new Date(clock.clockInAt);
       const end = new Date(clock.clockOutAt);
-      const hours = toDecimal((end.getTime() - start.getTime()) / 36e5);
+      const worked = (end.getTime() - start.getTime()) / 36e5;
 
       const weekStart = getWeekStart(start);
       const weekKey = getLocalDateKey(weekStart);
@@ -115,9 +118,15 @@ export class ClockSheetService {
 
       const dayData = weekData.daily.get(dateKey)!;
 
-      const regularHours = hours > 8 ? 8 : hours;
+      // apply break once per day
+      let netWorked = worked;
+      if (dayData.totalHours === 0) {
+        netWorked = Math.max(worked - breakHours, 0);
+      }
+
+      const regularHours = netWorked > 8 ? 8 : netWorked;
       const overtimeHours =
-        hours > 8 && clock.isOvertimeAllowed ? toDecimal(hours - 8) : 0;
+        netWorked > 8 && clock.isOvertimeAllowed ? toDecimal(netWorked - 8) : 0;
 
       totalRegularHours += regularHours;
       totalOvertimeHours += overtimeHours;
@@ -137,7 +146,7 @@ export class ClockSheetService {
         },
         start: clock.clockInAt,
         end: clock.clockOutAt,
-        totalHours: hours,
+        totalHours: toDecimal(netWorked),
         regular: regularHours,
         overtime: overtimeHours,
         notes: clock.shift?.note || null,
@@ -147,8 +156,8 @@ export class ClockSheetService {
             ?.status || 'N/A',
       });
 
-      dayData.totalHours = toDecimal(dayData.totalHours + hours);
-      weekData.weeklyTotal = toDecimal(weekData.weeklyTotal + hours);
+      dayData.totalHours = toDecimal(dayData.totalHours + netWorked);
+      weekData.weeklyTotal = toDecimal(weekData.weeklyTotal + netWorked);
     });
 
     const result = Array.from(groupedByWeek.values()).map((week) => ({
