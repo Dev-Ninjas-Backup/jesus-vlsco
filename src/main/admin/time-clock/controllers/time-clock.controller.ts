@@ -13,11 +13,13 @@ import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import {
   ApproveOrRejectShiftRequest,
   GetTimeSheetDto,
+  GetUserReportDto,
 } from '../dto/time-clock.dto';
 import { OvertimeService } from '../services/overtime.service';
 import { PayrollService } from '../services/payroll.service';
 import { ShiftRequestService } from '../services/shift-request.service';
 import { TimeSheetService } from '../services/time-sheet.service';
+import { GetUserReportService } from '../services/get-user-report.service';
 
 @ApiTags('Admin -- Time Clock')
 @Controller('admin/time-clock')
@@ -29,6 +31,7 @@ export class TimeClockController {
     private readonly payrollService: PayrollService,
     private readonly timeSheetService: TimeSheetService,
     private readonly overtimeService: OvertimeService,
+    private readonly userReportService: GetUserReportService,
   ) {}
 
   @ApiOperation({ summary: 'Get all pending shifts by all users' })
@@ -83,6 +86,12 @@ export class TimeClockController {
   @Get('time-sheet')
   async getAllUsersTimeSheetByDate(@Query() dto: GetTimeSheetDto) {
     return await this.timeSheetService.getAllUsersTimeSheetByDate(dto);
+  }
+
+  @ApiOperation({ summary: 'Get all users time sheet by time range' })
+  @Get('time-sheet/time-range')
+  async getAllUsersTimeSheetByTimeRange(@Query() dto: GetUserReportDto) {
+    return await this.userReportService.getUsersReport(dto);
   }
 
   @ApiOperation({ summary: 'Get all pending overtime' })

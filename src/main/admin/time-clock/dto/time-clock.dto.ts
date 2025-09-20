@@ -28,3 +28,31 @@ export class GetTimeSheetDto {
   @IsString()
   timezone?: string;
 }
+
+export class GetUserReportDto {
+  @ApiPropertyOptional({ example: '2022-01-01T00:00:00.000Z' })
+  @IsOptional()
+  @IsISO8601()
+  startTime?: string;
+
+  @ApiPropertyOptional({ example: '2022-01-01T23:59:59.000Z' })
+  @IsOptional()
+  @IsISO8601()
+  endTime?: string;
+
+  @ApiPropertyOptional({
+    description: 'Search by name or email',
+    example: 'john.doe@example.com',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Timezone (defaults to America/Edmonton)',
+    example: 'America/Los_Angeles',
+  })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
+}

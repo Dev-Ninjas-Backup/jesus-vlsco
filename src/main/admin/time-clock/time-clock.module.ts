@@ -8,6 +8,7 @@ import { OvertimeService } from './services/overtime.service';
 import { PayrollService } from './services/payroll.service';
 import { ShiftRequestService } from './services/shift-request.service';
 import { TimeSheetService } from './services/time-sheet.service';
+import { GetUserReportService } from './services/get-user-report.service';
 
 @Module({
   controllers: [TimeClockController, ManageClockRequestController],
@@ -19,6 +20,7 @@ import { TimeSheetService } from './services/time-sheet.service';
     ManageClockRequestService,
     ClockSheetService,
     MissedClockRequestService,
+    GetUserReportService,
   ],
 })
 export class TimeClockModule {}

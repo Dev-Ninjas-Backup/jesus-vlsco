@@ -136,6 +136,17 @@ export class ManageClockRequestService {
             status: 'COMPLETED',
           },
         });
+
+        // remove other clock in data of that day of that user
+        await tx.timeClock.deleteMany({
+          where: {
+            userId,
+            clockInAt: {
+              gte: requestedClockInAt,
+              lte: requestedClockOutAt,
+            },
+          },
+        });
       }
 
       return {
