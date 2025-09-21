@@ -6,6 +6,7 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { DateTime } from 'luxon';
 import { GetClockSheet } from '../dto/clock.dto';
 import {
   calcAmount,
@@ -24,6 +25,8 @@ export class ClockSheetService {
     userId: string,
     dto: GetClockSheet,
   ): Promise<TResponse<any>> {
+    const timezone = dto.timezone || 'America/Edmonton';
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { profile: true, payroll: true },
@@ -34,19 +37,14 @@ export class ClockSheetService {
 
     const payroll = user?.payroll;
 
+    // Convert from/to to Luxon DateTime in requested timezone
     const fromDate = dto.from
-      ? new Date(new Date(dto.from).setUTCHours(0, 0, 0, 0))
-      : new Date(new Date().getFullYear(), new Date().getMonth(), 1); // first day of month, midnight
+      ? DateTime.fromISO(dto.from, { zone: timezone }).startOf('day').toJSDate()
+      : DateTime.now().setZone(timezone).startOf('month').toJSDate();
 
     const toDate = dto.to
-      ? new Date(new Date(dto.to).setUTCHours(23, 59, 59, 999))
-      : new Date(
-          new Date(
-            new Date().getFullYear(),
-            new Date().getMonth() + 1,
-            0,
-          ).setUTCHours(23, 59, 59, 999),
-        ); // last day of month, end of day
+      ? DateTime.fromISO(dto.to, { zone: timezone }).endOf('day').toJSDate()
+      : DateTime.now().setZone(timezone).endOf('month').toJSDate();
 
     const clocks = await this.prisma.timeClock.findMany({
       orderBy: { createdAt: 'asc' },
@@ -107,7 +105,7 @@ export class ClockSheetService {
 
       const weekData = groupedByWeek.get(weekKey)!;
 
-      const dateKey = getLocalDateKey(start);
+      const dateKey = getLocalDateKey(end);
       if (!weekData.daily.has(dateKey)) {
         weekData.daily.set(dateKey, {
           date: dateKey,
@@ -132,7 +130,7 @@ export class ClockSheetService {
       totalOvertimeHours += overtimeHours;
 
       dayData.entries.push({
-        date: clock.clockInAt || dateKey,
+        date: clock.clockOutAt || dateKey,
         id: clock.id,
         shift: {
           id: clock.shiftId || 'N/A',
