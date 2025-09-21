@@ -37,13 +37,20 @@ export class ClockSheetService {
 
     const payroll = user?.payroll;
 
+    const from = dto.from
+      ? new Date(dto.from).toISOString()
+      : new Date().toISOString();
+    const to = dto.to
+      ? new Date(dto.to).toISOString()
+      : new Date().toISOString();
+
     // Convert from/to to Luxon DateTime in requested timezone
     const fromDate = dto.from
-      ? DateTime.fromISO(dto.from, { zone: timezone }).startOf('day').toJSDate()
+      ? DateTime.fromISO(from, { zone: timezone }).startOf('day').toJSDate()
       : DateTime.now().setZone(timezone).startOf('month').toJSDate();
 
     const toDate = dto.to
-      ? DateTime.fromISO(dto.to, { zone: timezone }).endOf('day').toJSDate()
+      ? DateTime.fromISO(to, { zone: timezone }).endOf('day').toJSDate()
       : DateTime.now().setZone(timezone).endOf('month').toJSDate();
 
     const clocks = await this.prisma.timeClock.findMany({

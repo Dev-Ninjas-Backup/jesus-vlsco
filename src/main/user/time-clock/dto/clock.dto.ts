@@ -4,7 +4,6 @@ import { Type } from 'class-transformer';
 import {
   IsDate,
   IsEnum,
-  IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
@@ -47,16 +46,18 @@ export class GetClockSheet {
     example: '2025-08-07T08:00:00.000Z',
   })
   @IsOptional()
-  @IsISO8601()
-  from?: string;
+  @Type(() => Date)
+  @IsDate()
+  from?: Date;
 
   @ApiPropertyOptional({
     description: 'End time of the shift (ISO format)',
     example: '2025-08-07T16:00:00.000Z',
   })
   @IsOptional()
-  @IsISO8601()
-  to?: string;
+  @Type(() => Date)
+  @IsDate()
+  to?: Date;
 
   @ApiPropertyOptional({
     description: 'Filter by timezone',
