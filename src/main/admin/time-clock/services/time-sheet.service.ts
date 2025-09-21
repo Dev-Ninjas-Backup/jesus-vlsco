@@ -20,7 +20,8 @@ export class TimeSheetService {
 
     // user-provided date or "today" in that timezone
     const baseDate = date
-      ? DateTime.fromISO(date).setZone(timezone)
+      ? // ? DateTime.fromISO(date).setZone(timezone)
+        DateTime.fromFormat(date, 'yyyy-MM-dd', { zone: timezone })
       : DateTime.now().setZone(timezone);
 
     // Convert local day boundaries → UTC for DB query
