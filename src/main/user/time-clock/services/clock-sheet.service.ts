@@ -94,8 +94,7 @@ export class ClockSheetService {
       const worked = (end.getTime() - start.getTime()) / 36e5;
 
       const weekStart = getWeekStart(start);
-      // const weekKey = getLocalDateKey(weekStart);
-      const weekKey = weekStart.toDateString();
+      const weekKey = getLocalDateKey(weekStart);
 
       if (!groupedByWeek.has(weekKey)) {
         groupedByWeek.set(weekKey, {
@@ -133,7 +132,7 @@ export class ClockSheetService {
       totalOvertimeHours += overtimeHours;
 
       dayData.entries.push({
-        date: dateKey,
+        date: clock.shift?.startTime || dateKey,
         id: clock.id,
         shift: {
           id: clock.shiftId || 'N/A',
@@ -215,6 +214,10 @@ export class ClockSheetService {
           payPerDay: {
             regularPayRate,
             overTimePayRate,
+          },
+          payPerHour: {
+            regularPayRate: regularPayRate / 8,
+            overTimePayRate: overTimePayRate / 8,
           },
           totalRegularHour: totalRegularHours,
           totalOvertimeHour: totalOvertimeHours,
