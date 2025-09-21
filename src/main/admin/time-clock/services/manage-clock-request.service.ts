@@ -119,6 +119,17 @@ export class ManageClockRequestService {
         // Overtime = total - 8
         const overtimeHours = Math.max(totalHours - 8, 0);
 
+        // remove other clock in data of that day of that user
+        await tx.timeClock.deleteMany({
+          where: {
+            userId,
+            clockInAt: {
+              gte: requestedClockInAt,
+              lte: requestedClockOutAt,
+            },
+          },
+        });
+
         clock = await tx.timeClock.create({
           data: {
             userId,
@@ -134,17 +145,6 @@ export class ManageClockRequestService {
             totalHours,
             overtimeHours,
             status: 'COMPLETED',
-          },
-        });
-
-        // remove other clock in data of that day of that user
-        await tx.timeClock.deleteMany({
-          where: {
-            userId,
-            clockInAt: {
-              gte: requestedClockInAt,
-              lte: requestedClockOutAt,
-            },
           },
         });
       }
