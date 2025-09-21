@@ -132,7 +132,7 @@ export class ClockSheetService {
       totalOvertimeHours += overtimeHours;
 
       dayData.entries.push({
-        date: clock.shift?.startTime || dateKey,
+        date: clock.clockInAt || dateKey,
         id: clock.id,
         shift: {
           id: clock.shiftId || 'N/A',
