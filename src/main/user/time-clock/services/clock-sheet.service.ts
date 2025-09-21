@@ -98,7 +98,7 @@ export class ClockSheetService {
       const end = new Date(clock.clockOutAt);
       const worked = (end.getTime() - start.getTime()) / 36e5;
 
-      const weekStart = getWeekStart(start);
+      const weekStart = getWeekStart(end);
       const weekKey = getLocalDateKey(weekStart);
 
       if (!groupedByWeek.has(weekKey)) {

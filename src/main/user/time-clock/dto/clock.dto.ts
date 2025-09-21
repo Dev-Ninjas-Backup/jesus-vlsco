@@ -84,4 +84,12 @@ export class SubmitTimeSheet {
   @Type(() => Date)
   @IsDate()
   to: Date;
+
+  @ApiPropertyOptional({
+    description: 'Filter by timezone',
+    example: 'America/Los_Angeles',
+  })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }

@@ -3,6 +3,7 @@ import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import { successResponse } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { DateTime } from 'luxon';
 import { SubmitTimeSheet } from '../dto/clock.dto';
 import {
   calcAmount,
@@ -17,6 +18,8 @@ export class TimeClockService {
 
   @HandleError('Failed to submit timesheet', 'PAYROLL')
   async submitTimeClockSheet(userId: string, dto: SubmitTimeSheet) {
+    const timezone = dto.timezone || 'America/Edmonton';
+
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: { payroll: true },
@@ -25,17 +28,31 @@ export class TimeClockService {
     if (!user) throw new AppError(404, 'User not found');
     if (!user.payroll) throw new AppError(404, 'Payroll config not found');
 
-    const { from, to } = dto;
-    if (!from || !to) throw new AppError(400, 'From and To dates required');
+    const from = dto.from
+      ? new Date(dto.from).toISOString()
+      : new Date().toISOString();
+    const to = dto.to
+      ? new Date(dto.to).toISOString()
+      : new Date().toISOString();
+
+    // Convert from/to to Luxon DateTime in requested timezone
+    const fromDate = dto.from
+      ? DateTime.fromISO(from, { zone: timezone }).startOf('day').toJSDate()
+      : DateTime.now().setZone(timezone).startOf('month').toJSDate();
+
+    const toDate = dto.to
+      ? DateTime.fromISO(to, { zone: timezone }).endOf('day').toJSDate()
+      : DateTime.now().setZone(timezone).endOf('month').toJSDate();
 
     const clocks = await this.prisma.timeClock.findMany({
+      orderBy: { createdAt: 'asc' },
       where: {
         userId,
-        clockInAt: { gte: new Date(from) },
-        clockOutAt: { lte: new Date(to) },
+        createdAt: { gte: fromDate, lte: toDate },
       },
-      orderBy: { clockInAt: 'asc' },
+      include: { shift: true },
     });
+    if (!from || !to) throw new AppError(400, 'From and To dates required');
 
     if (!clocks.length)
       throw new AppError(404, 'No clock entries found for this period');
