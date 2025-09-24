@@ -9,6 +9,7 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { ApproveOrRejectShiftRequest } from '../dto/time-clock.dto';
+import { endOfDay, startOfDay } from 'date-fns';
 
 @Injectable()
 export class ManageClockRequestService {
@@ -129,6 +130,16 @@ export class ManageClockRequestService {
             },
           },
         });
+        // delete all the clocks of that day based on requested clock out's date
+        await tx.timeClock.deleteMany({
+          where: {
+            userId,
+            clockInAt: {
+              gte: startOfDay(requestedClockOutAt),
+              lte: endOfDay(requestedClockOutAt),
+            },
+          },
+        });
 
         clock = await tx.timeClock.create({
           data: {
@@ -140,8 +151,8 @@ export class ManageClockRequestService {
             clockInLng: locationLng,
             clockOutLat: locationLat,
             clockOutLng: locationLng,
-            // isOvertimeAllowed: overtimeHours > 0,
-            isOvertimeAllowed: false,
+            isOvertimeAllowed: overtimeHours > 0,
+            // isOvertimeAllowed: false,
             totalHours,
             overtimeHours,
             status: 'COMPLETED',
