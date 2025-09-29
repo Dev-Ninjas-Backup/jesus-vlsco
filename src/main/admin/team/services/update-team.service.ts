@@ -46,22 +46,32 @@ export class UpdateTeamService {
           (m) => !uniqueMembers.includes(m),
         );
 
+        // * Get all the projects with this team id
+        const projects = await tx.project.findMany({
+          where: { teamId: id },
+          select: { id: true },
+        });
+
         if (removedMembers.length > 0) {
+          // Remove from team
           await tx.teamMembers.deleteMany({
             where: { teamId: id, userId: { in: removedMembers } },
           });
+
+          if (projects.length > 0) {
+            await tx.projectUser.deleteMany({
+              where: {
+                projectId: { in: projects.map((p) => p.id) },
+                userId: { in: removedMembers },
+              },
+            });
+          }
         }
 
         if (newMembers.length > 0) {
           // * Create new members in the TeamMembers table
           await tx.teamMembers.createMany({
             data: newMembers.map((userId) => ({ teamId: id, userId })),
-          });
-
-          // * Get all the projects with this team id
-          const projects = await tx.project.findMany({
-            where: { teamId: id },
-            select: { id: true },
           });
 
           if (projects.length > 0) {
