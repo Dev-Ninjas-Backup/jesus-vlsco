@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
   successResponse,
@@ -104,5 +105,18 @@ export class TimeSheetService {
       outputData,
       `Time sheet for ${baseDate.toFormat('yyyy-MM-dd')}`,
     );
+  }
+
+  @HandleError('Failed to delete clock', 'DELETE_CLOCK')
+  async deleteAClock(clockId: string) {
+    const clock = await this.prisma.timeClock.findUnique({ where: { id: clockId } });
+
+    if (!clock) {
+      throw new AppError(400, 'Clock ID is required');
+    }
+
+    await this.prisma.timeClock.delete({ where: { id: clockId } });
+
+    return successResponse(clock, 'Clock deleted successfully');
   }
 }

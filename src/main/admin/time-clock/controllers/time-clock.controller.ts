@@ -15,11 +15,11 @@ import {
   GetTimeSheetDto,
   GetUserReportDto,
 } from '../dto/time-clock.dto';
+import { GetUserReportService } from '../services/get-user-report.service';
 import { OvertimeService } from '../services/overtime.service';
 import { PayrollService } from '../services/payroll.service';
 import { ShiftRequestService } from '../services/shift-request.service';
 import { TimeSheetService } from '../services/time-sheet.service';
-import { GetUserReportService } from '../services/get-user-report.service';
 
 @ApiTags('Admin -- Time Clock')
 @Controller('admin/time-clock')
@@ -113,5 +113,11 @@ export class TimeClockController {
     @Body() dto: ApproveOrRejectShiftRequest,
   ) {
     return await this.overtimeService.acceptOrRejectOvertime(id, dto);
+  }
+
+  @ApiOperation({ summary: 'Delete a clock' })
+  @Delete('overtime/:id')
+  async deleteAClock(@Param('id') id: string) {
+    return await this.timeSheetService.deleteAClock(id);
   }
 }

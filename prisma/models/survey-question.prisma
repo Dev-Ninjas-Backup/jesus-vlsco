@@ -16,8 +16,8 @@ model SurveyQuestions {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  template SurveyTemplate? @relation(fields: [surveyTemplateId], references: [id])
-  survey   Survey?         @relation(fields: [surveyId], references: [id])
+  template SurveyTemplate? @relation(fields: [surveyTemplateId], references: [id], onDelete: SetNull)
+  survey   Survey?         @relation(fields: [surveyId], references: [id], onDelete: SetNull)
 
   options QuestionOption[]
   answers SurveyAnswer[]

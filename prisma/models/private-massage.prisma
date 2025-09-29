@@ -7,7 +7,7 @@ model PrivateConversation {
   user2 User @relation("User2Conversations", fields: [user2Id], references: [id], onDelete: Cascade)
 
   lastMessageId String?
-  lastMessage   PrivateMessage? @relation("PrivateLastMessage", fields: [lastMessageId], references: [id])
+  lastMessage   PrivateMessage? @relation("PrivateLastMessage", fields: [lastMessageId], references: [id], onDelete: SetNull)
 
   messages  PrivateMessage[]
   createdAt DateTime         @default(now())
@@ -25,7 +25,7 @@ model PrivateMessage {
 
   isRead Boolean @default(false)
 
-  file         FileInstance?       @relation(fields: [fileId], references: [id])
+  file         FileInstance?       @relation(fields: [fileId], references: [id], onDelete: SetNull)
   conversation PrivateConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   sender       User                @relation(fields: [senderId], references: [id], onDelete: Cascade)
 

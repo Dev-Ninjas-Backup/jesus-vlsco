@@ -55,7 +55,7 @@ model TeamAnnouncement {
   team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId String
 
-  announcement   Announcement @relation(fields: [announcementId], references: [id])
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
   announcementId String
 
   createdAt DateTime @default(now())
@@ -69,7 +69,7 @@ model TeamMessage {
   teamId   String
   senderId String
 
-  file   FileInstance? @relation(fields: [fileId], references: [id])
+  file   FileInstance? @relation(fields: [fileId], references: [id], onDelete: SetNull)
   team   Team          @relation(fields: [teamId], references: [id], onDelete: Cascade)
   sender User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
