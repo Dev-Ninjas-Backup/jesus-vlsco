@@ -101,6 +101,8 @@ export class PhoneLoginService {
       data: {
         otp: null,
         otpExpiresAt: null,
+        isVerified: true,
+        lastLoginAt: new Date(),
       },
       include: { profile: true, shift: true },
     });
