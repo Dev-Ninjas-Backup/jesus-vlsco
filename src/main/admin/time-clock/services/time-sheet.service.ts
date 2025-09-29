@@ -109,7 +109,9 @@ export class TimeSheetService {
 
   @HandleError('Failed to delete clock', 'DELETE_CLOCK')
   async deleteAClock(clockId: string) {
-    const clock = await this.prisma.timeClock.findUnique({ where: { id: clockId } });
+    const clock = await this.prisma.timeClock.findUnique({
+      where: { id: clockId },
+    });
 
     if (!clock) {
       throw new AppError(400, 'Clock ID is required');

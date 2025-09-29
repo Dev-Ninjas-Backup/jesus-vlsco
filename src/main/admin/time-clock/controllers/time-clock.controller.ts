@@ -88,6 +88,12 @@ export class TimeClockController {
     return await this.timeSheetService.getAllUsersTimeSheetByDate(dto);
   }
 
+  @ApiOperation({ summary: 'Delete a clock' })
+  @Delete('time-sheet/:id')
+  async deleteAClock(@Param('id') id: string) {
+    return await this.timeSheetService.deleteAClock(id);
+  }
+
   @ApiOperation({ summary: 'Get all users time sheet by time range' })
   @Get('time-sheet/time-range')
   async getAllUsersTimeSheetByTimeRange(@Query() dto: GetUserReportDto) {
@@ -113,11 +119,5 @@ export class TimeClockController {
     @Body() dto: ApproveOrRejectShiftRequest,
   ) {
     return await this.overtimeService.acceptOrRejectOvertime(id, dto);
-  }
-
-  @ApiOperation({ summary: 'Delete a clock' })
-  @Delete('overtime/:id')
-  async deleteAClock(@Param('id') id: string) {
-    return await this.timeSheetService.deleteAClock(id);
   }
 }
