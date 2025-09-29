@@ -70,6 +70,7 @@ export class TimeSheetService {
           : 'Unknown User';
 
       return {
+        id: tc.id,
         user: {
           id: tc.user.id,
           name,
