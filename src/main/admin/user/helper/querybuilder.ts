@@ -107,23 +107,23 @@ export class PrismaUserQueryBuilder {
     return this;
   }
 
-  sort(allowedFields: string[] = ['createdAt']) {
-    const sortInput = this.query.sort?.toString() || '-createdAt';
-    const fields = sortInput.split(',').map((f) => f.trim());
+  // sort(allowedFields: string[] = ['createdAt']) {
+  //   const sortInput = this.query.sort?.toString() || '-createdAt';
+  //   const fields = sortInput.split(',').map((f) => f.trim());
 
-    for (const field of fields) {
-      const direction: 'asc' | 'desc' = field.startsWith('-') ? 'desc' : 'asc';
-      const cleanField = field.replace(/^-/, '');
+  //   for (const field of fields) {
+  //     const direction: 'asc' | 'desc' = field.startsWith('-') ? 'desc' : 'asc';
+  //     const cleanField = field.replace(/^-/, '');
 
-      if (allowedFields.includes(cleanField)) {
-        this.orderBy.push({
-          [cleanField]: direction,
-        } as Prisma.UserOrderByWithRelationInput);
-      }
-    }
+  //     if (allowedFields.includes(cleanField)) {
+  //       this.orderBy.push({
+  //         [cleanField]: direction,
+  //       } as Prisma.UserOrderByWithRelationInput);
+  //     }
+  //   }
 
-    return this;
-  }
+  //   return this;
+  // }
 
   paginate() {
     const page = Number(this.query.page) || 1;
@@ -135,12 +135,67 @@ export class PrismaUserQueryBuilder {
     return this;
   }
 
+  // build() {
+  //   return {
+  //     where: this.where,
+  //     orderBy: (this.orderBy.length
+  //       ? this.orderBy
+  //       : [{ createdAt: 'desc' }]) as Prisma.UserOrderByWithRelationInput[],
+  //     take: this.take,
+  //     skip: this.skip,
+  //   };
+  // }
+
+  sort(
+    allowedFields: string[] = [
+      'createdAt',
+      'email',
+      'profile.firstName',
+      'profile.lastName',
+    ],
+  ) {
+    const sortInput = this.query.sort?.toString() || '-profile.lastName';
+    const fields = sortInput.split(',').map((f) => f.trim());
+
+    for (const field of fields) {
+      const direction: 'asc' | 'desc' = field.startsWith('-') ? 'desc' : 'asc';
+      const cleanField = field.replace(/^-/, '');
+
+      // only allow listed fields (use dot notation for nested)
+      if (!allowedFields.includes(cleanField)) continue;
+
+      // support nested fields like "profile.lastName"
+      if (cleanField.includes('.')) {
+        const parts = cleanField.split('.'); // e.g. ['profile','lastName']
+        // build nested object e.g. { profile: { lastName: 'asc' } }
+        let nested: any = direction;
+        for (let i = parts.length - 1; i >= 0; i--) {
+          nested = { [parts[i]]: nested };
+        }
+        this.orderBy.push(nested as Prisma.UserOrderByWithRelationInput);
+      } else {
+        // top-level fields
+        this.orderBy.push({
+          [cleanField]: direction,
+        } as Prisma.UserOrderByWithRelationInput);
+      }
+    }
+
+    return this;
+  }
+
   build() {
+    // If no explicit orderBy was provided, default to alphabetical by first name then last name
+    const defaultOrder = [
+      { profile: { firstName: 'asc' } },
+      { profile: { lastName: 'asc' } },
+    ] as Prisma.UserOrderByWithRelationInput[];
+
     return {
       where: this.where,
       orderBy: (this.orderBy.length
         ? this.orderBy
-        : [{ createdAt: 'desc' }]) as Prisma.UserOrderByWithRelationInput[],
+        : defaultOrder) as Prisma.UserOrderByWithRelationInput[],
       take: this.take,
       skip: this.skip,
     };
