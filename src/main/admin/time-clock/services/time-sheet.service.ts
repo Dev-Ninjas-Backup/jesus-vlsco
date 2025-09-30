@@ -6,6 +6,11 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import {
+  calcAmount,
+  getBreakHours,
+  toDecimal,
+} from '@project/main/user/time-clock/helper/timesheet.helper';
 import { DateTime } from 'luxon';
 import { GetTimeSheetDto } from '../dto/time-clock.dto';
 
@@ -19,12 +24,10 @@ export class TimeSheetService {
   ): Promise<TResponse<any>> {
     const { date, timezone = 'America/Edmonton' } = dto;
 
-    // user-provided date or "today" in that timezone
     const baseDate = date
       ? DateTime.fromISO(date).setZone(timezone)
       : DateTime.now().setZone(timezone);
 
-    // Convert local day boundaries → UTC for DB query
     const startOfDay = baseDate.startOf('day').toUTC().toJSDate();
     const endOfDay = baseDate.endOf('day').toUTC().toJSDate();
 
@@ -36,48 +39,61 @@ export class TimeSheetService {
         user: { include: { profile: true, payroll: true } },
         shift: true,
       },
+      orderBy: { clockInAt: 'desc' },
     });
 
-    const outputData = timeClocks.map((tc) => {
-      const payroll = tc.user.payroll;
+    // Track if break applied per user
+    const breakAppliedMap = new Map<string, boolean>();
 
-      // Calculate worked hours
-      let totalHours = 0;
+    const outputData = timeClocks.map((tc) => {
+      const user = tc.user;
+      const payroll = user.payroll;
+      const breakHours = getBreakHours(payroll?.breakTimePerDay || 'HALF_HOUR');
+
+      let worked = 0;
       if (tc.clockInAt && tc.clockOutAt) {
-        totalHours =
-          (tc.clockOutAt.getTime() - tc.clockInAt.getTime()) / (1000 * 60 * 60);
+        worked = (tc.clockOutAt.getTime() - tc.clockInAt.getTime()) / 36e5;
       }
 
-      // Regular vs overtime
-      const regularHours = Math.min(totalHours, 8);
-      const overTime = totalHours > 8 ? totalHours - 8 : 0;
+      // apply break only once/day per user
+      let netWorked = worked;
+      if (!breakAppliedMap.get(user.id) && worked > 0) {
+        netWorked = Math.max(worked - breakHours, 0);
+        breakAppliedMap.set(user.id, true);
+      }
 
-      const regularPayRate = payroll?.regularPayRate || 100;
-      const overTimePayRate = payroll?.overTimePayRate || 200;
-      const regularPayRateType = payroll?.regularPayRateType || 'DAY';
-      const overTimePayRateType = payroll?.overTimePayRateType || 'DAY';
+      const regularHours = netWorked > 8 ? 8 : netWorked;
+      const overtimeHours =
+        netWorked > 8 && tc.isOvertimeAllowed ? toDecimal(netWorked - 8) : 0;
 
-      // Payments
-      const regularPayment =
-        regularHours * regularPayRate * (regularPayRateType === 'HOUR' ? 1 : 8);
+      const regularPayment = calcAmount(
+        regularHours,
+        payroll?.regularPayRate || 0,
+        payroll?.regularPayRateType || 'HOUR',
+      );
 
-      const overTimePayment =
-        overTime * overTimePayRate * (overTimePayRateType === 'HOUR' ? 1 : 8);
+      const overTimePayment = calcAmount(
+        overtimeHours,
+        payroll?.overTimePayRate || 0,
+        payroll?.overTimePayRateType || 'HOUR',
+      );
 
       const name =
-        tc.user?.profile?.firstName || tc.user?.profile?.lastName
-          ? `${tc.user.profile?.firstName ?? ''} ${tc.user.profile?.lastName ?? ''}`.trim()
+        user?.profile?.firstName || user?.profile?.lastName
+          ? `${user.profile?.firstName ?? ''} ${user.profile?.lastName ?? ''}`.trim()
           : 'Unknown User';
+
+      const profileUrl =
+        user?.profile?.profileUrl ||
+        `https://ui-avatars.com/api/?name=${name}&background=random`;
 
       return {
         id: tc.id,
         user: {
-          id: tc.user.id,
+          id: user.id,
           name,
-          email: tc.user.email,
-          profileUrl:
-            tc.user.profile?.profileUrl ??
-            `https://ui-avatars.com/api/?name=${name}&background=random`,
+          email: user.email,
+          profileUrl,
         },
         shift: tc.shift
           ? {
@@ -93,12 +109,12 @@ export class TimeSheetService {
         clockInLng: tc.clockInLng,
         clockInLat: tc.clockInLat,
         location: tc.shift?.location || 'Unknown Location',
-        totalHours: totalHours.toFixed(2),
-        regularHours: regularHours.toFixed(2),
-        overTime: overTime.toFixed(2),
-        regularPayment: regularPayment.toFixed(2),
-        overTimePayment: overTimePayment.toFixed(2),
-        totalPayment: (regularPayment + overTimePayment).toFixed(2),
+        totalHours: toDecimal(netWorked),
+        regularHours: toDecimal(regularHours),
+        overtimeHours: toDecimal(overtimeHours),
+        regularPayment: toDecimal(regularPayment),
+        overTimePayment: toDecimal(overTimePayment),
+        totalPayment: toDecimal(regularPayment + overTimePayment),
       };
     });
 
