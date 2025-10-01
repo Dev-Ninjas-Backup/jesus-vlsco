@@ -172,34 +172,43 @@ export class ShiftWorker implements OnModuleInit {
     const start = this.formatShiftTime(new Date(shift.startTime));
     const end = this.formatShiftTime(new Date(shift.endTime));
 
-    const jobLine = shift.job ? `Job: ${shift.job}\n` : '';
+    const jobLine = shift.job ? `💼 Job: ${shift.job}\n` : '';
     const locationLine = opts.location.name
-      ? `Location: ${opts.location.name}\n`
+      ? `📍 Location: ${opts.location.name}\n`
       : '';
     const mapsLine = opts.location.mapsUrl
-      ? `Map: ${opts.location.mapsUrl}\n`
+      ? `🗺️ Map: ${opts.location.mapsUrl}\n`
       : '';
-    const noteLine = shift.note ? `Note: ${shift.note}\n` : '';
+    const noteLine = shift.note ? `📝 Note: ${shift.note}\n` : '';
 
-    const baseDetails = `Shift: ${shift.shiftTitle}
-Start: ${start.mountain} (${start.utc})
-End: ${end.mountain} (${end.utc})
-${jobLine}${locationLine}${mapsLine}${noteLine}`;
+    const baseDetails = `────────────────────
+⏰ Shift: ${shift.shiftTitle}
+🕘 Start: ${start.mountain} (${start.utc})
+🕔 End:   ${end.mountain} (${end.utc})
+${jobLine}${locationLine}${mapsLine}${noteLine}
+────────────────────`;
 
-    const websiteLine = `Company: ${opts.companyWebsite}\n`;
+    const websiteLine = `🌐 Company: ${opts.companyWebsite}`;
 
+    let titleLine = '';
     switch (action) {
       case 'ASSIGN':
-        return `You have been assigned a new shift.\n\n${baseDetails}\n${websiteLine}`;
+        titleLine = '📢 New Shift Assigned';
+        break;
       case 'STATUS_UPDATE':
-        return `Your shift status has been updated to: ${meta.status || shift.shiftStatus}.\n\n${baseDetails}\n${websiteLine}`;
+        titleLine = `🔔 Shift Status Updated: ${meta.status || shift.shiftStatus}`;
+        break;
       case 'CHANGE':
-        return `Your shift has been updated with new details.\n\n${baseDetails}\n${websiteLine}`;
+        titleLine = '✏️ Shift Details Updated';
+        break;
       case 'URGENT_SHIFT_CHANGED':
-        return `URGENT: Your shift has been changed!\n\n${baseDetails}\n${websiteLine}`;
+        titleLine = '⚠️ Urgent Shift Changed';
+        break;
       default:
-        return `You have a shift update.\n\n${baseDetails}\n${websiteLine}`;
+        titleLine = '📢 Shift Notification';
     }
+
+    return `${titleLine}\n${baseDetails}\n${websiteLine}`;
   }
 
   private generateMessage(
