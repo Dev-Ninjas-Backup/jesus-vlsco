@@ -46,11 +46,43 @@ export class ShiftWorker implements OnModuleInit {
             `Processing shift event: ${action} for ${userEmail} ${userPhone}`,
           );
 
-          const htmlMessage = this.generateMessage(action, shift, meta); // for email
+          // Company website
+          const companyWebsite = 'https://lgcglobalcontractingltd.com';
+
+          // Build maps URL from lat/lng if available
+          let mapsUrl: string | null = null;
+          if (
+            shift.locationLat &&
+            shift.locationLng &&
+            (shift.locationLat !== 0.0 || shift.locationLng !== 0.0)
+          ) {
+            mapsUrl = `https://www.google.com/maps?q=${shift.locationLat},${shift.locationLng}`;
+          } else if (shift.location) {
+            mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+              shift.location,
+            )}`;
+          }
+
+          const locationObj = {
+            name: shift.location,
+            lat: shift.locationLat,
+            lng: shift.locationLng,
+            mapsUrl,
+          };
+
+          // Build messages
+          const htmlMessage = this.generateMessage(action, shift, meta, {
+            companyWebsite,
+            location: locationObj,
+          }); // for email
           const textMessage = this.generatePlainTextMessage(
             action,
             shift,
             meta,
+            {
+              companyWebsite,
+              location: locationObj,
+            },
           ); // for SMS
 
           // Send Email
@@ -59,17 +91,23 @@ export class ShiftWorker implements OnModuleInit {
           // Send SMS
           await this.twilio.sendSms(userPhone, title, textMessage);
 
-          // Send Socket Notification (use short text to avoid HTML clutter)
+          // Send Socket Notification
           this.gateway.notifySingleUser(userId, eventName, {
             type: eventName,
             title,
             message:
               'Shift Notification. Please check your dashboard for more details',
             createdAt: new Date(),
-            meta,
+            meta: {
+              ...meta,
+              shiftId,
+              shiftTitle: shift.shiftTitle,
+              location: locationObj,
+              website: companyWebsite,
+            },
           });
 
-          // Store the notification in the database
+          // Store in DB
           await this.prisma.notification.create({
             data: {
               type:
@@ -77,9 +115,16 @@ export class ShiftWorker implements OnModuleInit {
                   ? 'UrgentShiftChanged'
                   : 'Shift',
               title,
-              message: `Shift Notification for ${shift.shiftTitle} on ${shift.startTime}`,
+              message: `Shift Notification for ${shift.shiftTitle} on ${shift.startTime}${
+                shift.location ? ` at ${shift.location}` : ''
+              }`,
               createdAt: new Date(),
-              meta,
+              meta: {
+                ...meta,
+                shiftId,
+                location: locationObj,
+                website: companyWebsite,
+              },
               users: {
                 create: { userId },
               },
@@ -122,51 +167,74 @@ export class ShiftWorker implements OnModuleInit {
     action: ShiftEvent['action'],
     shift: any,
     meta: any,
+    opts: { companyWebsite: string; location: any },
   ): string {
     const start = this.formatShiftTime(new Date(shift.startTime));
     const end = this.formatShiftTime(new Date(shift.endTime));
 
-    const jobLine = shift.job ? `Job: ${shift.job}\n` : '';
-    const locationLine = shift.location ? `Location: ${shift.location}\n` : '';
-    const noteLine = shift.note ? `Note: ${shift.note}\n` : '';
+    const jobLine = shift.job ? `💼 Job: ${shift.job}\n` : '';
+    const locationLine = opts.location.name
+      ? `📍 Location: ${opts.location.name}\n`
+      : '';
+    const mapsLine = opts.location.mapsUrl
+      ? `🗺️ Map: ${opts.location.mapsUrl}\n`
+      : '';
+    const noteLine = shift.note ? `📝 Note: ${shift.note}\n` : '';
 
-    const baseDetails = `Shift: ${shift.shiftTitle}
-Start: ${start.mountain} (${start.utc})
-End: ${end.mountain} (${end.utc})
-${jobLine}${locationLine}${noteLine}`;
+    const baseDetails = `────────────────────
+⏰ Shift: ${shift.shiftTitle}
+🕘 Start: ${start.mountain} (${start.utc})
+🕔 End:   ${end.mountain} (${end.utc})
+${jobLine}${locationLine}${mapsLine}${noteLine}
+────────────────────`;
 
+    const websiteLine = `🌐 Company: ${opts.companyWebsite}`;
+
+    let titleLine = '';
     switch (action) {
       case 'ASSIGN':
-        return `You have been assigned a new shift.\n\n${baseDetails}`;
+        titleLine = '📢 New Shift Assigned';
+        break;
       case 'STATUS_UPDATE':
-        return `Your shift status has been updated to: ${meta.status || shift.status}.\n\n${baseDetails}`;
+        titleLine = `🔔 Shift Status Updated: ${meta.status || shift.shiftStatus}`;
+        break;
       case 'CHANGE':
-        return `Your shift has been updated with new details.\n\n${baseDetails}`;
+        titleLine = '✏️ Shift Details Updated';
+        break;
       case 'URGENT_SHIFT_CHANGED':
-        return `URGENT: Your shift has been changed!\n\n${baseDetails}`;
+        titleLine = '⚠️ Urgent Shift Changed';
+        break;
       default:
-        return `You have a shift update.\n\n${baseDetails}`;
+        titleLine = '📢 Shift Notification';
     }
+
+    return `${titleLine}\n${baseDetails}\n${websiteLine}`;
   }
 
   private generateMessage(
     action: ShiftEvent['action'],
     shift: any,
     meta: any,
+    opts: { companyWebsite: string; location: any },
   ): string {
     const start = this.formatShiftTime(new Date(shift.startTime));
     const end = this.formatShiftTime(new Date(shift.endTime));
 
-    // Build optional fields
     const jobLine = shift.job
       ? `<li><strong>Job:</strong> ${shift.job}</li>`
       : '';
-    const locationLine = shift.location
-      ? `<li><strong>Location:</strong> ${shift.location}</li>`
+    const locationLine = opts.location.name
+      ? `<li><strong>Location:</strong> ${opts.location.name}${
+          opts.location.mapsUrl
+            ? ` — <a href="${opts.location.mapsUrl}" target="_blank" rel="noopener">View on Map</a>`
+            : ''
+        }</li>`
       : '';
     const noteLine = shift.note
       ? `<li><strong>Note:</strong> ${shift.note}</li>`
       : '';
+
+    const websiteLine = `<p><strong>Company:</strong> <a href="${opts.companyWebsite}" target="_blank" rel="noopener">${opts.companyWebsite}</a></p>`;
 
     const baseDetails = `
     <ul>
@@ -184,24 +252,28 @@ ${jobLine}${locationLine}${noteLine}`;
         return `
         <p>You have been assigned a new shift.</p>
         ${baseDetails}
+        ${websiteLine}
       `;
       case 'STATUS_UPDATE':
         return `
-        <p>Your shift status has been updated to: <strong>${meta.status || shift.status}</strong>.</p>
+        <p>Your shift status has been updated to: <strong>${meta.status || shift.shiftStatus}</strong>.</p>
         ${baseDetails}
+        ${websiteLine}
       `;
       case 'CHANGE':
         return `
         <p>Your shift has been updated with new details.</p>
         ${baseDetails}
+        ${websiteLine}
       `;
       case 'URGENT_SHIFT_CHANGED':
         return `
         <p><strong>Urgent:</strong> Your shift has been changed!</p>
         ${baseDetails}
+        ${websiteLine}
       `;
       default:
-        return `<p>You have a shift update.</p>`;
+        return `<p>You have a shift update.</p>${baseDetails}${websiteLine}`;
     }
   }
 
