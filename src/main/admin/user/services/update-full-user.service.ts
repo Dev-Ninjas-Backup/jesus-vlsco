@@ -135,7 +135,7 @@ export class UpdateFullUserService {
         where: { userId },
         data: {
           ...payrollDto,
-          timeOff: payrollDto?.offDay?.length || 1,
+          timeOff: payrollDto?.timeOff,
         },
       });
     }
@@ -143,7 +143,7 @@ export class UpdateFullUserService {
     return this.prisma.payroll.create({
       data: {
         ...payrollDto,
-        timeOff: payrollDto?.offDay?.length || 1,
+        timeOff: payrollDto?.timeOff,
         userId,
       },
     });
