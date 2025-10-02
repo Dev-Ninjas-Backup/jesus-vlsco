@@ -39,7 +39,7 @@ export class UpdateTimeClockService {
     }
 
     if (dto.clockOutAt !== undefined) {
-      updateData.clockOutAt = new Date(dto.clockOutAt).toDateString();
+      updateData.clockOutAt = new Date(dto.clockOutAt).toISOString();
     }
 
     const timeClock = await this.prisma.timeClock.update({
