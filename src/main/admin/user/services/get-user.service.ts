@@ -197,18 +197,23 @@ export class GetUserService {
     }
 
     // 2. Fetch all shifts with users
-    const shifts = await this.prisma.shift.findMany({
-      where: shiftWhere,
-      include: {
-        users: {
-          include: { profile: true }, // include user profile
+    const [shifts, totalCount] = await this.prisma.$transaction([
+      this.prisma.shift.findMany({
+        where: shiftWhere,
+        include: {
+          users: {
+            include: { profile: true }, // include user profile
+          },
+          project: true, // include project
         },
-        project: true, // include project
-      },
-      take: limit,
-      skip,
-      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
-    });
+        take: limit,
+        skip,
+        orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
+      }),
+      this.prisma.shift.count({
+        where: shiftWhere,
+      }),
+    ]);
 
     // 3. Build dynamic output
     const outputData = shifts.flatMap((shift) =>
@@ -249,7 +254,7 @@ export class GetUserService {
       {
         page,
         limit,
-        total: shifts.length,
+        total: totalCount,
       },
       'Users fetched successfully',
     );
