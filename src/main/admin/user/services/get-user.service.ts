@@ -179,7 +179,21 @@ export class GetUserService {
     const page = query?.page && query.page > 0 ? query.page : 1;
     const limit = query?.limit && query.limit > 0 ? query.limit : 15;
     const skip = (page - 1) * limit;
-    const { shiftDate } = query;
+    const { shiftDate, timezone } = query;
+
+    // default to UTC when timezone is not provided
+    const zone = timezone?.trim() || 'America/Edmonton';
+
+    // Validate timezone early so we fail fast for invalid input
+    if (timezone) {
+      const tzCheck = DateTime.now().setZone(zone);
+      if (!tzCheck.isValid) {
+        throw new AppError(
+          400,
+          `Invalid timezone provided: "${timezone}". Use a valid IANA timezone like "Asia/Dhaka".`,
+        );
+      }
+    }
 
     // 1. Build filter
     const shiftWhere: any = {
@@ -187,12 +201,20 @@ export class GetUserService {
     };
 
     if (shiftDate) {
-      const startOfDay = DateTime.fromISO(shiftDate).startOf('day').toJSDate();
-      const endOfDay = DateTime.fromISO(shiftDate).endOf('day').toJSDate();
+      // Interpret the provided shiftDate in the requested timezone,
+      // compute startOf/day and endOf/day in that timezone,
+      // then convert to UTC JS Date objects for DB querying (assuming DB stores UTC).
+      const dt = DateTime.fromISO(shiftDate, { zone });
+      if (!dt.isValid) {
+        throw new AppError(400, `Invalid shiftDate provided: "${shiftDate}".`);
+      }
+
+      const startOfDayUtc = dt.startOf('day').toUTC().toJSDate();
+      const endOfDayUtc = dt.endOf('day').toUTC().toJSDate();
 
       shiftWhere.date = {
-        gte: startOfDay,
-        lte: endOfDay,
+        gte: startOfDayUtc,
+        lte: endOfDayUtc,
       };
     }
 

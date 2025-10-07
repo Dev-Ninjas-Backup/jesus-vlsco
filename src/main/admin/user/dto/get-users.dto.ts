@@ -70,10 +70,20 @@ export class GetUsersDto {
 
 export class GetAssignedUserDto extends PaginationDto {
   @ApiPropertyOptional({
-    description: 'Filter by shift date iso 8601',
+    description:
+      'Filter by shift date (ISO 8601). Timezone will affect which day is matched.',
     example: '2025-08-29T02:04:46.000Z',
   })
   @IsOptional()
   @IsISO8601()
   shiftDate?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'IANA timezone to interpret `shiftDate` in (e.g. "Asia/Dhaka", "America/Los_Angeles"). If omitted, UTC is used.',
+    example: 'Asia/Dhaka',
+  })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 }
