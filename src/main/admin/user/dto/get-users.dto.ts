@@ -1,10 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Department, UserEnum } from '@prisma/client';
+import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
@@ -64,4 +66,14 @@ export class GetUsersDto {
   @Type(() => Number)
   @IsNumber()
   limit?: number;
+}
+
+export class GetAssignedUserDto extends PaginationDto {
+  @ApiPropertyOptional({
+    description: 'Filter by shift date iso 8601',
+    example: '2025-08-29T02:04:46.000Z',
+  })
+  @IsOptional()
+  @IsISO8601()
+  shiftDate?: string;
 }

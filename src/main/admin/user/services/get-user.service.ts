@@ -10,7 +10,8 @@ import {
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { GetUsersDto } from '../dto/get-users.dto';
+import { DateTime } from 'luxon';
+import { GetAssignedUserDto, GetUsersDto } from '../dto/get-users.dto';
 import { PrismaUserQueryBuilder } from '../helper/querybuilder';
 
 @Injectable()
@@ -172,47 +173,53 @@ export class GetUserService {
   }
 
   @HandleError('Failed to fetch all assigned users of any shift')
-  async getAllAssignedUsersOfAnyShift(): Promise<TResponse<any>> {
-    // 1. Fetch all shifts with users
+  async getAllAssignedUsersOfAnyShift(
+    query: GetAssignedUserDto,
+  ): Promise<TPaginatedResponse<any>> {
+    const page = query?.page && query.page > 0 ? query.page : 1;
+    const limit = query?.limit && query.limit > 0 ? query.limit : 15;
+    const skip = (page - 1) * limit;
+    const { shiftDate } = query;
+
+    // 1. Build filter
+    const shiftWhere: any = {
+      users: { some: {} }, // only shifts that have assigned users
+    };
+
+    if (shiftDate) {
+      const startOfDay = DateTime.fromISO(shiftDate).startOf('day').toJSDate();
+      const endOfDay = DateTime.fromISO(shiftDate).endOf('day').toJSDate();
+
+      shiftWhere.date = {
+        gte: startOfDay,
+        lte: endOfDay,
+      };
+    }
+
+    // 2. Fetch all shifts with users
     const shifts = await this.prisma.shift.findMany({
-      where: {
-        users: { some: {} }, // only shifts with at least 1 user
-      },
+      where: shiftWhere,
       include: {
         users: {
           include: { profile: true }, // include user profile
         },
+        project: true, // include project
       },
+      take: limit,
+      skip,
+      orderBy: { date: 'desc', createdAt: 'desc' },
     });
-
-    // 2. Fetch all projects that include the shifts
-    const projects = await this.prisma.project.findMany({
-      where: {
-        projectUsers: { some: {} },
-      },
-      include: {
-        projectUsers: true,
-        shifts: true,
-      },
-    });
-    // console.log("projects", projects);
 
     // 3. Build dynamic output
     const outputData = shifts.flatMap((shift) =>
       shift.users.map((user) => {
-        // Find the project that has this shift AND user assigned
-        const project = projects.find((p) =>
-          // p.shifts.some((s) => s.id === shift.id) &&
-          p.projectUsers.some((pu) => pu.userId === user.id),
-        );
-
         return {
           date: shift.date,
-          project: project
+          project: shift.project
             ? {
-                id: project.id,
-                title: project.title,
-                location: project.projectLocation,
+                id: shift.project.id,
+                title: shift.project.title,
+                location: shift.project.projectLocation,
               }
             : null,
           shift: {
@@ -221,6 +228,9 @@ export class GetUserService {
             endTime: shift.endTime,
             shiftType: shift.shiftType,
             allDay: shift.allDay,
+            location: shift.location,
+            lat: shift.locationLat,
+            lng: shift.locationLng,
             note: shift.note,
           },
           profile: {
@@ -234,6 +244,14 @@ export class GetUserService {
       }),
     );
 
-    return successResponse(outputData, 'Assigned users fetched successfully');
+    return successPaginatedResponse(
+      outputData,
+      {
+        page,
+        limit,
+        total: shifts.length,
+      },
+      'Users fetched successfully',
+    );
   }
 }

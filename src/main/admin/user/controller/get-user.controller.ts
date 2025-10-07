@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { GetUsersDto } from '../dto/get-users.dto';
+import { GetAssignedUserDto, GetUsersDto } from '../dto/get-users.dto';
 import { GetUserService } from '../services/get-user.service';
 
 @ApiTags('Admin -- Get User')
@@ -21,8 +21,8 @@ export class GetUserController {
   }
 
   @Get('assigned-users')
-  async getAssignedUsers() {
-    return this.getUserService.getAllAssignedUsersOfAnyShift();
+  async getAssignedUsers(@Query() query: GetAssignedUserDto) {
+    return this.getUserService.getAllAssignedUsersOfAnyShift(query);
   }
 
   // Single User get by Id (employee)
