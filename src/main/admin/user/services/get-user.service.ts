@@ -207,7 +207,7 @@ export class GetUserService {
       },
       take: limit,
       skip,
-      orderBy: { date: 'desc', createdAt: 'desc' },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }],
     });
 
     // 3. Build dynamic output
