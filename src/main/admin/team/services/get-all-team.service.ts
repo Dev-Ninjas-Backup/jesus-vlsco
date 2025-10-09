@@ -13,15 +13,7 @@ export class GetAllTeamsService {
 
   @HandleError("Can't get all teams")
   async getAllTeamsService(filters: GetTeamsDto): Promise<TResponse<any>> {
-    const {
-      title,
-      memberId,
-      projectId,
-      page = 1,
-      limit = 30,
-      sortBy = 'createdAt',
-      sortOrder = 'desc',
-    } = filters;
+    const { title, memberId, projectId, page = 1, limit = 30 } = filters;
 
     // Build dynamic where
     const where: any = {};
@@ -45,7 +37,7 @@ export class GetAllTeamsService {
     // Fetch data
     const data = await this.prisma.team.findMany({
       where,
-      orderBy: { [sortBy]: sortOrder },
+      orderBy: { createdAt: 'desc' },
       skip,
       take,
       include: {

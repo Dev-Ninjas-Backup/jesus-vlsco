@@ -54,5 +54,5 @@ export class GetTeamsDto {
   @ApiPropertyOptional({ description: 'Sort order', enum: ['asc', 'desc'] })
   @IsOptional()
   @IsIn(['asc', 'desc'])
-  sortOrder?: 'asc' | 'desc' = 'asc';
+  sortOrder?: 'asc' | 'desc' = 'desc';
 }
