@@ -23,7 +23,7 @@ export class GetAllProjectsService {
       createdAfter,
       createdBefore,
       page = 1,
-      limit = 10,
+      limit = 30,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = filters;

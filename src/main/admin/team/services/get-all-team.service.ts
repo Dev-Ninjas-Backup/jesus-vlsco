@@ -18,7 +18,7 @@ export class GetAllTeamsService {
       memberId,
       projectId,
       page = 1,
-      limit = 15,
+      limit = 30,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = filters;
