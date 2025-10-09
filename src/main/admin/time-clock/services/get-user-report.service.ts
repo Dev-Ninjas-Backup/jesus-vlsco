@@ -5,6 +5,11 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import {
+  calcAmount,
+  getBreakHours,
+  toDecimal,
+} from '@project/main/user/time-clock/helper/timesheet.helper';
 import { DateTime } from 'luxon';
 import { GetUserReportDto } from '../dto/time-clock.dto';
 
@@ -16,7 +21,6 @@ export class GetUserReportService {
   async getUsersReport(dto: GetUserReportDto): Promise<TResponse<any>> {
     const { startTime, endTime, search, timezone = 'America/Edmonton' } = dto;
 
-    // Default to today if no start/end given
     const baseDate = DateTime.now().setZone(timezone);
     const start = startTime
       ? DateTime.fromISO(startTime).setZone(timezone).toUTC().toJSDate()
@@ -48,43 +52,61 @@ export class GetUserReportService {
         user: { include: { profile: true, payroll: true } },
         shift: true,
       },
+      orderBy: { clockInAt: 'desc' },
     });
 
-    //  reuse your calculation logic
-    const outputData = timeClocks.map((tc) => {
-      const payroll = tc.user.payroll;
-      let totalHours = 0;
+    // Track break applied per user per day
+    const breakAppliedMap = new Map<string, boolean>();
 
+    const outputData = timeClocks.map((tc) => {
+      const user = tc.user;
+      const payroll = user.payroll;
+
+      // Determine worked hours
+      let worked = 0;
       if (tc.clockInAt && tc.clockOutAt) {
-        totalHours =
-          (tc.clockOutAt.getTime() - tc.clockInAt.getTime()) / (1000 * 60 * 60);
+        worked = (tc.clockOutAt.getTime() - tc.clockInAt.getTime()) / 36e5; // hours
       }
 
-      const regularHours = Math.min(totalHours, 8);
-      const overTime = totalHours > 8 ? totalHours - 8 : 0;
+      // Apply break only once per user per day
+      const breakHours = getBreakHours(payroll?.breakTimePerDay || 'HALF_HOUR');
+      let netWorked = worked;
+      const breakKey = `${user.id}-${DateTime.fromJSDate(tc.clockInAt || new Date()).toISODate()}`;
+      if (!breakAppliedMap.get(breakKey) && worked > 0) {
+        netWorked = Math.max(worked - breakHours, 0);
+        breakAppliedMap.set(breakKey, true);
+      }
 
-      const regularPayRate = payroll?.regularPayRate || 100;
-      const overTimePayRate = payroll?.overTimePayRate || 200;
-      const regularPayRateType = payroll?.regularPayRateType || 'DAY';
-      const overTimePayRateType = payroll?.overTimePayRateType || 'DAY';
+      // Regular & overtime hours
+      const regularHours = Math.min(netWorked, 8);
+      const overtimeHours =
+        netWorked > 8 && tc.isOvertimeAllowed ? toDecimal(netWorked - 8) : 0;
 
-      const regularPayment =
-        regularHours * regularPayRate * (regularPayRateType === 'HOUR' ? 1 : 8);
-      const overTimePayment =
-        overTime * overTimePayRate * (overTimePayRateType === 'HOUR' ? 1 : 8);
+      // Payment calculation
+      const regularPayment = calcAmount(
+        regularHours,
+        payroll?.regularPayRate || 0,
+        payroll?.regularPayRateType || 'HOUR',
+      );
+
+      const overTimePayment = calcAmount(
+        overtimeHours,
+        payroll?.overTimePayRate || 0,
+        payroll?.overTimePayRateType || 'HOUR',
+      );
 
       const name =
-        tc.user?.profile?.firstName || tc.user?.profile?.lastName
-          ? `${tc.user.profile?.firstName ?? ''} ${tc.user.profile?.lastName ?? ''}`.trim()
+        user?.profile?.firstName || user?.profile?.lastName
+          ? `${user.profile?.firstName ?? ''} ${user.profile?.lastName ?? ''}`.trim()
           : 'Unknown User';
 
       return {
         user: {
-          id: tc.user.id,
+          id: user.id,
           name,
-          email: tc.user.email,
+          email: user.email,
           profileUrl:
-            tc.user.profile?.profileUrl ??
+            user?.profile?.profileUrl ||
             `https://ui-avatars.com/api/?name=${name}&background=random`,
         },
         shift: tc.shift
@@ -98,12 +120,12 @@ export class GetUserReportService {
           : null,
         clockIn: tc.clockInAt,
         clockOut: tc.clockOutAt,
-        totalHours: totalHours.toFixed(2),
-        regularHours: regularHours.toFixed(2),
-        overTime: overTime.toFixed(2),
-        regularPayment: regularPayment.toFixed(2),
-        overTimePayment: overTimePayment.toFixed(2),
-        totalPayment: (regularPayment + overTimePayment).toFixed(2),
+        totalHours: toDecimal(netWorked),
+        regularHours: toDecimal(regularHours),
+        overtimeHours: toDecimal(overtimeHours),
+        regularPayment: toDecimal(regularPayment),
+        overTimePayment: toDecimal(overTimePayment),
+        totalPayment: toDecimal(regularPayment + overTimePayment),
       };
     });
 

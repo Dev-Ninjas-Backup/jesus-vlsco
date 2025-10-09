@@ -17,7 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
 import { GetTasksDto } from '@project/main/admin/task/dto/get-tasks.dto';
 import { GetAllTasksService } from '@project/main/admin/task/services/get-all-tasks.service';
 import { ProjectService } from './services/project.service';
@@ -32,7 +32,7 @@ export class ProjectController {
     private readonly projectService: ProjectService,
     private readonly getAllTasksService: GetAllTasksService,
     private readonly submitTaskService: SubmitTaskService,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
   ) {}
 
   @Get('all')
@@ -79,12 +79,7 @@ export class ProjectController {
     let uploadedUrl: string | null = null;
 
     if (file) {
-      uploadedUrl = (
-        await this.cloudinaryService.uploadImageFromBuffer(
-          file.buffer,
-          file.originalname,
-        )
-      ).url;
+      uploadedUrl = (await this.fileService.processUploadedFile(file)).url;
     }
     return this.submitTaskService.submitTask(taskId, uploadedUrl);
   }

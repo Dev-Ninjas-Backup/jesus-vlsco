@@ -14,7 +14,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
 import { AddTaskDto } from '../dto/add-task.dto';
 import { addTaskSwaggerSchema } from '../dto/task.swagger';
 import { AddTaskService } from '../services/add-task.service';
@@ -26,7 +26,7 @@ import { AddTaskService } from '../services/add-task.service';
 export class AddTaskController {
   constructor(
     private readonly addTaskService: AddTaskService,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
   ) {}
 
   @Post()
@@ -53,10 +53,7 @@ export class AddTaskController {
     let uploadedUrl = null;
 
     if (file) {
-      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      );
+      uploadedUrl = await this.fileService.processUploadedFile(file);
     }
 
     return this.addTaskService.createTask(dto, uploadedUrl?.url || null);

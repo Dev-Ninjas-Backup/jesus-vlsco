@@ -10,7 +10,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
 import { UpdateBadgeDto } from '../dto/add-badge.dto';
 import { addBadgeSwaggerSchema } from '../dto/add-badge.swagger';
 import { UpdateBadgeService } from '../services/update-badge.service';
@@ -21,7 +21,7 @@ import { UpdateBadgeService } from '../services/update-badge.service';
 @ApiBearerAuth()
 export class UpdateBadgeController {
   constructor(
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
     private readonly updateBadgeService: UpdateBadgeService,
   ) {}
 
@@ -48,10 +48,7 @@ export class UpdateBadgeController {
   ) {
     let uploadedUrl;
     if (file) {
-      uploadedUrl = await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      );
+      uploadedUrl = await this.fileService.processUploadedFile(file);
     }
     return await this.updateBadgeService.updateBadge(
       id,
