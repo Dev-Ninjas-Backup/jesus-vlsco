@@ -15,6 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
 import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { AddTaskDto } from '../dto/add-task.dto';
 import { addTaskSwaggerSchema } from '../dto/task.swagger';
 import { AddTaskService } from '../services/add-task.service';
@@ -45,7 +46,12 @@ export class AddTaskController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('attachment'))
+  @UseInterceptors(
+    FileInterceptor(
+      'attachment',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   async createTask(
     @Body() dto: AddTaskDto,
     @UploadedFile() file: Express.Multer.File,

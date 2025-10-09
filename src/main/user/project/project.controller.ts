@@ -18,6 +18,7 @@ import {
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { GetUser, ValidateAuth } from '@project/common/jwt/jwt.decorator';
 import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { GetTasksDto } from '@project/main/admin/task/dto/get-tasks.dto';
 import { GetAllTasksService } from '@project/main/admin/task/services/get-all-tasks.service';
 import { ProjectService } from './services/project.service';
@@ -71,7 +72,12 @@ export class ProjectController {
   @ApiBody({
     schema: { type: 'object', properties: { attachment: { type: 'file' } } },
   })
-  @UseInterceptors(FileInterceptor('attachment'))
+  @UseInterceptors(
+    FileInterceptor(
+      'attachment',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   async updateTask(
     @Param('taskId') taskId: string,
     @UploadedFile() file: Express.Multer.File,

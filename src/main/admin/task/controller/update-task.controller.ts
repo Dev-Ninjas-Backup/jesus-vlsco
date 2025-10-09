@@ -15,7 +15,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { updateTaskSwaggerSchema } from '../dto/task.swagger';
 import { UpdateTaskDto } from '../dto/update-task.dto';
 import { UpdateTaskService } from '../services/update-task.service';
@@ -27,7 +28,7 @@ import { UpdateTaskService } from '../services/update-task.service';
 export class UpdateTaskController {
   constructor(
     private readonly updateTaskService: UpdateTaskService,
-    private readonly cloudinaryService: CloudinaryService,
+    private readonly fileService: FileService,
   ) {}
 
   @Patch(':taskId')
@@ -38,7 +39,12 @@ export class UpdateTaskController {
   @ApiBody({
     schema: { type: 'object', properties: updateTaskSwaggerSchema.properties },
   })
-  @UseInterceptors(FileInterceptor('attachment'))
+  @UseInterceptors(
+    FileInterceptor(
+      'attachment',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   async updateTask(
     @Param('taskId') taskId: string,
     @Body() dto: UpdateTaskDto,
@@ -46,12 +52,7 @@ export class UpdateTaskController {
   ) {
     let uploadedUrl: string | null = null;
     if (file) {
-      uploadedUrl = (
-        await this.cloudinaryService.uploadImageFromBuffer(
-          file.buffer,
-          file.originalname,
-        )
-      ).url;
+      uploadedUrl = (await this.fileService.processUploadedFile(file)).url;
     }
     return this.updateTaskService.updateTask(taskId, dto, uploadedUrl);
   }

@@ -19,7 +19,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { GetUser, ValidateAdmin } from '@project/common/jwt/jwt.decorator';
-import { CloudinaryService } from '@project/lib/cloudinary/cloudinary.service';
+import { FileService } from '@project/lib/file/file.service';
+import { FileType, MulterService } from '@project/lib/multer/multer.service';
 import { createTeamSwaggerSchema } from '../dto/createTeam.swagger';
 import { GetTeamsDto } from '../dto/get-teams.dto';
 import {
@@ -39,8 +40,9 @@ export class TeamController {
   constructor(
     private readonly teamService: TeamService,
     private readonly getAllTeamsService: GetAllTeamsService,
-    private readonly cloudinaryService: CloudinaryService,
+    // private readonly cloudinaryService: CloudinaryService,
     private readonly updateTeamService: UpdateTeamService,
+    private readonly fileService: FileService,
   ) {}
 
   @ApiOperation({ summary: 'Get all teams' })
@@ -58,7 +60,12 @@ export class TeamController {
       properties: createTeamSwaggerSchema.properties,
     },
   })
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor(
+      'image',
+      new MulterService().createMulterOptions('./temp', 'temp', FileType.IMAGE),
+    ),
+  )
   async createATeam(
     @GetUser('userId') userId: string,
     @Body() dto: CreateTeamDto,
@@ -66,12 +73,7 @@ export class TeamController {
   ) {
     let uploadedUrl: string | null = null;
 
-    uploadedUrl = (
-      await this.cloudinaryService.uploadImageFromBuffer(
-        file.buffer,
-        file.originalname,
-      )
-    ).url;
+    uploadedUrl = (await this.fileService.processUploadedFile(file)).url;
 
     // if (!Array.isArray(dto.members)) {
     //   dto.members = dto.members ? [dto.members] : [];
