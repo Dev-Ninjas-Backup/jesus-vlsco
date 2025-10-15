@@ -21,8 +21,13 @@ export class EmailLoginService {
 
   @HandleError('Error sending OTP')
   async emailLogin(dto: EmailLoginDto): Promise<TResponse<any>> {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: {
+          equals: dto.email,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (!user) {
@@ -40,15 +45,26 @@ export class EmailLoginService {
     });
 
     // Send OTP to user's email
-    await this.mailService.sendLoginCodeEmail(user.email, otp.toString());
+    await this.mailService.sendLoginCodeEmail(
+      user.email.toLowerCase(),
+      otp.toString(),
+    );
 
-    return successResponse(null, 'OTP sent successfully');
+    return successResponse(
+      null,
+      `An OTP has been sent to ${user.email}. Please check your inbox.`,
+    );
   }
 
   @HandleError('Error verifying OTP')
   async verifyOTP(email: string, otp: number): Promise<TResponse<any>> {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (!user) {
@@ -113,7 +129,13 @@ export class EmailLoginService {
     password: string,
   ): Promise<TResponse<any>> {
     const superAdmin = await this.prisma.user.findFirst({
-      where: { role: 'SUPER_ADMIN', email },
+      where: {
+        role: 'SUPER_ADMIN',
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
       include: { profile: true, shift: true },
     });
 

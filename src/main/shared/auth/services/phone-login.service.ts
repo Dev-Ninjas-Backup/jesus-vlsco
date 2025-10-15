@@ -65,7 +65,7 @@ export class PhoneLoginService {
       throw new AppError(500, 'Failed to send OTP');
     }
 
-    return successResponse(null, 'OTP sent successfully');
+    return successResponse(null, `An OTP has been sent to ${dto.phoneNumber}`);
   }
 
   @HandleError('Error verifying OTP')

@@ -26,8 +26,13 @@ export class AddUserService {
     uploadedUrl: string | null,
   ): Promise<TResponse<any>> {
     // * check if email already exists
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        email: {
+          equals: dto.email,
+          mode: 'insensitive',
+        },
+      },
     });
 
     if (existingUser) {
@@ -62,7 +67,7 @@ export class AddUserService {
       data: {
         phone,
         employeeID: dto.employeeID,
-        email: dto.email,
+        email: dto.email.toLowerCase(),
         role: dto.role ?? 'EMPLOYEE',
         password: await this.utils.hash(dto.password ?? ''),
         pinCode: dto.pinCode,
