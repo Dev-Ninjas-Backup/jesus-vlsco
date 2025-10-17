@@ -16,6 +16,7 @@ model TimeClock {
   clockOutLng Float?
 
   // * set by backend service while clock out
+  // * Not used anymore
   totalHours    Float?
   overtimeHours Float?
 

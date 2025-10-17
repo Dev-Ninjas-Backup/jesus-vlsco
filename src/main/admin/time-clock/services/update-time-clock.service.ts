@@ -51,6 +51,7 @@ export class UpdateTimeClockService {
         clockOutAt: updateData?.clockOutAt?.trim()
           ? updateData.clockOutAt
           : existing.clockOutAt,
+        status: 'COMPLETED',
       },
     });
 
