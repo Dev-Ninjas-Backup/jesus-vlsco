@@ -25,12 +25,12 @@ export class UpdateTimeClockService {
     }
 
     // ensure DB already has a clockOutAt
-    if (!existing.clockOutAt) {
-      throw new AppError(
-        400,
-        'Clock out time does not exist for this time clock record',
-      );
-    }
+    // if (!existing.clockOutAt) {
+    //   throw new AppError(
+    //     400,
+    //     'Clock out time does not exist for this time clock record',
+    //   );
+    // }
 
     const updateData: any = {};
 
