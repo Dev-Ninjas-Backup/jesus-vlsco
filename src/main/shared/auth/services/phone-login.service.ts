@@ -42,20 +42,10 @@ export class PhoneLoginService {
       dto.phoneNumber = `+${dto.phoneNumber}`;
     }
 
-    try {
-      const title = 'This is your OTP';
-      const message = `Your verification OTP is: ${otp}`;
+    const title = 'This is your OTP';
+    const message = `Your verification OTP is: ${otp}`;
 
-      const sms = await this.telnyxService.sendSms(
-        dto.phoneNumber,
-        title,
-        message,
-      );
-      console.info(sms);
-    } catch (error) {
-      console.error(error);
-      throw new AppError(500, 'Failed to send OTP');
-    }
+    await this.telnyxService.sendSms(dto.phoneNumber, title, message);
 
     return successResponse(null, `An OTP has been sent to ${dto.phoneNumber}`);
   }
