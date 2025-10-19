@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { UserResponseDto } from '@project/common/dto/user-response.dto';
-import { ENVEnum } from '@project/common/enum/env.enum';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -9,27 +7,18 @@ import {
   TResponse,
 } from '@project/common/utils/response.util';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
+import { TelnyxService } from '@project/lib/telnyx/telnyx.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { Twilio } from 'twilio';
 import { PhoneLoginDto } from '../dto/phone-login.dto';
 import { VerifyPhoneOTPDto } from '../dto/verify-otp.dto';
 
 @Injectable()
 export class PhoneLoginService {
-  private twilio: Twilio;
-  private fromPhone: string;
-
   constructor(
-    private readonly config: ConfigService,
     private readonly utils: UtilsService,
     private readonly prisma: PrismaService,
-  ) {
-    this.twilio = new Twilio(
-      this.config.getOrThrow(ENVEnum.TWILIO_ACCOUNT_SID),
-      this.config.getOrThrow(ENVEnum.TWILIO_AUTH_TOKEN),
-    );
-    this.fromPhone = this.config.getOrThrow(ENVEnum.TWILIO_PHONE_NUMBER);
-  }
+    private readonly telnyxService: TelnyxService,
+  ) {}
 
   @HandleError('Error sending OTP')
   async phoneLogin(dto: PhoneLoginDto): Promise<TResponse<any>> {
@@ -54,12 +43,15 @@ export class PhoneLoginService {
     }
 
     try {
-      const message = await this.twilio.messages.create({
-        body: `Your OTP is ${otp}`,
-        from: this.fromPhone,
-        to: dto.phoneNumber,
-      });
-      console.info(message);
+      const title = 'This is your OTP';
+      const message = `Your verification OTP is: ${otp}`;
+
+      const sms = await this.telnyxService.sendSms(
+        dto.phoneNumber,
+        title,
+        message,
+      );
+      console.info(sms);
     } catch (error) {
       console.error(error);
       throw new AppError(500, 'Failed to send OTP');
