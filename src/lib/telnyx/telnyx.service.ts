@@ -42,6 +42,7 @@ An OTP will be sent during login.
 
       this.logger.log(`Welcome SMS sent: ${message.data.id}`);
     } catch (error) {
+      // no throw
       this.logger.error(`Failed to send welcome SMS: ${error.message}`, error);
     }
   }
@@ -64,6 +65,7 @@ An OTP will be sent during login.
       this.logger.log(`SMS sent: ${sms.data.id}`);
       return sms;
     } catch (error) {
+      // no throw
       this.logger.error(`Failed to send SMS: ${error.message}`, error);
     }
   }
