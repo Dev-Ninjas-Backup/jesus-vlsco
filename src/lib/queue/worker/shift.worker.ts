@@ -206,6 +206,9 @@ ${jobLine}${locationLine}${mapsLine}${noteLine}
       case 'URGENT_SHIFT_CHANGED':
         titleLine = '⚠️ Urgent Shift Changed';
         break;
+      case 'REMINDER':
+        titleLine = "📢 Today's Shift Reminder";
+        break;
       default:
         titleLine = '📢 Shift Notification';
     }

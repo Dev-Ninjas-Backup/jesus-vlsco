@@ -23,6 +23,7 @@ export type EventPayloadMap = {
 
   [EVENT_TYPES.SHIFT_ASSIGN]: ShiftEvent;
   [EVENT_TYPES.SHIFT_CHANGE]: ShiftEvent;
+  [EVENT_TYPES.SHIFT_REMINDER]: ShiftEvent;
   [EVENT_TYPES.SHIFT_STATUS_UPDATE]: ShiftEvent;
   [EVENT_TYPES.URGENT_SHIFT_CHANGED]: ShiftEvent;
 

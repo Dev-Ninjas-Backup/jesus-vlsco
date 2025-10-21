@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { EVENT_TYPES } from '@project/common/interface/events-name';
+import { ShiftEvent } from '@project/common/interface/events-payload';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { DateTime } from 'luxon';
 
@@ -19,6 +20,7 @@ export class ShiftReminderService {
     name: 'shiftReminder',
     timeZone: 'America/Denver', // Mountain Time
   })
+  // @Cron(CronExpression.EVERY_10_SECONDS)
   async handleShiftReminder() {
     this.logger.log('Running daily shift reminder...');
 
@@ -45,18 +47,18 @@ export class ShiftReminderService {
 
     for (const shift of shifts) {
       for (const user of shift.users) {
-        const payload = {
-          action: EVENT_TYPES.SHIFT_REMINDER,
+        const payload: ShiftEvent = {
+          action: 'REMINDER',
           meta: {
+            date: new Date(shift.date).toISOString(),
             shiftId: shift.id,
             userId: user.id,
-            shiftTitle: shift.shiftTitle,
-            startTime: shift.startTime,
-            endTime: shift.endTime,
+            performedBy: 'SYSTEM',
+            status: 'REMINDER',
           },
         };
         this.eventEmitter.emit(EVENT_TYPES.SHIFT_REMINDER, payload);
-        this.logger.log(`Shift reminder sent to user ${user.id}`);
+        this.logger.log(`Shift reminder sent to user ${user.email}`);
       }
     }
   }
