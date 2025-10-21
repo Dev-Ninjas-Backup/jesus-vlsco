@@ -6,6 +6,7 @@ export const EVENT_TYPES = {
 
   SHIFT_ASSIGN: 'shift.assign',
   SHIFT_CHANGE: 'shift.change',
+  SHIFT_REMINDER: 'shift.reminder',
   SHIFT_STATUS_UPDATE: 'shift.status.update',
   URGENT_SHIFT_CHANGED: 'urgent.shift.changed',
 
