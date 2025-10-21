@@ -158,6 +158,8 @@ export class ShiftWorker implements OnModuleInit {
         return 'Shift Details Updated';
       case 'URGENT_SHIFT_CHANGED':
         return 'Urgent Shift Changed';
+      case 'REMINDER':
+        return "Today's Shift Reminder";
       default:
         return 'Shift Notification';
     }
@@ -203,6 +205,9 @@ ${jobLine}${locationLine}${mapsLine}${noteLine}
         break;
       case 'URGENT_SHIFT_CHANGED':
         titleLine = '⚠️ Urgent Shift Changed';
+        break;
+      case 'REMINDER':
+        titleLine = "📢 Today's Shift Reminder";
         break;
       default:
         titleLine = '📢 Shift Notification';
@@ -272,6 +277,12 @@ ${jobLine}${locationLine}${mapsLine}${noteLine}
         ${baseDetails}
         ${websiteLine}
       `;
+      case 'REMINDER':
+        return `
+        <p><strong>Today's Shift Reminder:</strong></p>
+        ${baseDetails}
+        ${websiteLine}
+      `;
       default:
         return `<p>You have a shift update.</p>${baseDetails}${websiteLine}`;
     }
@@ -287,6 +298,8 @@ ${jobLine}${locationLine}${mapsLine}${noteLine}
         return EVENT_TYPES.SHIFT_STATUS_UPDATE;
       case 'URGENT_SHIFT_CHANGED':
         return EVENT_TYPES.URGENT_SHIFT_CHANGED;
+      case 'REMINDER':
+        return EVENT_TYPES.SHIFT_REMINDER;
       default:
         return 'shift.unknown';
     }

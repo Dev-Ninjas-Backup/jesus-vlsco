@@ -58,4 +58,15 @@ export class ShiftEventService {
     // Enqueue for processing by worker
     await this.notificationQueue.add(EVENT_TYPES.URGENT_SHIFT_CHANGED, payload);
   }
+
+  /**
+   * Handles shift reminder events.
+   */
+  @OnEvent(EVENT_TYPES.SHIFT_REMINDER)
+  async handleShiftReminder(
+    payload: EventPayloadMap[typeof EVENT_TYPES.SHIFT_REMINDER],
+  ) {
+    // Enqueue for processing by worker
+    await this.notificationQueue.add(EVENT_TYPES.SHIFT_REMINDER, payload);
+  }
 }

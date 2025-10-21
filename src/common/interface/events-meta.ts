@@ -17,6 +17,7 @@ export interface ShiftMeta {
   status:
     | 'APPROVED'
     | 'REJECTED'
+    | 'REMINDER'
     | 'PENDING'
     | 'ASSIGNED'
     | 'URGENT_SHIFT_CHANGED';
