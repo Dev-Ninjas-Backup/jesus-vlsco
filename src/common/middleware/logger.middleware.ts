@@ -14,65 +14,49 @@ function safeStringify(obj: unknown): string {
 export class LoggerMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction) {
     const startTime = Date.now();
+    const { method, originalUrl, body, query, params } = req;
 
-    const { method, originalUrl } = req;
-    // const body = req.body as unknown;
-    // const cookies = req.cookies as unknown;
-    // const ip = req.ip || req.socket?.remoteAddress || 'unknown';
-
-    // const contentType = headers['content-type'] || '';
-
-    console.group(chalk.bgGreen.black.bold('📥 Incoming Request'));
-    console.info(`${chalk.cyan('🔗 URL:')} ${chalk.white(originalUrl)}`);
-    console.info(`${chalk.yellow('📬 Method:')} ${chalk.white(method)}`);
-    // console.info(`${chalk.magenta('🌐 IP:')} ${chalk.white(ip)}`);
-    // console.info(
-    //   `${chalk.green('🎯 Headers:')} ${chalk.gray(safeStringify(headers))}`,
-    // );
-
-    // 💡 Handle multipart/form-data differently
-    // if (contentType.includes('multipart/form-data')) {
-    //   console.info(
-    //     `${chalk.blue('📦 Body (form-data):')} ${chalk.gray(safeStringify(body))}`,
-    //   );
-
-    //   if (req.file) {
-    //     console.info(
-    //       `${chalk.red('📁 Uploaded File:')} ${chalk.gray(safeStringify(req.file))}`,
-    //     );
-    //   }
-
-    //   if (req.files) {
-    //     console.info(
-    //       `${chalk.red('📁 Uploaded Files:')} ${chalk.gray(safeStringify(req.files))}`,
-    //     );
-    //   }
-    // } else {
-    //   console.info(
-    //     `${chalk.blue('📦 Body:')} ${chalk.gray(safeStringify(body))}`,
-    //   );
-    // }
-
-    // console.info(
-    //   `${chalk.red('🍪 Cookies:')} ${chalk.gray(safeStringify(cookies))}`,
-    // );
-    console.groupEnd();
-
-    // * Capture response
+    // Capture original methods
     const oldJson = res.json.bind(res);
+    const oldSend = res.send.bind(res);
+
+    // Helper to log only error responses
+    const logError = (responseBody: unknown) => {
+      if (res.statusCode >= 400) {
+        const duration = Date.now() - startTime;
+
+        console.group(chalk.bgRed.white.bold('❌ Error Response'));
+        console.info(`${chalk.cyan('🔗 URL:')} ${chalk.white(originalUrl)}`);
+        console.info(`${chalk.yellow('📬 Method:')} ${chalk.white(method)}`);
+        console.info(
+          `${chalk.magenta('📥 Request Body:')} ${chalk.gray(safeStringify(body))}`,
+        );
+        console.info(
+          `${chalk.magenta('🔍 Query Params:')} ${chalk.gray(safeStringify(query))}`,
+        );
+        console.info(
+          `${chalk.magenta('⚙️ Route Params:')} ${chalk.gray(safeStringify(params))}`,
+        );
+        console.info(`${chalk.green('📨 Status Code:')} ${res.statusCode}`);
+        console.info(
+          `${chalk.cyan('📦 Response Body:')} ${chalk.gray(safeStringify(responseBody))}`,
+        );
+        console.info(`${chalk.blue('🕒 Response Time:')} ${duration} ms`);
+        console.groupEnd();
+        console.info(chalk.gray('-'.repeat(60)));
+      }
+    };
+
+    // Override res.json
     res.json = (data: unknown) => {
-      const duration = Date.now() - startTime;
-
-      console.group(chalk.bgCyan.white.bold('📤 Outgoing Response'));
-      console.info(`${chalk.green('📨 Status Code:')} ${res.statusCode}`);
-      console.info(`${chalk.blue('🕒 Response Time:')} ${duration} ms`);
-      console.info(
-        `${chalk.cyan('📦 Response Body:')} ${chalk.gray(safeStringify(data))}`,
-      );
-      console.groupEnd();
-      console.info(chalk.gray('-'.repeat(60)));
-
+      logError(data);
       return oldJson(data);
+    };
+
+    // Override res.send (for non-json responses)
+    res.send = (data: unknown) => {
+      logError(data);
+      return oldSend(data);
     };
 
     next();

@@ -12,7 +12,6 @@ import {
   calcAmount,
   getBreakHours,
   getLocalDateKey,
-  getWeekStart,
   toDecimal,
 } from '../helper/timesheet.helper';
 
@@ -35,37 +34,31 @@ export class ClockSheetService {
     if (!user) throw new AppError(404, 'User not found');
     if (!user.payroll) throw new AppError(404, 'Payroll not found');
 
-    const payroll = user?.payroll;
+    const payroll = user.payroll;
+    const breakHours = getBreakHours(payroll.breakTimePerDay);
 
-    const from = dto.from
-      ? new Date(dto.from).toISOString()
-      : new Date().toISOString();
-    const to = dto.to
-      ? new Date(dto.to).toISOString()
-      : new Date().toISOString();
-
-    // Convert from/to to Luxon DateTime in requested timezone
+    // --- convert from/to to Luxon DateTime in requested timezone ---
     const fromDate = dto.from
-      ? DateTime.fromISO(from, { zone: timezone }).startOf('day').toJSDate()
+      ? DateTime.fromISO(dto.from.toString(), { zone: timezone })
+          .startOf('day')
+          .toJSDate()
       : DateTime.now().setZone(timezone).startOf('month').toJSDate();
 
     const toDate = dto.to
-      ? DateTime.fromISO(to, { zone: timezone }).endOf('day').toJSDate()
+      ? DateTime.fromISO(dto.to.toString(), { zone: timezone })
+          .endOf('day')
+          .toJSDate()
       : DateTime.now().setZone(timezone).endOf('month').toJSDate();
 
+    // --- fetch clocks ---
     const clocks = await this.prisma.timeClock.findMany({
       orderBy: { createdAt: 'asc' },
-      where: {
-        userId,
-        createdAt: { gte: fromDate, lte: toDate },
-      },
+      where: { userId, createdAt: { gte: fromDate, lte: toDate } },
       include: { shift: true },
     });
 
     const overTimeRequestOfClocks = await this.prisma.requestOverTime.findMany({
-      where: {
-        timeClockId: { in: clocks.map((c) => c.id) },
-      },
+      where: { timeClockId: { in: clocks.map((c) => c.id) } },
     });
 
     // --- weekly grouping ---
@@ -76,11 +69,7 @@ export class ClockSheetService {
         weekEnd: Date;
         daily: Map<
           string,
-          {
-            date: string;
-            totalHours: number;
-            entries: any[];
-          }
+          { date: string; totalHours: number; entries: any[] }
         >;
         weeklyTotal: number;
       }
@@ -89,22 +78,26 @@ export class ClockSheetService {
     let totalRegularHours = 0;
     let totalOvertimeHours = 0;
 
-    const breakHours = getBreakHours(payroll.breakTimePerDay);
+    const getWeekStartSunday = (date: Date) => {
+      const dt = DateTime.fromJSDate(date).setZone(timezone);
+      const daysToSubtract = dt.weekday % 7; // Sunday=7 % 7 = 0, Monday=1 etc.
+      return dt.minus({ days: daysToSubtract }).startOf('day').toJSDate();
+    };
 
     clocks.forEach((clock) => {
       if (!clock.clockInAt || !clock.clockOutAt) return;
 
-      const start = new Date(clock.clockInAt);
-      const end = new Date(clock.clockOutAt);
-      const worked = (end.getTime() - start.getTime()) / 36e5;
+      const start = DateTime.fromJSDate(clock.clockInAt).setZone(timezone);
+      const end = DateTime.fromJSDate(clock.clockOutAt).setZone(timezone);
+      const worked = end.diff(start, 'hours').hours;
 
-      const weekStart = getWeekStart(end);
+      const weekStart = getWeekStartSunday(end.toJSDate());
       const weekKey = getLocalDateKey(weekStart);
 
       if (!groupedByWeek.has(weekKey)) {
         groupedByWeek.set(weekKey, {
           weekStart,
-          weekEnd: new Date(weekStart.getTime() + 6 * 86400000),
+          weekEnd: DateTime.fromJSDate(weekStart).plus({ days: 6 }).toJSDate(),
           daily: new Map(),
           weeklyTotal: 0,
         });
@@ -112,7 +105,7 @@ export class ClockSheetService {
 
       const weekData = groupedByWeek.get(weekKey)!;
 
-      const dateKey = getLocalDateKey(end);
+      const dateKey = getLocalDateKey(end.toJSDate());
       if (!weekData.daily.has(dateKey)) {
         weekData.daily.set(dateKey, {
           date: dateKey,
@@ -123,7 +116,7 @@ export class ClockSheetService {
 
       const dayData = weekData.daily.get(dateKey)!;
 
-      // apply break once per day
+      // Apply break once per day
       let netWorked = worked;
       if (dayData.totalHours === 0) {
         netWorked = Math.max(worked - breakHours, 0);
