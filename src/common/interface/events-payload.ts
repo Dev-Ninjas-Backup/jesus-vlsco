@@ -29,7 +29,12 @@ export interface AnnouncementEvent extends BaseEvent<AnnouncementMeta> {
 }
 
 export interface ShiftEvent extends BaseEvent<ShiftMeta> {
-  action: 'ASSIGN' | 'CHANGE' | 'STATUS_UPDATE' | 'URGENT_SHIFT_CHANGED';
+  action:
+    | 'ASSIGN'
+    | 'CHANGE'
+    | 'STATUS_UPDATE'
+    | 'URGENT_SHIFT_CHANGED'
+    | 'REMINDER';
 }
 
 export interface TimeOffEvent extends BaseEvent<TimeOffMeta> {

@@ -6,6 +6,7 @@ export const EVENT_TYPES = {
 
   SHIFT_ASSIGN: 'shift.assign',
   SHIFT_CHANGE: 'shift.change',
+  SHIFT_REMINDER: 'shift.reminder',
   SHIFT_STATUS_UPDATE: 'shift.status.update',
   URGENT_SHIFT_CHANGED: 'urgent.shift.changed',
 
@@ -22,6 +23,7 @@ export type EventPayloadMap = {
 
   [EVENT_TYPES.SHIFT_ASSIGN]: ShiftEvent;
   [EVENT_TYPES.SHIFT_CHANGE]: ShiftEvent;
+  [EVENT_TYPES.SHIFT_REMINDER]: ShiftEvent;
   [EVENT_TYPES.SHIFT_STATUS_UPDATE]: ShiftEvent;
   [EVENT_TYPES.URGENT_SHIFT_CHANGED]: ShiftEvent;
 
