@@ -8,6 +8,7 @@ import { QueueModule } from './queue/queue.module';
 import { SeedModule } from './seed/seed.module';
 import { UtilsModule } from './utils/utils.module';
 import { TwilioModule } from './twilio/twilio.module';
+import { TelnyxModule } from './telnyx/telnyx.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { TwilioModule } from './twilio/twilio.module';
     QueueModule,
     FileModule,
     TwilioModule,
+    TelnyxModule,
   ],
   exports: [],
   providers: [],

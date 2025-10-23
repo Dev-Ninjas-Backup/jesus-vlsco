@@ -7,7 +7,7 @@ import {
 } from '@project/common/utils/response.util';
 import { MailService } from '@project/lib/mail/mail.service';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { TwilioService } from '@project/lib/twilio/twilio.service';
+import { TelnyxService } from '@project/lib/telnyx/telnyx.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { AddUserDto } from '../dto/add-user.dto';
 
@@ -17,7 +17,7 @@ export class AddUserService {
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly mailService: MailService,
-    private readonly twilioService: TwilioService,
+    private readonly telnyxService: TelnyxService,
   ) {}
 
   @HandleError('Error creating user')
@@ -114,7 +114,7 @@ export class AddUserService {
     });
 
     // * send sms to user
-    await this.twilioService.sendWelcomeSms(user.phone, user.email);
+    await this.telnyxService.sendWelcomeSms(user.phone, user.email);
 
     return successResponse(user, 'User created successfully');
   }

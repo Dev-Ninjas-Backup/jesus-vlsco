@@ -29,5 +29,5 @@
   // 🔧 Prettier Config Sync
   "prettier.useEditorConfig": true,
   "prettier.resolveGlobalModules": false,
-  "cSpell.words": ["offday", "payrate"]
+  "cSpell.words": ["offday", "payrate", "Telnyx"]
 }

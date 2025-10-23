@@ -7,7 +7,7 @@ import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { TwilioService } from '@project/lib/twilio/twilio.service';
+import { TelnyxService } from '@project/lib/telnyx/telnyx.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
 import { Worker } from 'bullmq';
 import { DateTime } from 'luxon';
@@ -22,7 +22,7 @@ export class ShiftWorker implements OnModuleInit {
     private readonly mailService: MailService,
     private readonly utils: UtilsService,
     private readonly prisma: PrismaService,
-    private readonly twilio: TwilioService,
+    private readonly telnyxService: TelnyxService,
   ) {}
 
   onModuleInit() {
@@ -89,7 +89,7 @@ export class ShiftWorker implements OnModuleInit {
           await this.mailService.sendEmail(userEmail, title, htmlMessage);
 
           // Send SMS
-          await this.twilio.sendSms(userPhone, title, textMessage);
+          await this.telnyxService.sendSms(userPhone, title, textMessage);
 
           // Send Socket Notification
           this.gateway.notifySingleUser(userId, eventName, {
