@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { EVENT_TYPES } from '@project/common/interface/events-name';
 import { ShiftEvent } from '@project/common/interface/events-payload';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { DateTime } from 'luxon';
@@ -57,8 +56,8 @@ export class ShiftReminderService {
             status: 'REMINDER',
           },
         };
-        this.eventEmitter.emit(EVENT_TYPES.SHIFT_REMINDER, payload);
-        this.logger.log(`Shift reminder sent to user ${user.email}`);
+        // this.eventEmitter.emit(EVENT_TYPES.SHIFT_REMINDER, payload);
+        this.logger.log(`Shift reminder sent to user ${user.email}`, payload);
       }
     }
   }
