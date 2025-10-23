@@ -38,17 +38,18 @@ export class ClockSheetService {
     const breakHours = getBreakHours(payroll.breakTimePerDay);
 
     // --- convert from/to to Luxon DateTime in requested timezone ---
-    const fromDate = dto.from
-      ? DateTime.fromISO(dto.from.toString(), { zone: timezone })
-          .startOf('day')
-          .toJSDate()
-      : DateTime.now().setZone(timezone).startOf('month').toJSDate();
+    const fromDate =
+      dto.from && !isNaN(dto.from.getTime())
+        ? DateTime.fromJSDate(dto.from)
+            .setZone(timezone)
+            .startOf('day')
+            .toJSDate()
+        : DateTime.now().setZone(timezone).startOf('month').toJSDate();
 
-    const toDate = dto.to
-      ? DateTime.fromISO(dto.to.toString(), { zone: timezone })
-          .endOf('day')
-          .toJSDate()
-      : DateTime.now().setZone(timezone).endOf('month').toJSDate();
+    const toDate =
+      dto.to && !isNaN(dto.to.getTime())
+        ? DateTime.fromJSDate(dto.to).setZone(timezone).endOf('day').toJSDate()
+        : DateTime.now().setZone(timezone).endOf('month').toJSDate();
 
     // --- fetch clocks ---
     const clocks = await this.prisma.timeClock.findMany({
