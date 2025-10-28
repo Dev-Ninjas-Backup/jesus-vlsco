@@ -72,12 +72,13 @@ export class ClockSheetService {
           string,
           { date: string; totalHours: number; entries: any[] }
         >;
-        weeklyTotal: number;
+        // New fields for clarity and parity:
+        weeklyTotal: number; // legacy/raw: sum of netWorked (kept for backward compat)
+        weeklyRawWorked: number; // explicit raw worked (same as weeklyTotal)
+        weeklyPaidRegular: number; // sum of paid regular hours (capped at 8 per entry)
+        weeklyPaidOvertime: number; // sum of paid overtime hours (only when isOvertimeAllowed)
       }
     >();
-
-    let totalRegularHours = 0;
-    let totalOvertimeHours = 0;
 
     const getWeekStartSunday = (date: Date) => {
       const dt = DateTime.fromJSDate(date).setZone(timezone);
@@ -85,6 +86,7 @@ export class ClockSheetService {
       return dt.minus({ days: daysToSubtract }).startOf('day').toJSDate();
     };
 
+    // --- iterate clocks and populate weekly/day structures ---
     clocks.forEach((clock) => {
       if (!clock.clockInAt || !clock.clockOutAt) return;
 
@@ -101,6 +103,9 @@ export class ClockSheetService {
           weekEnd: DateTime.fromJSDate(weekStart).plus({ days: 6 }).toJSDate(),
           daily: new Map(),
           weeklyTotal: 0,
+          weeklyRawWorked: 0,
+          weeklyPaidRegular: 0,
+          weeklyPaidOvertime: 0,
         });
       }
 
@@ -123,13 +128,12 @@ export class ClockSheetService {
         netWorked = Math.max(worked - breakHours, 0);
       }
 
+      // compute regular and overtime according to business rule (overtime only when allowed)
       const regularHours = netWorked > 8 ? 8 : netWorked;
       const overtimeHours =
-        netWorked > 8 && clock.isOvertimeAllowed ? toDecimal(netWorked - 8) : 0;
+        netWorked > 8 && clock.isOvertimeAllowed ? netWorked - 8 : 0;
 
-      totalRegularHours += regularHours;
-      totalOvertimeHours += overtimeHours;
-
+      // Add entry (keeps existing per-entry fields)
       dayData.entries.push({
         date: clock.clockOutAt || dateKey,
         id: clock.id,
@@ -155,19 +159,40 @@ export class ClockSheetService {
             ?.status || 'N/A',
       });
 
-      dayData.totalHours = toDecimal(dayData.totalHours + netWorked);
-      weekData.weeklyTotal = toDecimal(weekData.weeklyTotal + netWorked);
+      // accumulate raw & paid hours
+      dayData.totalHours = dayData.totalHours + netWorked;
+      weekData.weeklyRawWorked = weekData.weeklyRawWorked + netWorked;
+      weekData.weeklyPaidRegular = weekData.weeklyPaidRegular + regularHours;
+      weekData.weeklyPaidOvertime = weekData.weeklyPaidOvertime + overtimeHours;
+
+      // maintain legacy weeklyTotal (raw worked) for backward compatibility
+      weekData.weeklyTotal = weekData.weeklyRawWorked;
     });
 
+    // --- Build result array and compute canonical parent totals from weekly paid sums ---
     const result = Array.from(groupedByWeek.values()).map((week) => ({
       weekStart: week.weekStart,
       weekEnd: week.weekEnd,
       weeklyTotal: toDecimal(week.weeklyTotal),
+      weeklyPaidRegular: toDecimal(week.weeklyPaidRegular),
+      weeklyPaidOvertime: toDecimal(week.weeklyPaidOvertime),
+      weeklyPaidTotal: toDecimal(
+        week.weeklyPaidRegular + week.weeklyPaidOvertime,
+      ),
+      weeklyRawWorked: toDecimal(week.weeklyRawWorked),
       days: Array.from(week.daily.values()).map((day) => ({
         ...day,
         totalHours: toDecimal(day.totalHours),
       })),
     }));
+
+    // Compute canonical parent totals from weeklyPaid fields (ensures parity)
+    let totalRegularHours = 0;
+    let totalOvertimeHours = 0;
+    groupedByWeek.forEach((w) => {
+      totalRegularHours += w.weeklyPaidRegular;
+      totalOvertimeHours += w.weeklyPaidOvertime;
+    });
 
     const totalRegularPay = calcAmount(
       totalRegularHours,
