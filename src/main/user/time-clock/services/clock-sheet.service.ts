@@ -130,8 +130,8 @@ export class ClockSheetService {
 
       // compute regular and overtime according to business rule (overtime only when allowed)
       const regularHours = netWorked > 8 ? 8 : netWorked;
-      const overtimeHours =
-        netWorked > 8 && clock.isOvertimeAllowed ? netWorked - 8 : 0;
+      const overtimeHours = netWorked > 8 ? netWorked - 8 : 0;
+      // netWorked > 8 && clock.isOvertimeAllowed ? netWorked - 8 : 0;
 
       // Add entry (keeps existing per-entry fields)
       dayData.entries.push({
