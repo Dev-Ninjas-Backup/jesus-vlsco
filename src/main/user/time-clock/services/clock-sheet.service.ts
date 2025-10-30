@@ -52,9 +52,16 @@ export class ClockSheetService {
         : DateTime.now().setZone(timezone).endOf('month').toJSDate();
 
     // --- fetch clocks ---
+    // Fetch timeClocks that overlap the requested date range (any portion of the clock interval falls inside)
     const clocks = await this.prisma.timeClock.findMany({
-      orderBy: { createdAt: 'asc' },
-      where: { userId, createdAt: { gte: fromDate, lte: toDate } },
+      orderBy: { clockInAt: 'asc' },
+      where: {
+        userId,
+        AND: [
+          { clockInAt: { lte: toDate } }, // starts on or before the 'to' boundary
+          { clockOutAt: { gte: fromDate } }, // ends on or after the 'from' boundary
+        ],
+      },
       include: { shift: true },
     });
 
