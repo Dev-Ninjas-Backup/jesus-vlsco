@@ -10,6 +10,7 @@ import {
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from '@project/common/dto/pagination.dto';
 import { ValidateAdmin } from '@project/common/jwt/jwt.decorator';
+import { GetClockSheet } from '@project/main/user/time-clock/dto/clock.dto';
 import {
   ApproveOrRejectShiftRequest,
   GetTimeSheetDto,
@@ -22,6 +23,7 @@ import { PayrollService } from '../services/payroll.service';
 import { ShiftRequestService } from '../services/shift-request.service';
 import { TimeSheetService } from '../services/time-sheet.service';
 import { UpdateTimeClockService } from '../services/update-time-clock.service';
+import { ClockSheetService } from '@project/main/user/time-clock/services/clock-sheet.service';
 
 @ApiTags('Admin -- Time Clock')
 @Controller('admin/time-clock')
@@ -35,6 +37,7 @@ export class TimeClockController {
     private readonly overtimeService: OvertimeService,
     private readonly userReportService: GetUserReportService,
     private readonly updateTimeClockService: UpdateTimeClockService,
+    private readonly clockSheetService: ClockSheetService,
   ) {}
 
   @ApiOperation({ summary: 'Get all pending shifts by all users' })
@@ -133,5 +136,14 @@ export class TimeClockController {
     @Body() dto: ApproveOrRejectShiftRequest,
   ) {
     return await this.overtimeService.acceptOrRejectOvertime(id, dto);
+  }
+
+  @ApiOperation({ summary: 'Get my clock sheet by user' })
+  @Get('clock-sheet/:id')
+  async getMyClockSheetByUser(
+    @Param('id') userId: string,
+    @Query() dto: GetClockSheet,
+  ) {
+    return this.clockSheetService.getMyClockSheet(userId, dto);
   }
 }
