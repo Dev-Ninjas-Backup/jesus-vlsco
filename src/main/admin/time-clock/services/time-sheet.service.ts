@@ -63,8 +63,7 @@ export class TimeSheetService {
       }
 
       const regularHours = netWorked > 8 ? 8 : netWorked;
-      const overtimeHours =
-        netWorked > 8 && tc.isOvertimeAllowed ? toDecimal(netWorked - 8) : 0;
+      const overtimeHours = netWorked > 8 ? toDecimal(netWorked - 8) : 0;
 
       const regularPayment = calcAmount(
         regularHours,

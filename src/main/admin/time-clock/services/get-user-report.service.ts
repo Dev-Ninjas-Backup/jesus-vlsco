@@ -79,8 +79,7 @@ export class GetUserReportService {
 
       // Regular & overtime hours
       const regularHours = Math.min(netWorked, 8);
-      const overtimeHours =
-        netWorked > 8 && tc.isOvertimeAllowed ? toDecimal(netWorked - 8) : 0;
+      const overtimeHours = netWorked > 8 ? toDecimal(netWorked - 8) : 0;
 
       // Payment calculation
       const regularPayment = calcAmount(
