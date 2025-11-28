@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { UserResponseDto } from '@project/common/dto/user-response.dto';
+import { ENVEnum } from '@project/common/enum/env.enum';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -13,11 +15,22 @@ import { EmailLoginDto } from '../dto/email-login.dto';
 
 @Injectable()
 export class EmailLoginService {
+  private APPLE_REVIEW_EMAIL = 'avijitavi338895@gmail.com';
+  private APPLE_REVIEW_OTP = '111111';
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly mailService: MailService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.APPLE_REVIEW_EMAIL = this.configService.get(
+      ENVEnum.APPLE_REVIEW_EMAIL,
+    ) as string;
+    this.APPLE_REVIEW_OTP = this.configService.get(
+      ENVEnum.APPLE_REVIEW_OTP,
+    ) as string;
+  }
 
   @HandleError('Error sending OTP')
   async emailLogin(dto: EmailLoginDto): Promise<TResponse<any>> {
@@ -34,6 +47,23 @@ export class EmailLoginService {
       throw new AppError(404, 'User not found');
     }
 
+    // Apple Review Special Handling
+    if (dto.email.toLowerCase() === this.APPLE_REVIEW_EMAIL) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          otp: await this.utils.hash(this.APPLE_REVIEW_OTP),
+          otpExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+        },
+      });
+
+      return successResponse(
+        null,
+        `Use OTP: ${this.APPLE_REVIEW_OTP} to login for review.`,
+      );
+    }
+
+    // Normal flow
     const { otp, expiryTime } = this.utils.generateOtpAndExpiry();
 
     await this.prisma.user.update({
@@ -71,19 +101,27 @@ export class EmailLoginService {
       throw new AppError(404, 'User not found');
     }
 
-    if (!user.otp || !user.otpExpiresAt) {
-      throw new AppError(400, 'No OTP was requested.');
-    }
+    // Apple Review Special Handling
+    if (email.toLowerCase() === this.APPLE_REVIEW_EMAIL) {
+      if (otp.toString() !== this.APPLE_REVIEW_OTP) {
+        throw new AppError(401, 'Invalid OTP (Review)');
+      }
 
-    // Check if OTP expired
-    if (new Date() > user.otpExpiresAt) {
-      throw new AppError(400, 'OTP has expired.');
-    }
+      // No expiry check for review user
+    } else {
+      // Normal user OTP validation
+      if (!user.otp || !user.otpExpiresAt) {
+        throw new AppError(400, 'No OTP was requested.');
+      }
 
-    const isMatch = await this.utils.compare(otp.toString(), user.otp);
+      if (new Date() > user.otpExpiresAt) {
+        throw new AppError(400, 'OTP has expired.');
+      }
 
-    if (!isMatch) {
-      throw new AppError(401, 'Invalid OTP');
+      const isMatch = await this.utils.compare(otp.toString(), user.otp);
+      if (!isMatch) {
+        throw new AppError(401, 'Invalid OTP');
+      }
     }
 
     // Clear OTP fields for security & update login status

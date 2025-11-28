@@ -9,6 +9,9 @@ services:
       dockerfile: Dockerfile
     env_file:
       - .env
+    environment:
+      APPLE_REVIEW_EMAIL: avijitavi338895@gmail.com
+      APPLE_REVIEW_OTP: 111111
     ports:
       - 5005:5005
     depends_on:
