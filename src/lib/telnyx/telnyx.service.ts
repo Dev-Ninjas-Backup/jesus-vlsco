@@ -69,4 +69,24 @@ An OTP will be sent during login.
       this.logger.error(`Failed to send SMS: ${error.message}`, error);
     }
   }
+
+  async sendVerificationSms(to: string, message: string): Promise<void> {
+    if (!to.startsWith('+')) {
+      to = `+${to}`;
+    }
+
+    try {
+      const sms = await this.telnyxClient.messages.send({
+        from: this.fromPhone,
+        to,
+        text: message, // remove title
+        messaging_profile_id: this.messagingProfileId,
+      });
+
+      this.logger.log(`SMS sent: ${sms.data.id}`);
+      return sms;
+    } catch (error) {
+      this.logger.error(`Failed to send SMS: ${error.message}`, error);
+    }
+  }
 }
