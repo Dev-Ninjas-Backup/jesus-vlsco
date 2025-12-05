@@ -42,8 +42,9 @@ export class PhoneLoginService {
       dto.phoneNumber = `+${dto.phoneNumber}`;
     }
 
-    const title = 'This is your OTP';
-    const message = `Your verification OTP is: ${otp}`;
+    // FORMAT FOR AUTO-OTP
+    const title = 'Verification Code';
+    const message = `${otp} is your verification code.`;
 
     await this.telnyxService.sendSms(dto.phoneNumber, title, message);
 
