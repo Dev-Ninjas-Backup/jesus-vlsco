@@ -7,6 +7,7 @@ import Telnyx from 'telnyx';
 export class TelnyxService {
   private readonly telnyxClient: any;
   private readonly fromPhone: string;
+  private readonly alphaSender: string;
   private readonly messagingProfileId: string;
   private readonly logger = new Logger(TelnyxService.name);
 
@@ -15,9 +16,15 @@ export class TelnyxService {
       this.config.getOrThrow(ENVEnum.TELNYX_API_KEY),
     );
     this.fromPhone = this.config.getOrThrow(ENVEnum.TELNYX_PHONE_NUMBER);
+    this.alphaSender = this.config.getOrThrow(ENVEnum.TELNYX_ALPHA_SENDER);
     this.messagingProfileId = this.config.getOrThrow(
       ENVEnum.TELNYX_MESSAGING_PROFILE_ID,
     );
+  }
+
+  // +1 = US/Canada (phone number); anything else = international (alpha sender required)
+  private getFrom(to: string): string {
+    return to.startsWith('+1') ? this.fromPhone : this.alphaSender;
   }
 
   async sendWelcomeSms(to: string, email: string): Promise<void> {
@@ -35,7 +42,7 @@ An OTP will be sent during login.
 
     try {
       const message = await this.telnyxClient.messages.send({
-        from: this.fromPhone,
+        from: this.getFrom(to),
         to,
         text: body,
         messaging_profile_id: this.messagingProfileId,
@@ -56,7 +63,7 @@ An OTP will be sent during login.
 
     try {
       const sms = await this.telnyxClient.messages.send({
-        from: this.fromPhone,
+        from: this.getFrom(to),
         to,
         text: body,
         messaging_profile_id: this.messagingProfileId,
@@ -76,7 +83,7 @@ An OTP will be sent during login.
 
     try {
       const sms = await this.telnyxClient.messages.send({
-        from: this.fromPhone,
+        from: this.getFrom(to),
         to,
         text: message,
         messaging_profile_id: this.messagingProfileId,
