@@ -27,6 +27,11 @@ export class TelnyxService {
     return to.startsWith('+1') ? this.fromPhone : this.alphaSender;
   }
 
+  // US/Canada don't use messaging_profile_id to avoid 10DLC/whitelist restrictions
+  private getProfileId(to: string): string | undefined {
+    return to.startsWith('+1') ? undefined : this.messagingProfileId;
+  }
+
   async sendWelcomeSms(to: string, email: string): Promise<void> {
     if (!to.startsWith('+')) {
       to = `+${to}`;
@@ -45,7 +50,7 @@ An OTP will be sent during login.
         from: this.getFrom(to),
         to,
         text: body,
-        messaging_profile_id: this.messagingProfileId,
+        messaging_profile_id: this.getProfileId(to),
       });
 
       this.logger.log(`Welcome SMS sent: ${message.data.id}`);
@@ -66,7 +71,7 @@ An OTP will be sent during login.
         from: this.getFrom(to),
         to,
         text: body,
-        messaging_profile_id: this.messagingProfileId,
+        messaging_profile_id: this.getProfileId(to),
       });
 
       this.logger.log(`SMS sent: ${sms.data.id}`);
@@ -86,7 +91,7 @@ An OTP will be sent during login.
         from: this.getFrom(to),
         to,
         text: message,
-        messaging_profile_id: this.messagingProfileId,
+        messaging_profile_id: this.getProfileId(to),
       });
 
       this.logger.log(`SMS sent: ${sms.data.id}`);
