@@ -38,6 +38,7 @@ An OTP will be sent during login.
         from: this.fromPhone,
         to,
         text: body,
+        messaging_profile_id: this.messagingProfileId,
       });
 
       this.logger.log(`Welcome SMS sent: ${message.data.id}`);
