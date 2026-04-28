@@ -7,7 +7,6 @@ import Telnyx from 'telnyx';
 export class TelnyxService {
   private readonly telnyxClient: any;
   private readonly fromPhone: string;
-  private readonly messagingProfileId: string;
   private readonly logger = new Logger(TelnyxService.name);
 
   constructor(private readonly config: ConfigService) {
@@ -15,9 +14,6 @@ export class TelnyxService {
       this.config.getOrThrow(ENVEnum.TELNYX_API_KEY),
     );
     this.fromPhone = this.config.getOrThrow(ENVEnum.TELNYX_PHONE_NUMBER);
-    this.messagingProfileId = this.config.getOrThrow(
-      ENVEnum.TELNYX_MESSAGING_PROFILE_ID,
-    );
   }
 
   async sendWelcomeSms(to: string, email: string): Promise<void> {
@@ -29,7 +25,7 @@ export class TelnyxService {
 
     const body = `🎉 Welcome to LGC Global Contracting Ltd!
 Your account has been created.
-Login with either your email (${email}) or phone (${to}). 
+Login with either your email (${email}) or phone (${to}).
 An OTP will be sent during login.
 👉 Login here: ${loginUrl}`;
 
@@ -38,12 +34,10 @@ An OTP will be sent during login.
         from: this.fromPhone,
         to,
         text: body,
-        messaging_profile_id: this.messagingProfileId,
       });
 
       this.logger.log(`Welcome SMS sent: ${message.data.id}`);
     } catch (error) {
-      // no throw
       this.logger.error(`Failed to send welcome SMS: ${error.message}`, error);
     }
   }
@@ -60,13 +54,11 @@ An OTP will be sent during login.
         from: this.fromPhone,
         to,
         text: body,
-        messaging_profile_id: this.messagingProfileId,
       });
 
       this.logger.log(`SMS sent: ${sms.data.id}`);
       return sms;
     } catch (error) {
-      // no throw
       this.logger.error(`Failed to send SMS: ${error.message}`, error);
     }
   }
@@ -80,8 +72,7 @@ An OTP will be sent during login.
       const sms = await this.telnyxClient.messages.send({
         from: this.fromPhone,
         to,
-        text: message, // remove title
-        messaging_profile_id: this.messagingProfileId,
+        text: message,
       });
 
       this.logger.log(`SMS sent: ${sms.data.id}`);
