@@ -7,6 +7,7 @@ import Telnyx from 'telnyx';
 export class TelnyxService {
   private readonly telnyxClient: any;
   private readonly fromPhone: string;
+  private readonly messagingProfileId: string;
   private readonly logger = new Logger(TelnyxService.name);
 
   constructor(private readonly config: ConfigService) {
@@ -14,6 +15,9 @@ export class TelnyxService {
       this.config.getOrThrow(ENVEnum.TELNYX_API_KEY),
     );
     this.fromPhone = this.config.getOrThrow(ENVEnum.TELNYX_PHONE_NUMBER);
+    this.messagingProfileId = this.config.getOrThrow(
+      ENVEnum.TELNYX_MESSAGING_PROFILE_ID,
+    );
   }
 
   async sendWelcomeSms(to: string, email: string): Promise<void> {
@@ -34,6 +38,7 @@ An OTP will be sent during login.
         from: this.fromPhone,
         to,
         text: body,
+        messaging_profile_id: this.messagingProfileId,
       });
 
       this.logger.log(`Welcome SMS sent: ${message.data.id}`);
@@ -54,6 +59,7 @@ An OTP will be sent during login.
         from: this.fromPhone,
         to,
         text: body,
+        messaging_profile_id: this.messagingProfileId,
       });
 
       this.logger.log(`SMS sent: ${sms.data.id}`);
@@ -73,6 +79,7 @@ An OTP will be sent during login.
         from: this.fromPhone,
         to,
         text: message,
+        messaging_profile_id: this.messagingProfileId,
       });
 
       this.logger.log(`SMS sent: ${sms.data.id}`);
