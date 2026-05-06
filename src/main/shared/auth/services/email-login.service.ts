@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserResponseDto } from '@project/common/dto/user-response.dto';
 import { ENVEnum } from '@project/common/enum/env.enum';
@@ -15,6 +15,7 @@ import { EmailLoginDto } from '../dto/email-login.dto';
 
 @Injectable()
 export class EmailLoginService {
+  private readonly logger = new Logger(EmailLoginService.name);
   private APPLE_REVIEW_EMAIL = 'avijitavi338895@gmail.com';
   private APPLE_REVIEW_OTP = '111111';
 
@@ -75,10 +76,22 @@ export class EmailLoginService {
     });
 
     // Send OTP to user's email
-    await this.mailService.sendLoginCodeEmail(
-      user.email.toLowerCase(),
-      otp.toString(),
-    );
+    try {
+      await this.mailService.sendLoginCodeEmail(
+        user.email.toLowerCase(),
+        otp.toString(),
+      );
+    } catch (err: any) {
+      // Common case: Gmail SMTP 535 BadCredentials (wrong password / no app-password)
+      this.logger.error(
+        `Failed to send login OTP email to ${user.email}: ${err?.message ?? err}`,
+        err?.stack,
+      );
+      throw new AppError(
+        503,
+        'Email service is not configured (SMTP auth failed). Please verify MAIL_USER/MAIL_PASS (for Gmail, use an App Password).',
+      );
+    }
 
     return successResponse(
       null,
