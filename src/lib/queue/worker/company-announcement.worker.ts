@@ -7,7 +7,7 @@ import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { Worker } from 'bullmq';
+import { Job, Worker } from 'bullmq';
 
 @Injectable()
 export class CompanyAnnouncementWorker implements OnModuleInit {
@@ -23,7 +23,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
   onModuleInit() {
     new Worker<AnnouncementEvent>(
       QueueName.ANNOUNCEMENT,
-      async (job) => {
+      async (job: Job<AnnouncementEvent>) => {
         if (job.name !== EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE) return;
 
         const {
@@ -50,7 +50,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
 
         // * Send Socket notifications
         this.gateway.notifyMultipleUsers(
-          recipients.map((r) => r.id),
+          recipients.map((r: { id: string }) => r.id),
           EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
           {
             type: EVENT_TYPES.COMPANY_ANNOUNCEMENT_CREATE,
@@ -72,7 +72,7 @@ export class CompanyAnnouncementWorker implements OnModuleInit {
             },
             users: {
               createMany: {
-                data: recipients.map((r) => ({
+                data: recipients.map((r: { id: string }) => ({
                   userId: r.id,
                   read: false,
                 })),

@@ -22,6 +22,12 @@ export class TelnyxService {
     );
   }
 
+  private maskPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length <= 4) return `****${digits}`;
+    return `****${digits.slice(-4)}`;
+  }
+
   // +1 = US/Canada (phone number); anything else = international (alpha sender required)
   private getFrom(to: string): string {
     return to.startsWith('+1') ? this.fromPhone : this.alphaSender;
@@ -46,6 +52,7 @@ An OTP will be sent during login.
 👉 Login here: ${loginUrl}`;
 
     try {
+      this.logger.log(`Sending welcome SMS to ${this.maskPhone(to)}`);
       const message = await this.telnyxClient.messages.send({
         from: this.getFrom(to),
         to,
@@ -53,7 +60,9 @@ An OTP will be sent during login.
         messaging_profile_id: this.getProfileId(to),
       });
 
-      this.logger.log(`Welcome SMS sent: ${message.data.id}`);
+      this.logger.log(
+        `Welcome SMS sent to ${this.maskPhone(to)}: ${message.data.id}`,
+      );
     } catch (error) {
       this.logger.error(`Failed to send welcome SMS: ${error.message}`, error);
     }
@@ -64,9 +73,13 @@ An OTP will be sent during login.
       to = `+${to}`;
     }
 
-    const body = `${title}\n\n${message}`;
+    // Some callers pass an empty title to avoid an extra header line.
+    const body = title ? `${title}\n\n${message}` : message;
 
     try {
+      this.logger.log(
+        `Sending SMS to ${this.maskPhone(to)} (title=${!!title})`,
+      );
       const sms = await this.telnyxClient.messages.send({
         from: this.getFrom(to),
         to,
@@ -74,7 +87,7 @@ An OTP will be sent during login.
         messaging_profile_id: this.getProfileId(to),
       });
 
-      this.logger.log(`SMS sent: ${sms.data.id}`);
+      this.logger.log(`SMS sent to ${this.maskPhone(to)}: ${sms.data.id}`);
       return sms;
     } catch (error) {
       this.logger.error(`Failed to send SMS: ${error.message}`, error);
@@ -87,6 +100,7 @@ An OTP will be sent during login.
     }
 
     try {
+      this.logger.log(`Sending verification SMS to ${this.maskPhone(to)}`);
       const sms = await this.telnyxClient.messages.send({
         from: this.getFrom(to),
         to,
@@ -94,7 +108,9 @@ An OTP will be sent during login.
         messaging_profile_id: this.getProfileId(to),
       });
 
-      this.logger.log(`SMS sent: ${sms.data.id}`);
+      this.logger.log(
+        `Verification SMS sent to ${this.maskPhone(to)}: ${sms.data.id}`,
+      );
       return sms;
     } catch (error) {
       this.logger.error(`Failed to send SMS: ${error.message}`, error);

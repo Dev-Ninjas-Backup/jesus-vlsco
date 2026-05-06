@@ -7,7 +7,7 @@ import { QueueName } from '@project/common/interface/queue-name';
 import { MailService } from '@project/lib/mail/mail.service';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { Worker } from 'bullmq';
+import { Job, Worker } from 'bullmq';
 import { DateTime } from 'luxon';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class TimeOffWorker implements OnModuleInit {
   onModuleInit() {
     new Worker<TimeOffEvent>(
       QueueName.TIME_OFF,
-      async (job) => {
+      async (job: Job<TimeOffEvent>) => {
         const { action, meta } = job.data;
 
         try {

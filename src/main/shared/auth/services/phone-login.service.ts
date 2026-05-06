@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { UserResponseDto } from '@project/common/dto/user-response.dto';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
@@ -14,11 +14,19 @@ import { VerifyPhoneOTPDto } from '../dto/verify-otp.dto';
 
 @Injectable()
 export class PhoneLoginService {
+  private readonly logger = new Logger(PhoneLoginService.name);
+
   constructor(
     private readonly utils: UtilsService,
     private readonly prisma: PrismaService,
     private readonly telnyxService: TelnyxService,
   ) {}
+
+  private maskPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length <= 4) return `****${digits}`;
+    return `****${digits.slice(-4)}`;
+  }
 
   @HandleError('Error sending OTP')
   async phoneLogin(dto: PhoneLoginDto): Promise<TResponse<any>> {
@@ -45,6 +53,7 @@ export class PhoneLoginService {
     // FORMAT FOR AUTO-OTP
     const message = `${otp} is your verification code.`;
 
+    this.logger.log(`Sending OTP SMS to ${this.maskPhone(dto.phoneNumber)}`);
     await this.telnyxService.sendVerificationSms(dto.phoneNumber, message);
 
     return successResponse(null, `An OTP has been sent to ${dto.phoneNumber}`);

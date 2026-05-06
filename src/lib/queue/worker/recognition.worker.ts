@@ -5,7 +5,7 @@ import { RecognitionEvent } from '@project/common/interface/events-payload';
 import { QueueName } from '@project/common/interface/queue-name';
 import { NotificationGateway } from '@project/lib/notification/notification.gateway';
 import { PrismaService } from '@project/lib/prisma/prisma.service';
-import { Worker } from 'bullmq';
+import { Job, Worker } from 'bullmq';
 
 @Injectable()
 export class RecognitionWorker implements OnModuleInit {
@@ -20,7 +20,7 @@ export class RecognitionWorker implements OnModuleInit {
   onModuleInit() {
     new Worker<RecognitionEvent>(
       QueueName.RECOGNITION,
-      async (job) => {
+      async (job: Job<RecognitionEvent>) => {
         const {
           action,
           info: { title, recipients },
@@ -35,7 +35,7 @@ export class RecognitionWorker implements OnModuleInit {
         try {
           // * Send Socket Notification
           this.gateway.notifyMultipleUsers(
-            recipients.map((recipient) => recipient.id),
+            recipients.map((recipient: { id: string }) => recipient.id),
             action,
             {
               type: action,
@@ -59,7 +59,7 @@ export class RecognitionWorker implements OnModuleInit {
               },
               users: {
                 createMany: {
-                  data: recipients.map((recipient) => ({
+                  data: recipients.map((recipient: { id: string }) => ({
                     userId: recipient.id,
                   })),
                 },

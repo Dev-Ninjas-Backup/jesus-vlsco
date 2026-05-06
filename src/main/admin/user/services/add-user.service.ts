@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AppError } from '@project/common/error/handle-error.app';
 import { HandleError } from '@project/common/error/handle-error.decorator';
 import {
@@ -13,12 +13,20 @@ import { AddUserDto } from '../dto/add-user.dto';
 
 @Injectable()
 export class AddUserService {
+  private readonly logger = new Logger(AddUserService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly utils: UtilsService,
     private readonly mailService: MailService,
     private readonly telnyxService: TelnyxService,
   ) {}
+
+  private maskPhone(phone: string): string {
+    const digits = phone.replace(/\D/g, '');
+    if (digits.length <= 4) return `****${digits}`;
+    return `****${digits.slice(-4)}`;
+  }
 
   @HandleError('Error creating user')
   async createUserWithProfile(
@@ -114,6 +122,7 @@ export class AddUserService {
     });
 
     // * send sms to user
+    this.logger.log(`Sending welcome SMS to ${this.maskPhone(user.phone)}`);
     await this.telnyxService.sendWelcomeSms(user.phone, user.email);
 
     return successResponse(user, 'User created successfully');

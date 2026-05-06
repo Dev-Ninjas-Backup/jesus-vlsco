@@ -38,8 +38,12 @@ export class UtilsService {
 
   generateToken(payload: JWTPayload): string {
     const token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>(ENVEnum.JWT_SECRET),
-      expiresIn: this.configService.get<string>(ENVEnum.JWT_EXPIRES_IN),
+      secret: this.configService.getOrThrow<string>(ENVEnum.JWT_SECRET),
+      // jsonwebtoken types expect a specific time-string shape (StringValue).
+      // Our env is runtime-validated; cast to satisfy TS.
+      expiresIn: this.configService.getOrThrow<string>(
+        ENVEnum.JWT_EXPIRES_IN,
+      ) as any,
     });
 
     return token;

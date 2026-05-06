@@ -9,7 +9,7 @@ import { NotificationGateway } from '@project/lib/notification/notification.gate
 import { PrismaService } from '@project/lib/prisma/prisma.service';
 import { TelnyxService } from '@project/lib/telnyx/telnyx.service';
 import { UtilsService } from '@project/lib/utils/utils.service';
-import { Worker } from 'bullmq';
+import { Job, Worker } from 'bullmq';
 import { DateTime } from 'luxon';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class ShiftWorker implements OnModuleInit {
   onModuleInit() {
     new Worker<ShiftEvent>(
       QueueName.SHIFT,
-      async (job) => {
+      async (job: Job<ShiftEvent>) => {
         const {
           action,
           meta: { userId, shiftId, ...meta },
@@ -89,7 +89,10 @@ export class ShiftWorker implements OnModuleInit {
           await this.mailService.sendEmail(userEmail, title, htmlMessage);
 
           // Send SMS
-          await this.telnyxService.sendSms(userPhone, title, textMessage);
+          // For ASSIGN we want the SMS text to start with the first line
+          // (no extra "title" header), to match the desired format.
+          const smsTitle = action === 'ASSIGN' ? '' : title;
+          await this.telnyxService.sendSms(userPhone, smsTitle, textMessage);
 
           // Send Socket Notification
           this.gateway.notifySingleUser(userId, eventName, {
@@ -174,19 +177,36 @@ export class ShiftWorker implements OnModuleInit {
     const start = this.formatShiftTime(new Date(shift.startTime));
     const end = this.formatShiftTime(new Date(shift.endTime));
 
+    // Match the simple line-by-line format in `image.png`.
+    if (action === 'ASSIGN') {
+      const lines: string[] = [
+        'New Shift Assigned',
+        'You have been assigned a new shift.',
+        `Shift: ${shift.shiftTitle}`,
+        `Start: ${start.mountain}`,
+        `End: ${end.mountain}`,
+      ];
+
+      if (shift.job) lines.push(`Job: ${shift.job}`);
+      if (opts.location?.name) lines.push(`Location: ${opts.location.name}`);
+      if (shift.note) lines.push(`Note: ${shift.note}`);
+
+      return lines.join('\n');
+    }
+
     const jobLine = shift.job ? `💼 Job: ${shift.job}\n` : '';
     const locationLine = opts.location.name
-      ? `📍 Location: ${opts.location.name}\n`
+      ? `Location: ${opts.location.name}\n`
       : '';
     const mapsLine = opts.location.mapsUrl
-      ? `🗺️ Map: ${opts.location.mapsUrl}\n`
+      ? `Map: ${opts.location.mapsUrl}\n`
       : '';
-    const noteLine = shift.note ? `📝 Note: ${shift.note}\n` : '';
+    const noteLine = shift.note ? `Note: ${shift.note}\n` : '';
 
     const baseDetails = `────────────────────
-⏰ Shift: ${shift.shiftTitle}
-🕘 Start: ${start.mountain} (${start.utc})
-🕔 End:   ${end.mountain} (${end.utc})
+Shift: ${shift.shiftTitle}
+Start: ${start.mountain} (${start.utc})
+End:   ${end.mountain} (${end.utc})
 ${jobLine}${locationLine}${mapsLine}${noteLine}
 ────────────────────`;
 
@@ -194,23 +214,20 @@ ${jobLine}${locationLine}${mapsLine}${noteLine}
 
     let titleLine = '';
     switch (action) {
-      case 'ASSIGN':
-        titleLine = '📢 New Shift Assigned';
-        break;
       case 'STATUS_UPDATE':
-        titleLine = `🔔 Shift Status Updated: ${meta.status || shift.shiftStatus}`;
+        titleLine = `Shift Status Updated: ${meta.status || shift.shiftStatus}`;
         break;
       case 'CHANGE':
-        titleLine = '✏️ Shift Details Updated';
+        titleLine = 'Shift Details Updated';
         break;
       case 'URGENT_SHIFT_CHANGED':
-        titleLine = '⚠️ Urgent Shift Changed';
+        titleLine = 'Urgent Shift Changed';
         break;
       case 'REMINDER':
-        titleLine = "📢 Today's Shift Reminder";
+        titleLine = "Today's Shift Reminder";
         break;
       default:
-        titleLine = '📢 Shift Notification';
+        titleLine = 'Shift Notification';
     }
 
     return `${titleLine}\n${baseDetails}\n${websiteLine}`;
