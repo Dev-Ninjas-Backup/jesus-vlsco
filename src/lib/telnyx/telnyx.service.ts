@@ -53,6 +53,7 @@ An OTP will be sent during login.
 
     try {
       this.logger.log(`Sending welcome SMS to ${this.maskPhone(to)}`);
+      this.logger.log(`SMS body (welcome):\n${body}`);
       const message = await this.telnyxClient.messages.send({
         from: this.getFrom(to),
         to,
@@ -80,6 +81,7 @@ An OTP will be sent during login.
       this.logger.log(
         `Sending SMS to ${this.maskPhone(to)} (title=${!!title})`,
       );
+      this.logger.log(`SMS body:\n${body}`);
       const sms = await this.telnyxClient.messages.send({
         from: this.getFrom(to),
         to,
@@ -101,6 +103,7 @@ An OTP will be sent during login.
 
     try {
       this.logger.log(`Sending verification SMS to ${this.maskPhone(to)}`);
+      this.logger.log(`SMS body (verification):\n${message}`);
       const sms = await this.telnyxClient.messages.send({
         from: this.getFrom(to),
         to,
