@@ -60,15 +60,10 @@ lerna-debug.log*
 
 # IDE - VSCode
 
-.vscode/*
 
-!.vscode/settings.json
 
-!.vscode/tasks.json
 
-!.vscode/launch.json
 
-!.vscode/extensions.json
 
 
 
@@ -133,3 +128,4 @@ temp_interactive_push.bat
 config.bat
 
 branch_structure.json
+.gitignore
