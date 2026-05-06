@@ -13,6 +13,12 @@ export class SuperAdminService implements OnModuleInit {
     private readonly configService: ConfigService,
   ) {}
 
+  private normalizePhone(phone: string): string {
+    // Keep consistent with other flows that store phone without leading "+"
+    // and avoid accidental duplicates with spacing differences.
+    return phone.replace(/^\+/, '').replace(/\s+/g, '');
+  }
+
   onModuleInit(): Promise<void> {
     return this.seedSuperAdminUser();
   }
@@ -31,9 +37,11 @@ export class SuperAdminService implements OnModuleInit {
       ENVEnum.SUPER_ADMIN_EMPLOYEE_ID,
     );
 
+    const normalizedPhone = this.normalizePhone(superAdminPhone);
+
     const superAdminExists = await this.prisma.user.findFirst({
       where: {
-        email: superAdminEmail,
+        OR: [{ email: superAdminEmail }, { phone: normalizedPhone }],
       },
     });
 
@@ -43,7 +51,7 @@ export class SuperAdminService implements OnModuleInit {
         data: {
           email: superAdminEmail,
           employeeID: Number(superAdminEmployeeID),
-          phone: superAdminPhone,
+          phone: normalizedPhone,
           password: await this.utils.hash(superAdminPass),
           isLogin: true,
           isVerified: true,
@@ -62,12 +70,16 @@ export class SuperAdminService implements OnModuleInit {
     // * update login
     await this.prisma.user.update({
       where: {
-        email: superAdminEmail,
+        id: superAdminExists.id,
       },
       data: {
+        email: superAdminEmail,
+        employeeID: Number(superAdminEmployeeID),
+        phone: normalizedPhone,
         isLogin: true,
         lastLoginAt: new Date(),
         otpExpiresAt: this.utils.generateOtpAndExpiry().expiryTime,
+        role: 'SUPER_ADMIN',
       },
     });
     console.info(
